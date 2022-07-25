@@ -1,0 +1,38 @@
+cmake_minimum_required(VERSION 3.22)
+
+## Project declaration
+project(
+    zeno_engine_cmake
+    VERSION 0.1.0
+    DESCRIPTION "\"zeno_engine\" is a collection of tools and libraries to create interactive expreriences."
+    LANGUAGES CXX
+)
+
+
+## Language settings:
+# Set C++ standard.
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED true)
+
+# Enable some of the standard C++ features, such as literals for logical operators.
+if(MSVC)
+    add_compile_options(/permissive-)
+endif()
+
+
+## Build settings:
+# By default, use dynamic libs for modules, unless it's not a module
+set(BUILD_SHARED_LIBS ON)
+
+# We can exclude zeno sample from the build.
+option(DO_BUILD_SAMPLE "Whether or not build the sample project provided." ON)
+
+
+## Add directories:
+# Build script for the zeno engine.
+add_subdirectory(zeno)
+
+# At last build the sample to test the engine.
+if(${DO_BUILD_SAMPLE})
+    add_subdirectory(sample)
+endif()
