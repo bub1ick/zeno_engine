@@ -7,6 +7,8 @@ target_include_directories(
     "../"
 )
 
+target_link_libraries(zenocore d3d11.lib)
+
 target_sources(
     zenocore
     PUBLIC
