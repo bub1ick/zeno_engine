@@ -10,9 +10,9 @@ public:
         int32_t show_command
     );
 
-    HWND get_window_handle() const;
+    HWND get_window_handle() const noexcept;
 
-    ATOM get_class_atom() const;
+    ATOM get_class_atom() const noexcept;
 
 private:
     WNDCLASSEXA    _class;
