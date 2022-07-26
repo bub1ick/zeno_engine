@@ -53,6 +53,7 @@ AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
 
 BinPackParameters: true
+BinPackArguments: true
 
 BitFieldColonSpacing: Both
 
