@@ -10,7 +10,7 @@
 #include <vector>
 
 //  windows lib
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(ZENO_WINDOWS)
 //  Switches to turn off some unnecessary APIs
 #    define NOCOMM
 #    define NOGDI
@@ -25,6 +25,8 @@
 #    include <d3d11_4.h>
 #    include <dxgi1_6.h>
 #endif
+
+#include "zeno_defines.hpp"
 
 //  engine libs
 #include "zenocore/zenocore.hpp"

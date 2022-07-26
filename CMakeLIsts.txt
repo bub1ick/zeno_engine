@@ -27,6 +27,14 @@ set(BUILD_SHARED_LIBS ON)
 # We can exclude zeno sample from the build.
 option(DO_BUILD_SAMPLE "Whether or not build the sample project provided." ON)
 
+if(${WIN32})
+    add_compile_definitions("ZENO_WINDOWS")
+elseif(${UNIX} AND NOT ${APPLE})
+    add_compile_definitions("ZENO_LINUX")
+elseif(${APPLE})
+    message(FATAL_ERROR "Currently support only for Windows and Linux is planned.")
+endif()
+
 
 ## Add directories:
 # Build script for the zeno engine.
