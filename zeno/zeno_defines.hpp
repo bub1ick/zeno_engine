@@ -1,3 +1,6 @@
+/// This file is intended to be used for engine-defined macros.
+/// It should be always included in all header files of engine modules.
+
 #pragma once
 
 #if defined(ZENO_WINDOWS)
