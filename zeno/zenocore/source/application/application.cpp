@@ -14,13 +14,13 @@ application_t::application_t(const char* window_name, int32_t pos_x, int32_t pos
                 "Could not get .exe instance handle. To avoid this issue, please use the full constructor."
             );
         }
+
+        _window = new window_t(window_name, pos_x, pos_y, size_x, size_y, _instance, SW_SHOWDEFAULT);
     }
     catch (std::exception& exception)
     {
         std::cout << exception.what();
     }
-
-    _window = new window_t(window_name, pos_x, pos_y, size_x, size_y, _instance, SW_SHOWDEFAULT);
 }
 
 application_t::application_t(
