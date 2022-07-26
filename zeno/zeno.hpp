@@ -18,7 +18,7 @@
 #    define NOKANJI
 #    define NOMCX
 
-//  FIXME: for some reason we have to define this to use IID_* macros, otherwise they're undefined and do not compile.
+//  HACK: for some reason we have to define this to use IID_* macros, otherwise they're undefined and do not compile.
 #    define INITGUID
 
 #    include <windows.h>
