@@ -1,0 +1,139 @@
+### This is the file which sets formatting rules for the whole project.
+### Check https://clang.llvm.org/docs/ClangFormatStyleOptions.html for details of each option.
+
+Language: Cpp
+Standard: c++17
+BasedOnStyle: LLVM
+ColumnLimit: 120
+IndentWidth: 4
+PPIndentWidth: -1
+UseCRLF: false
+UseTab: Never
+
+IndentAccessModifiers: false
+AccessModifierOffset: -4
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
+
+AlignAfterOpenBracket: BlockIndent
+
+AlignArrayOfStructures: Right
+
+AlignConsecutiveAssignments: AcrossEmptyLines
+
+AlignConsecutiveBitFields: AcrossEmptyLinesAndComments
+AlignConsecutiveDeclarations: AcrossEmptyLinesAndComments
+AlignConsecutiveMacros: Consecutive
+AlignEscapedNewlines: Left
+AlignOperands: Align
+AlignTrailingComments: true
+
+AllowAllArgumentsOnNextLine: true
+
+AllowAllParametersOfDeclarationOnNextLine: true
+
+AllowShortBlocksOnASingleLine: Empty
+
+AllowShortCaseLabelsOnASingleLine: false
+
+AllowShortEnumsOnASingleLine: false
+
+AllowShortFunctionsOnASingleLine: Inline
+
+AllowShortIfStatementsOnASingleLine: Never
+
+AllowShortLambdasOnASingleLine: Inline
+
+AllowShortLoopsOnASingleLine: false
+
+AlwaysBreakAfterReturnType: None
+
+AlwaysBreakBeforeMultilineStrings: true
+
+AlwaysBreakTemplateDeclarations: Yes
+
+BinPackParameters: true
+
+BitFieldColonSpacing: Both
+
+BreakBeforeBraces: Allman
+
+BreakAfterJavaFieldAnnotations: true
+
+BreakBeforeTernaryOperators: false
+
+BreakConstructorInitializers: BeforeColon
+PackConstructorInitializers: Never
+ConstructorInitializerIndentWidth: 4
+
+BreakInheritanceList: AfterColon
+
+NamespaceIndentation: Inner
+CompactNamespaces: false
+FixNamespaceComments: true
+
+Cpp11BracedListStyle: true
+
+BreakStringLiterals: true
+
+IncludeBlocks: Regroup
+
+IndentCaseBlocks: true
+IndentCaseLabels: false
+
+IndentExternBlock: Indent
+
+IndentGotoLabels: true
+
+IndentPPDirectives: AfterHash
+
+IndentWrappedFunctionNames: true
+
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+LambdaBodyIndentation: Signature
+
+MaxEmptyLinesToKeep: 2
+
+ContinuationIndentWidth: 4
+
+QualifierAlignment: Left
+PointerAlignment: Left
+ReferenceAlignment: Pointer
+
+ReflowComments: true
+
+RemoveBracesLLVM: false
+
+SeparateDefinitionBlocks: Always
+
+ShortNamespaceLines: 10
+
+SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: true
+SpaceAroundPointerQualifiers: Default
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: true
+SpaceInEmptyBlock: true
+SpaceInEmptyParentheses: false
+
+SpacesBeforeTrailingComments: 2
+
+SpacesInAngles: Never
+
+SpacesInCStyleCastParentheses: false
+SpacesInConditionalStatement: false
+
+SpacesInLineCommentPrefix:
+  Minimum: 2
+  Maximum: 2
+
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
