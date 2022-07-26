@@ -16,12 +16,12 @@ window_t::window_t(
     create_window(show_command);
 }
 
-HWND window_t::get_window_handle() const
+HWND window_t::get_window_handle() const noexcept
 {
     return _handle;
 }
 
-ATOM window_t::get_class_atom() const
+ATOM window_t::get_class_atom() const noexcept
 {
     return _class_atom;
 }
@@ -42,6 +42,10 @@ void window_t::set_up_window_class(HINSTANCE instance)
     _class.hIconSm       = nullptr;
 
     _class_atom          = RegisterClassExA(&_class);
+    if (not _class_atom)
+    {
+        throw std::runtime_error("Could not register a window class.");
+    }
 }
 
 void window_t::create_window(int32_t show_command)
@@ -50,9 +54,12 @@ void window_t::create_window(int32_t show_command)
         WS_EX_OVERLAPPEDWINDOW, MAKEINTATOM(_class_atom), _title, WS_OVERLAPPEDWINDOW, _pos_x, _pos_y, _size_x, _size_y,
         nullptr, nullptr, _class.hInstance, this
     );
+    if (not _handle)
+    {
+        throw std::runtime_error("Could not create a window (get a window handle).");
+    }
 
     ShowWindow(_handle, show_command);
-    UpdateWindow(_handle);
 }
 
 LRESULT window_t::_window_procedure(HWND window, uint32_t message_id, WPARAM w_param, LPARAM l_param)
