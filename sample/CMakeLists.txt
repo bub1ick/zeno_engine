@@ -1,9 +1,6 @@
 # Declare sample executable utilizing the zeno engine.
 add_executable(sample WIN32)
 
-# State which projects our executable depends on for correct order of compilation.
-add_dependencies(sample zenocore)
-
 target_link_libraries(
     sample
     PRIVATE
