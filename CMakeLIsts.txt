@@ -28,7 +28,6 @@ set(BUILD_SHARED_LIBS ON)
 option(DO_BUILD_SAMPLE "Whether or not build the sample project provided." ON)
 
 
-
 if(${WIN32})
     add_compile_definitions("ZENO_WINDOWS")
 elseif(${UNIX} AND NOT ${APPLE})
@@ -46,6 +45,7 @@ add_subdirectory(zeno)
 if(${DO_BUILD_SAMPLE})
     add_subdirectory(sample)
 endif()
+
 
 add_dependencies(sample zenocore)
 add_dependencies(zenocore zenodx11)
