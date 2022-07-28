@@ -2,6 +2,8 @@
 
 add_compile_definitions(ZENO_LIB)
 
-add_subdirectory(zenodx11)
+if(${WIN32})
+    add_subdirectory(zenodx11)
+endif()
 
 add_subdirectory(zenocore)
