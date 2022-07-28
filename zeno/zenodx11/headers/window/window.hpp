@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <zeno_defines.hpp>
-
 namespace zeno
 {
 class ZENO_API window_t
