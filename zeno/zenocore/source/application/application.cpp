@@ -56,7 +56,7 @@ void application_t::run()
 {
     try
     {
-        HRESULT               result = 0;
+        HRESULT               result = S_OK;
 
         ID3D11Device*         device          = nullptr;
         ID3D11Device5*        device5         = nullptr;
