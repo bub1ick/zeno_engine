@@ -1,10 +1,8 @@
 ﻿#pragma once
 
-#include "window.hpp"
-
 namespace zeno
 {
-class application_t
+class ZENO_API application_t
 {
 public:
     application_t(
