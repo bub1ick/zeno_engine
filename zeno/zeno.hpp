@@ -26,7 +26,7 @@
 #    include <dxgi1_6.h>
 #endif
 
-#include "zeno_defines.hpp"
-
 //  engine libs
+#include "zenodx11/zenodx11.hpp"
+
 #include "zenocore/zenocore.hpp"

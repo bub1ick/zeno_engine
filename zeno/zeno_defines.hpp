@@ -1,5 +1,5 @@
-/// This file is intended to be used for engine-defined macros.
-/// It should be always included in all header files of engine modules.
+///  This file is intended to be used for engine-defined macros.
+///  It should be always included in all header files of engine modules.
 
 #pragma once
 
@@ -9,4 +9,6 @@
 #    else
 #        define ZENO_API __declspec(dllimport)
 #    endif
+#else
+#    define ZENO_API
 #endif
