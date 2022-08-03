@@ -2,20 +2,20 @@
 
 namespace zeno
 {
-class ZENO_API application_t
+class ZENO_API enigne_t
 {
 public:
-    application_t(
+    enigne_t(
         const char* window_name, int32_t pos_x = CW_USEDEFAULT, int32_t pos_y = CW_USEDEFAULT,
         int32_t size_x = CW_USEDEFAULT, int32_t size_y = CW_USEDEFAULT
     );
 
-    application_t(
+    enigne_t(
         const char* window_name, int32_t argument_count, char** arguments, int32_t pos_x = CW_USEDEFAULT,
         int32_t pos_y = CW_USEDEFAULT, int32_t size_x = CW_USEDEFAULT, int32_t size_y = CW_USEDEFAULT
     );
 
-    ~application_t();
+    ~enigne_t();
 
     void run();
 

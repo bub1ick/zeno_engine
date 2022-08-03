@@ -2,7 +2,7 @@
 
 namespace zeno
 {
-application_t::application_t(const char* window_name, int32_t pos_x, int32_t pos_y, int32_t size_x, int32_t size_y)
+enigne_t::enigne_t(const char* window_name, int32_t pos_x, int32_t pos_y, int32_t size_x, int32_t size_y)
 {
     try
     {
@@ -23,7 +23,7 @@ application_t::application_t(const char* window_name, int32_t pos_x, int32_t pos
     }
 }
 
-application_t::application_t(
+enigne_t::enigne_t(
     const char* window_name, int32_t argument_count, char** arguments, int32_t pos_x, int32_t pos_y, int32_t size_x,
     int32_t size_y
 )
@@ -47,12 +47,12 @@ application_t::application_t(
     _window = new window_t(window_name, pos_x, pos_y, size_x, size_y, _instance, SW_SHOWDEFAULT);
 }
 
-application_t::~application_t()
+enigne_t::~enigne_t()
 {
     delete _window;
 }
 
-void application_t::run()
+void enigne_t::run()
 {
     try
     {
