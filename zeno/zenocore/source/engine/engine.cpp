@@ -94,16 +94,15 @@ void enigne_t::run()
 
         descriptor.Width       = 0;
         descriptor.Height      = 0;
-        descriptor.Format      = DXGI_FORMAT_R16G16B16A16_FLOAT;
+        descriptor.Format      = DXGI_FORMAT_B8G8R8A8_UNORM;
         descriptor.Stereo      = false;
         descriptor.SampleDesc  = {1, 0};
         descriptor.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         descriptor.BufferCount = 2;
-        descriptor.Scaling     = DXGI_SCALING_ASPECT_RATIO_STRETCH;
+        descriptor.Scaling     = DXGI_SCALING_STRETCH;
         descriptor.SwapEffect  = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-        descriptor.AlphaMode   = DXGI_ALPHA_MODE_PREMULTIPLIED;
-        descriptor.Flags       = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_FULLSCREEN_VIDEO |
-                           DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+        descriptor.AlphaMode   = DXGI_ALPHA_MODE_IGNORE;
+        descriptor.Flags       = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
         IDXGIDevice4*    dxgi_device4    = nullptr;
         IDXGIAdapter*    dxgi_adapter    = nullptr;
@@ -130,6 +129,8 @@ void enigne_t::run()
             throw std::runtime_error("Couldn't query IDXGIAdapter3 from IDXGIAdapter.");
         }
 
+        dxgi_adapter->Release();
+
         result = dxgi_adapter4->GetParent(IID_IDXGIFactory7, reinterpret_cast<void**>(&dxgi_factory7));
         if (FAILED(result))
         {
@@ -149,6 +150,8 @@ void enigne_t::run()
         {
             throw std::runtime_error("Couldn't query IDXGISwapChain4 from IDXGISwapChain1");
         }
+
+        dxgi_swapchain1->Release();
     }
     catch (std::exception& exception)
     {
