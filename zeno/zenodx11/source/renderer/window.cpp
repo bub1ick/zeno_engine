@@ -6,24 +6,11 @@ window_t::window_t(
     const char* window_name, int32_t pos_x, int32_t pos_y, int32_t size_x, int32_t size_y, HINSTANCE instance,
     int32_t show_command
 )
-    : _title(window_name),
-      _pos_x(pos_x),
-      _pos_y(pos_y),
-      _size_x(size_x),
-      _size_y(size_y)
+    : _title {window_name},
+      _window_dimenstions {pos_x, pos_y, size_x, size_y}
 {
     _set_up_window_class(instance);
     _create_window(show_command);
-}
-
-HWND window_t::get_window_handle() const noexcept
-{
-    return _handle;
-}
-
-ATOM window_t::get_class_atom() const noexcept
-{
-    return _class_atom;
 }
 
 void window_t::_set_up_window_class(HINSTANCE instance)
@@ -51,8 +38,9 @@ void window_t::_set_up_window_class(HINSTANCE instance)
 void window_t::_create_window(int32_t show_command)
 {
     _handle = CreateWindowExA(
-        WS_EX_OVERLAPPEDWINDOW, MAKEINTATOM(_class_atom), _title, WS_OVERLAPPEDWINDOW, _pos_x, _pos_y, _size_x, _size_y,
-        nullptr, nullptr, _class.hInstance, this
+        WS_EX_OVERLAPPEDWINDOW, MAKEINTATOM(_class_atom), _title, WS_OVERLAPPEDWINDOW, _window_dimenstions.pos_x,
+        _window_dimenstions.pos_y, _window_dimenstions.size_x, _window_dimenstions.size_y, nullptr, nullptr,
+        _class.hInstance, this
     );
     if (not _handle)
     {
