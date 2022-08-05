@@ -16,5 +16,5 @@ target_include_directories(
 target_sources(
     zenocore
     PUBLIC
-    "source/engine/engine.cpp"
+    "source/engine.cpp"
 )
