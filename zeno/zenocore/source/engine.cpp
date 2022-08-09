@@ -15,7 +15,7 @@ void engine_t::run()
     MSG message;
     while (true)
     {
-        if (GetMessageA(&message, _renderer.get_window()->get_window_handle(), 0, 0) != 0)
+        if (GetMessageA(&message, _renderer.get_window().get_window_handle(), 0, 0) != 0)
         {
             TranslateMessage(&message);
             DispatchMessageA(&message);
