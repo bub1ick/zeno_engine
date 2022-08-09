@@ -12,8 +12,6 @@ public:
         int32_t size_x = CW_USEDEFAULT, int32_t size_y = CW_USEDEFAULT, int32_t show_command = SW_SHOWDEFAULT
     );
 
-    void      initialize();
-
     window_t get_window() const noexcept { return _window; };
 
 private:

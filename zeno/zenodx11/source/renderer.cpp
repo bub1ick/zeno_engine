@@ -111,6 +111,4 @@ renderer_t::renderer_t(
         MessageBoxA(_window.get_window_handle(), exception.what(), "DirectX Fatal Error", MB_ICONERROR);
     }
 }
-
-void renderer_t::initialize() { }
 }  //  namespace zeno
