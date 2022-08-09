@@ -18,3 +18,9 @@ target_sources(
     PUBLIC
     "source/engine.cpp"
 )
+
+target_sources(
+    zenocore
+    PUBLIC
+    "source/platform/platform_windows.cpp"
+)

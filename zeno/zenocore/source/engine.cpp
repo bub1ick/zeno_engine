@@ -12,15 +12,12 @@ void engine_t::run()
 {
     _renderer.initialize();
 
-    MSG message;
-    while (true)
-    {
-        if (GetMessageA(&message, _renderer.get_window().get_window_handle(), 0, 0) != 0)
+    platform_loop(
+        [this]
         {
-            TranslateMessage(&message);
-            DispatchMessageA(&message);
+            this->_renderer;
         }
-    }
+    );
 }
 
 }  //  namespace zeno
