@@ -7,10 +7,6 @@ renderer_t::renderer_t(
 )
     : _window(window_name, pos_x, pos_y, size_x, size_y, show_command)
 {
-}
-
-void renderer_t::initialize()
-{
     try
     {
         HRESULT               result = S_OK;
@@ -115,4 +111,6 @@ void renderer_t::initialize()
         MessageBoxA(_window.get_window_handle(), exception.what(), "DirectX Fatal Error", MB_ICONERROR);
     }
 }
+
+void renderer_t::initialize() { }
 }  //  namespace zeno
