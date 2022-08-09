@@ -2,7 +2,7 @@
 
 namespace zeno
 {
-void platform_loop(const std::function<void>& engine_loop)
+void platform_loop(const std::function<void()>& engine_loop)
 {
     MSG message;
     while (true)

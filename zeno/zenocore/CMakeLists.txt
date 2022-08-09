@@ -1,8 +1,9 @@
-add_library(zenocore)
+add_library(zenocore STATIC)
 
 target_link_libraries(
     zenocore
     PUBLIC
+    zenoplat
     zenodx11
 )
 
@@ -17,10 +18,4 @@ target_sources(
     zenocore
     PUBLIC
     "source/engine.cpp"
-)
-
-target_sources(
-    zenocore
-    PUBLIC
-    "source/platform/platform_windows.cpp"
 )
