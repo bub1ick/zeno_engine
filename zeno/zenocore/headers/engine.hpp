@@ -15,6 +15,6 @@ public:
 private:
     renderer_t  _renderer;
 
-    std::string _command_line;
+    std::string _command_line = "";
 };
 }  //  namespace zeno
