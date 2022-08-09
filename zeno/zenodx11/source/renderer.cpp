@@ -3,28 +3,10 @@
 namespace zeno
 {
 renderer_t::renderer_t(
-    const char* window_name, HINSTANCE instance, int32_t pos_x, int32_t pos_y, int32_t size_x, int32_t size_y,
-    int32_t show_command
+    const char* window_name, int32_t pos_x, int32_t pos_y, int32_t size_x, int32_t size_y, int32_t show_command
 )
+    : _window(window_name, pos_x, pos_y, size_x, size_y, show_command)
 {
-    _window = new window_t(window_name, pos_x, pos_y, size_x, size_y, instance, show_command);
-}
-
-renderer_t::renderer_t(const renderer_t& other)
-{
-    *this = other;
-}
-
-renderer_t& renderer_t::operator=(const renderer_t& other)
-{
-    this->_window = other._window;
-
-    return *this;
-}
-
-renderer_t::~renderer_t()
-{
-    delete _window;
 }
 
 void renderer_t::initialize()
@@ -113,7 +95,7 @@ void renderer_t::initialize()
         }
 
         result = dxgi_factory7->CreateSwapChainForHwnd(
-            device5, _window->get_window_handle(), &descriptor, nullptr, nullptr, &dxgi_swapchain1
+            device5, _window.get_window_handle(), &descriptor, nullptr, nullptr, &dxgi_swapchain1
         );
         if (FAILED(result))
         {
@@ -130,7 +112,7 @@ void renderer_t::initialize()
     }
     catch (std::exception& exception)
     {
-        MessageBoxA(_window->get_window_handle(), exception.what(), "DirectX Fatal Error", MB_ICONERROR);
+        MessageBoxA(_window.get_window_handle(), exception.what(), "DirectX Fatal Error", MB_ICONERROR);
     }
 }
 }  //  namespace zeno
