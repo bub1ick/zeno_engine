@@ -3,26 +3,20 @@
 namespace zeno
 {
 window_t::window_t(
-    const char* window_name, int32_t pos_x, int32_t pos_y, int32_t size_x, int32_t size_y, HINSTANCE instance,
-    int32_t show_command
+    const char* window_name, int32_t pos_x, int32_t pos_y, int32_t size_x, int32_t size_y, int32_t show_command
 )
     : _title {window_name},
-      _window_dimenstions {pos_x, pos_y, size_x, size_y}
-{
-    _set_up_window_class(instance);
-    _create_window(show_command);
-}
-
-void window_t::_set_up_window_class(HINSTANCE instance)
+      _window_dimenstions {pos_x, pos_y, size_x, size_y},
+      _instance {GetModuleHandleA(nullptr)}
 {
     _class.cbSize        = sizeof(WNDCLASSEXA);
     _class.style         = CS_VREDRAW | CS_HREDRAW | CS_OWNDC;
     _class.lpfnWndProc   = _window_procedure;
     _class.cbClsExtra    = 0;
     _class.cbWndExtra    = sizeof(this);
-    _class.hInstance     = instance;
+    _class.hInstance     = _instance;
     _class.hIcon         = nullptr;
-    _class.hCursor       = LoadCursor(instance, IDC_ARROW);
+    _class.hCursor       = LoadCursor(_instance, IDC_ARROW);
     _class.hbrBackground = nullptr;
     _class.lpszMenuName  = nullptr;
     _class.lpszClassName = "zeno application";
@@ -33,10 +27,7 @@ void window_t::_set_up_window_class(HINSTANCE instance)
     {
         throw std::runtime_error("Could not register a window class.");
     }
-}
 
-void window_t::_create_window(int32_t show_command)
-{
     _handle = CreateWindowExA(
         WS_EX_OVERLAPPEDWINDOW, MAKEINTATOM(_class_atom), _title, WS_OVERLAPPEDWINDOW, _window_dimenstions.pos_x,
         _window_dimenstions.pos_y, _window_dimenstions.size_x, _window_dimenstions.size_y, nullptr, nullptr,
