@@ -17,6 +17,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 # Enable some of the standard C++ features, such as literals for logical operators.
 if(MSVC)
     add_compile_options(/permissive-)
+    add_compile_options(/utf-8)
 endif()
 
 
