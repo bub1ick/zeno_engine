@@ -1,21 +1,22 @@
 #include <zeno.hpp>
 
-namespace zeno
+namespace zeno::core
 {
+engine_t::engine_t(const char* in_window_name, int32_t in_pos_x, int32_t in_pos_y, int32_t in_size_x, int32_t in_size_y)
+{
+    m_window_ptr = plat::create_platform_window(in_window_name, in_pos_x, in_pos_y, in_size_x, in_size_y);
 
-engine_t::engine_t(const char* window_name, int32_t pos_x, int32_t pos_y, int32_t size_x, int32_t size_y)
-    : _renderer(window_name, pos_x, pos_y, size_x, size_y)
-{
+    m_renderer_ptr = new dx11::renderer_t(m_window_ptr);
 }
 
 void engine_t::run()
 {
-    platform_loop(
+    plat::platform_loop(
         [this]
         {
-            this->_renderer;
+
         }
     );
 }
 
-}  //  namespace zeno
+}  //  namespace zeno::core
