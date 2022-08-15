@@ -21,6 +21,5 @@ target_include_directories(
 target_sources(
     zenodx11
     PUBLIC
-    "source/renderer/window.cpp"
     "source/renderer.cpp"
 )
