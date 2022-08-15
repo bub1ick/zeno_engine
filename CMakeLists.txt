@@ -39,6 +39,11 @@ endif()
 
 
 ## Add directories:
+
+# Build script for the third-party libs
+add_subdirectory(third_party)
+include_directories(third_party)
+
 # Build script for the zeno engine.
 add_subdirectory(zeno)
 
