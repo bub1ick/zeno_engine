@@ -26,7 +26,7 @@ endif()
 set(BUILD_SHARED_LIBS ON)
 
 # We can exclude zeno sample from the build.
-option(DO_BUILD_SAMPLE "Whether or not build the sample project provided." ON)
+option(ZENO_DO_BUILD_SAMPLE "Whether or not build the sample project provided." ON)
 
 
 if(${WIN32})
@@ -48,7 +48,7 @@ include_directories(third_party)
 add_subdirectory(zeno)
 
 # At last build the sample to test the engine.
-if(${DO_BUILD_SAMPLE})
+if(${ZENO_DO_BUILD_SAMPLE})
     add_subdirectory(sample)
 endif()
 
