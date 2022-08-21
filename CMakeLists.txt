@@ -17,6 +17,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 # Enable some of the standard C++ features, such as literals for logical operators.
 if(MSVC)
     add_compile_options(/permissive-)
+    add_compile_options(/utf-8)
 endif()
 
 
@@ -25,7 +26,7 @@ endif()
 set(BUILD_SHARED_LIBS ON)
 
 # We can exclude zeno sample from the build.
-option(DO_BUILD_SAMPLE "Whether or not build the sample project provided." ON)
+option(ZENO_DO_BUILD_SAMPLE "Whether or not build the sample project provided." ON)
 
 
 if(${WIN32})
@@ -38,11 +39,16 @@ endif()
 
 
 ## Add directories:
+
+# Build script for the third-party libs
+add_subdirectory(third_party)
+include_directories(third_party)
+
 # Build script for the zeno engine.
 add_subdirectory(zeno)
 
 # At last build the sample to test the engine.
-if(${DO_BUILD_SAMPLE})
+if(${ZENO_DO_BUILD_SAMPLE})
     add_subdirectory(sample)
 endif()
 

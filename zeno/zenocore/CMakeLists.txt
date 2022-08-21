@@ -3,6 +3,7 @@ add_library(zenocore STATIC)
 target_link_libraries(
     zenocore
     PUBLIC
+    SDL2
     zenoplat
     zenodx11
 )

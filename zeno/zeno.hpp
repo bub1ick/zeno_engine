@@ -28,9 +28,11 @@
 //  DirectX headers
 #    include <d3d11_4.h>
 #    include <d2d1_3.h>
-#    include <d2d1_3helper.h>
 #    include <dxgi1_6.h>
 #endif
+
+//  third-party libs
+#include <third_party.hpp>
 
 #include "zeno_defines.hpp"
 
