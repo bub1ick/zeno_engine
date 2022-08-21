@@ -54,6 +54,4 @@ endif()
 
 
 add_dependencies(sample zenocore)
-add_dependencies(zenocore zenoplat)
-add_dependencies(zenocore zenodx11)
 

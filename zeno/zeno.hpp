@@ -37,8 +37,4 @@
 #include "zeno_defines.hpp"
 
 //  engine libs
-#include "zenoplat/zenoplat.hpp"
-
-#include "zenodx11/zenodx11.hpp"
-
 #include "zenocore/zenocore.hpp"

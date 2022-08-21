@@ -14,10 +14,6 @@ public:
     void run();
 
 private:
-    plat::window_t*   m_window_ptr;
-
-    dx11::renderer_t* m_renderer_ptr;
-
     std::string       m_command_line = "";
 };
 }  //  namespace zeno::core
