@@ -24,11 +24,6 @@
 
 //  general Windows header
 #    include <windows.h>
-
-//  DirectX headers
-#    include <d3d11_4.h>
-#    include <d2d1_3.h>
-#    include <dxgi1_6.h>
 #endif
 
 #include <SDL.h>
