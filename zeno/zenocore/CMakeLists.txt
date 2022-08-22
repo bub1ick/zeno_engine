@@ -6,6 +6,12 @@ target_link_libraries(
     SDL2.lib
 )
 
+target_compile_definitions(
+    zenocore
+    PUBLIC
+    ZENO_LIB
+)
+
 # Add include directory to be able to use engine's primary include file (zeno.hpp)
 target_include_directories(
     zenocore

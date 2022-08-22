@@ -30,6 +30,7 @@ option(ZENO_DO_BUILD_SAMPLE "Whether or not build the sample project provided." 
 
 # SDL paths
 set(ZENO_SDL_INCLUDE_PATH ${CMAKE_HOME_DIRECTORY} CACHE PATH "Path to SDL include directory")
+set(ZENO_SDL_INCLUDE_CONFIG_PATH ${CMAKE_HOME_DIRECTORY} CACHE PATH "Path to SDL include-config directory")
 set(ZENO_SDL_LIB_PATH ${CMAKE_HOME_DIRECTORY} CACHE PATH "Path to SDL library directory")
 
 # glm path
@@ -46,7 +47,7 @@ endif()
 
 link_directories(AFTER ${ZENO_SDL_LIB_PATH})
 
-include_directories(AFTER ${ZENO_SDL_INCLUDE_PATH} ${ZENO_GLM_INCLUDE_PATH})
+include_directories(AFTER ${ZENO_SDL_INCLUDE_PATH} ${ZENO_GLM_INCLUDE_PATH} ${ZENO_SDL_INCLUDE_CONFIG_PATH})
 
 ## Add directories:
 
