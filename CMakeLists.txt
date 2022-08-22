@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 
 ## Project declaration
 project(
-    zeno_engine_cmake
+    zeno_engine
     VERSION 0.1.0
     DESCRIPTION "\"zeno_engine\" is a collection of tools and libraries to create interactive expreriences."
     LANGUAGES CXX
@@ -59,3 +59,17 @@ if(${ZENO_DO_BUILD_SAMPLE})
     add_subdirectory(sample)
     add_dependencies(sample zenocore)
 endif()
+
+install(
+    TARGETS zenocore
+    CONFIGURATIONS Release
+    ARCHIVE 
+    DESTINATION ${CMAKE_HOME_DIRECTORY}/libs/Release
+)
+
+install(
+    TARGETS zenocore
+    CONFIGURATIONS Debug
+    ARCHIVE 
+    DESTINATION ${CMAKE_HOME_DIRECTORY}/libs/Debug
+)
