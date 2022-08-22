@@ -28,14 +28,6 @@ set(BUILD_SHARED_LIBS ON)
 # We can exclude zeno sample from the build.
 option(ZENO_DO_BUILD_SAMPLE "Whether or not build the sample project provided." OFF)
 
-# SDL paths
-set(ZENO_SDL_INCLUDE_PATH ${CMAKE_HOME_DIRECTORY} CACHE PATH "Path to SDL include directory")
-set(ZENO_SDL_INCLUDE_CONFIG_PATH ${CMAKE_HOME_DIRECTORY} CACHE PATH "Path to SDL include-config directory")
-set(ZENO_SDL_LIB_PATH ${CMAKE_HOME_DIRECTORY} CACHE PATH "Path to SDL library directory")
-
-# glm path
-set(ZENO_GLM_INCLUDE_PATH ${CMAKE_HOME_DIRECTORY} CACHE PATH "Path to GLM include directory")
-
 if(${WIN32})
     add_compile_definitions("ZENO_WINDOWS")
 elseif(${UNIX} AND NOT ${APPLE})
@@ -44,10 +36,12 @@ elseif(${APPLE})
     message(FATAL_ERROR "Currently support only for Windows and Linux is planned.")
 endif()
 
+set(ZENO_SDL_INCLUDE_PATH "${CMAKE_HOME_DIRECTORY}/third_party/SDL2/include/SDL2")
+set(ZENO_SDL_LIB_PATH "${CMAKE_HOME_DIRECTORY}/third_party/SDL2/lib")
 
 link_directories(AFTER ${ZENO_SDL_LIB_PATH})
 
-include_directories(AFTER ${ZENO_SDL_INCLUDE_PATH} ${ZENO_GLM_INCLUDE_PATH} ${ZENO_SDL_INCLUDE_CONFIG_PATH})
+include_directories(AFTER ${ZENO_SDL_INCLUDE_PATH})
 
 ## Add directories:
 
@@ -64,12 +58,12 @@ install(
     TARGETS zenocore
     CONFIGURATIONS Release
     ARCHIVE 
-    DESTINATION ${CMAKE_HOME_DIRECTORY}/libs/Release
+    DESTINATION ${CMAKE_HOME_DIRECTORY}/lib/Release
 )
 
 install(
     TARGETS zenocore
     CONFIGURATIONS Debug
     ARCHIVE 
-    DESTINATION ${CMAKE_HOME_DIRECTORY}/libs/Debug
+    DESTINATION ${CMAKE_HOME_DIRECTORY}/lib/Debug
 )
