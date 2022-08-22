@@ -31,8 +31,7 @@
 #    include <dxgi1_6.h>
 #endif
 
-//  third-party libs
-#include <third_party.hpp>
+#include <SDL.h>
 
 #include "zeno_defines.hpp"
 

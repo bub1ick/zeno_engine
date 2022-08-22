@@ -28,6 +28,12 @@ set(BUILD_SHARED_LIBS ON)
 # We can exclude zeno sample from the build.
 option(ZENO_DO_BUILD_SAMPLE "Whether or not build the sample project provided." OFF)
 
+# SDL paths
+set(ZENO_SDL_INCLUDE_PATH ${CMAKE_HOME_DIRECTORY} CACHE PATH "Path to SDL include directory")
+set(ZENO_SDL_LIB_PATH ${CMAKE_HOME_DIRECTORY} CACHE PATH "Path to SDL library directory")
+
+# glm path
+set(ZENO_GLM_INCLUDE_PATH ${CMAKE_HOME_DIRECTORY} CACHE PATH "Path to GLM include directory")
 
 if(${WIN32})
     add_compile_definitions("ZENO_WINDOWS")
@@ -38,11 +44,11 @@ elseif(${APPLE})
 endif()
 
 
-## Add directories:
+link_directories(AFTER ${ZENO_SDL_LIB_PATH})
 
-# Build script for the third-party libs
-add_subdirectory(third_party)
-include_directories(third_party)
+include_directories(AFTER ${ZENO_SDL_INCLUDE_PATH} ${ZENO_GLM_INCLUDE_PATH})
+
+## Add directories:
 
 # Build script for the zeno engine.
 add_subdirectory(zeno)
@@ -50,8 +56,5 @@ add_subdirectory(zeno)
 # At last build the sample to test the engine.
 if(${ZENO_DO_BUILD_SAMPLE})
     add_subdirectory(sample)
+    add_dependencies(sample zenocore)
 endif()
-
-
-add_dependencies(sample zenocore)
-
