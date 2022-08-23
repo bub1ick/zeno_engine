@@ -14,6 +14,12 @@ public:
     void run();
 
 private:
-    std::string m_command_line = "";
+    std::string   m_command_line = "";
+
+    SDL_Window*   m_window;
+
+    SDL_GLContext m_opengl_context;
+
+    bool          m_running = true;
 };
 }  //  namespace zeno::core
