@@ -3,9 +3,10 @@
 namespace zeno::core
 {
 
-uint32_t engine_t::setup_shader(uint32_t shader_type, std::string &shader) {
+uint32_t engine_t::setup_shader(uint32_t shader_type, std::string& shader)
+{
     //  create a shader object of a given type and get its id
-    uint32_t shader_id = glCreateShader(shader_type);
+    uint32_t    shader_id = glCreateShader(shader_type);
 
     const char* shader_data = shader.c_str();
 
@@ -18,28 +19,29 @@ uint32_t engine_t::setup_shader(uint32_t shader_type, std::string &shader) {
     //  check if the shader compiled corretly
     int32_t params;
     glGetShaderiv(shader_id, GL_COMPILE_STATUS, &params);
-    if (params == GL_FALSE) 
+    if (params == GL_FALSE)
     {
         //  shader compiation failed
     }
     return shader_id;
 }
 
-uint32_t engine_t::create_shaders(std::string &vertex_shader, std::string &fragment_shader) {
+uint32_t engine_t::create_shaders(std::string& vertex_shader, std::string& fragment_shader)
+{
     //  create a program object to attach a shader object to
     uint32_t program = glCreateProgram();
 
-    uint32_t vertex_shader_id = setup_shader(GL_VERTEX_SHADER, vertex_shader);
+    uint32_t vertex_shader_id   = setup_shader(GL_VERTEX_SHADER, vertex_shader);
     uint32_t fragment_shader_id = setup_shader(GL_FRAGMENT_SHADER, fragment_shader);
 
     //  attach shaders to a program we created earlier
     glAttachShader(program, vertex_shader_id);
     glAttachShader(program, fragment_shader_id);
 
-    glLinkProgram(program);       //      ?
-    glValidateProgram(program);   //  chto naxuy
+    glLinkProgram(program);      //  ?
+    glValidateProgram(program);  //  chto naxuy
 
-    //delete our shader
+    //  delete our shader
     glDeleteShader(vertex_shader_id);
     glDeleteShader(fragment_shader_id);
 
@@ -105,17 +107,17 @@ void engine_t::run()
     glVertexAttribPointer(attribute_index, 2, GL_FLOAT, GL_FALSE, sizeof(triangle_vertecies [0]), 0);
 
     //  create a shader
-    std::string vertex_shader = 
-        "#version 460 core\n"                           // vrode pravilno
+    std::string vertex_shader =
+        "#version 460 core\n"  //  vrode pravilno
         "\n"
-        "layout(location = 0) in vec4 position;\n"      // 0 = attribute_index
+        "layout(location = 0) in vec4 position;\n"  //  0 = attribute_index
         "\n"
         "void main()\n"
         "{\n"
         "   gl_Position = position;\n"
         "}\n";
 
-    std::string frament_shader = 
+    std::string frament_shader =
         "#version 460 core\n"
         "\n"
         "layout(location = 0) out vec4 color;\n"
@@ -135,7 +137,7 @@ void engine_t::run()
         while (SDL_PollEvent(&event))
         {
         }
-        
+
         //  update event states, draw a frame etc.
         //  specify clear values
         glClearColor(0, 0, 0, 0);
