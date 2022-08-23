@@ -36,12 +36,20 @@ elseif(${APPLE})
     message(FATAL_ERROR "Currently support only for Windows and Linux is planned.")
 endif()
 
-set(ZENO_SDL_INCLUDE_PATH "${CMAKE_HOME_DIRECTORY}/third_party/SDL2/include/SDL2")
-set(ZENO_SDL_LIB_PATH "${CMAKE_HOME_DIRECTORY}/third_party/SDL2/lib")
+## SDL
+#set(ZENO_SDL_INCLUDE_PATH "${CMAKE_HOME_DIRECTORY}/third_party/SDL2/include/SDL2")
+#set(ZENO_SDL_LIB_PATH "${CMAKE_HOME_DIRECTORY}/third_party/SDL2/lib")
 
-link_directories(AFTER ${ZENO_SDL_LIB_PATH})
+## glew
+#set(ZENO_GLEW_INCLUDE_PATH "${CMAKE_HOME_DIRECTORY}/third_party/glew/include/GL")
+#set(ZENO_GLEW_LIB_PATH "${CMAKE_HOME_DIRECTORY}/third_party/glew/lib/Release/x64/")
 
-include_directories(AFTER ${ZENO_SDL_INCLUDE_PATH})
+set(ZENO_THIRD_PARTY_LIB_PATH "${CMAKE_HOME_DIRECTORY}/third_party/lib")
+set(ZENO_THIRD_PARTY_INCLUDE_PATH "${CMAKE_HOME_DIRECTORY}/third_party/include")
+
+link_directories(AFTER ${ZENO_THIRD_PARTY_LIB_PATH})
+
+include_directories(AFTER ${ZENO_THIRD_PARTY_INCLUDE_PATH})
 
 ## Add directories:
 
