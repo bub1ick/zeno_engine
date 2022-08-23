@@ -2,6 +2,39 @@
 
 namespace zeno::core
 {
+engine_t::engine_t(const char* in_window_name, int32_t in_pos_x, int32_t in_pos_y, int32_t in_size_x, int32_t in_size_y)
+{
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) != 0)
+    {
+        //  couldn't init
+    }
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 6);
+
+    m_window = SDL_CreateWindow(
+        in_window_name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, in_size_x, in_size_y,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
+    );
+
+    if (m_window == NULL)
+    {
+        //  window creation failed
+    }
+
+    //  create opengl context
+    m_opengl_context = SDL_GL_CreateContext(m_window);
+
+    //  if true - forces glew to use modern ways to check whether a function is available
+    //  use if glew version 1.13 and earlier
+    glewExperimental = GL_FALSE;
+
+    //  initialize glew
+    if (glewInit() != GLEW_OK)
+    {
+        //  glew init failed
+    }
+}
 
 uint32_t engine_t::setup_shader(uint32_t shader_type, std::string& shader)
 {
@@ -46,40 +79,6 @@ uint32_t engine_t::create_shaders(std::string& vertex_shader, std::string& fragm
     glDeleteShader(fragment_shader_id);
 
     return program;
-}
-
-engine_t::engine_t(const char* in_window_name, int32_t in_pos_x, int32_t in_pos_y, int32_t in_size_x, int32_t in_size_y)
-{
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) != 0)
-    {
-        //  couldn't init
-    }
-
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 6);
-
-    m_window = SDL_CreateWindow(
-        in_window_name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, in_size_x, in_size_y,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
-    );
-
-    if (m_window == NULL)
-    {
-        //  window creation failed
-    }
-
-    //  create opengl context
-    m_opengl_context = SDL_GL_CreateContext(m_window);
-
-    //  if true - forces glew to use modern ways to check whether a function is available
-    //  use if glew version 1.13 and earlier
-    glewExperimental = GL_FALSE;
-
-    //  initialize glew
-    if (glewInit() != GLEW_OK)
-    {
-        //  glew init failed
-    }
 }
 
 void engine_t::run()
