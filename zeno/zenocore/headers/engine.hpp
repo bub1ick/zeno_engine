@@ -11,6 +11,10 @@ public:
         int32_t in_size_y = 0
     );
 
+    uint32_t create_shaders(std::string &vertex_shader, std::string &fragment_shader);
+
+    uint32_t setup_shader(uint32_t shader_type, std::string &shader);
+
     void run();
 
 private:
