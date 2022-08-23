@@ -11,7 +11,6 @@ target_compile_definitions(
     zenocore
     PUBLIC
     ZENO_LIB
-    GLEW_STATIC
 )
 
 # Add include directory to be able to use engine's primary include file (zeno.hpp)
