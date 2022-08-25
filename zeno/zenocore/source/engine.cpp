@@ -4,154 +4,175 @@ namespace zeno::core
 {
 engine_t::engine_t(const char* in_window_name, int32_t in_pos_x, int32_t in_pos_y, int32_t in_size_x, int32_t in_size_y)
 {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) != 0)
+    std::cout << "running\n";
+
+    //  initiate SDL
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
-        //  couldn't init
+        //  TODO: add error handling
+        //  SDL initiation failed
     }
 
+    //  set required opengl standard
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 6);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
 
+    //  create opengl window with sdl
     m_window = SDL_CreateWindow(
-        in_window_name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, in_size_x, in_size_y,
+        in_window_name, in_pos_x, in_pos_y, in_size_x, in_size_y,
         SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
     );
 
     if (m_window == NULL)
     {
+        //  TODO: add error handling
         //  window creation failed
     }
 
-    //  create opengl context
+    //  get opengl context
     m_opengl_context = SDL_GL_CreateContext(m_window);
 
-    //  if true - forces glew to use modern ways to check whether a function is available
-    //  use if glew version 1.13 and earlier
-    glewExperimental = GL_FALSE;
-
-    //  initialize glew
     if (glewInit() != GLEW_OK)
     {
+        //  TODO: add error handling
         //  glew init failed
     }
 }
 
-uint32_t engine_t::setup_shader(uint32_t shader_type, std::string& shader)
+uint32_t engine_t::compile_shader(uint32_t shader_type, const char* shader)
 {
-    //  create a shader object of a given type and get its id
-    uint32_t    shader_id = glCreateShader(shader_type);
+    //  create shader (GL_VERTEX_SHADER and GL_FRAGMENT_SHADER)
+    uint32_t shader_id = glCreateShader(shader_type);
 
-    const char* shader_data = shader.c_str();
+    //  change shader source to the given one
+    glShaderSource(shader_id, 1, &shader, NULL);
 
-    //  replace the source code of a shader object with our worn
-    glShaderSource(shader_id, 1, &shader_data, NULL);
-
-    //  compile a shader string we just placed in glShaderSource
+    //  compile the shader
     glCompileShader(shader_id);
-
-    //  check if the shader compiled corretly
-    int32_t params;
-    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &params);
-    if (params == GL_FALSE)
+    int32_t param;
+    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &param);
+    if (param != GL_TRUE)
     {
-        //  shader compiation failed
+        //  TODO: add error handling
+        //  compilation failed
+        return -1;
     }
+
     return shader_id;
 }
 
-uint32_t engine_t::create_shaders(std::string& vertex_shader, std::string& fragment_shader)
+uint32_t engine_t::create_shader_program(const char* vertex_shader, const char* fragment_shader)
 {
-    //  create a program object to attach a shader object to
-    uint32_t program = glCreateProgram();
+    //  create shader program
+    uint32_t shader_program = glCreateProgram();
 
-    uint32_t vertex_shader_id   = setup_shader(GL_VERTEX_SHADER, vertex_shader);
-    uint32_t fragment_shader_id = setup_shader(GL_FRAGMENT_SHADER, fragment_shader);
+    //  compile vertex and fragment shaders
+    uint32_t vertex_shader_id   = compile_shader(GL_VERTEX_SHADER, vertex_shader);
+    uint32_t fragment_shader_id = compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
 
-    //  attach shaders to a program we created earlier
-    glAttachShader(program, vertex_shader_id);
-    glAttachShader(program, fragment_shader_id);
+    //  attach shaders to shader program
+    glAttachShader(shader_program, vertex_shader_id);
+    glAttachShader(shader_program, fragment_shader_id);
 
-    glLinkProgram(program);      //  ?
-    glValidateProgram(program);  //  chto naxuy
+    //  link the program object
+    glLinkProgram(shader_program);
+    int32_t param;
+    glGetProgramiv(shader_program, GL_LINK_STATUS, &param);
+    if (param != GL_TRUE)
+    {
+        //  TODO: add error handling
+        //  link failed
+    }
 
-    //  delete our shader
-    glDeleteShader(vertex_shader_id);
-    glDeleteShader(fragment_shader_id);
-
-    return program;
+    return shader_program;
 }
 
 void engine_t::run()
 {
-    const float triangle_vertecies [3][2] = {
-        {-1, -1},
-        { 0,  1},
-        { 1, -1}
+    const char* vertex_shader =
+        "#version 460 core\n"
+        "layout (location = 0) in vec3 aPos;\n"
+        "void main()\n"
+        "{\n"
+        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "}\0";
+
+    const char* fragment_shader =
+        "#version 460 core\n"
+        "out vec4 FragColor;\n"
+        "void main()\n"
+        "{\n"
+        "FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "}\0";
+
+    float triangle_vertices [3][2] = {
+        {-1.0f, -1.0f},
+        { 1.0f, -1.0f},
+        { 0.0f,  1.0f}
     };
+
+    //  create a shader program and save its id
+    uint32_t shader_program_id = create_shader_program(vertex_shader, fragment_shader);
+    //  std::cout << shader_program_id; // test
+
+    //  create vertex buffer object and vertex array object
+    uint32_t VBO;
+    uint32_t VAO;
+
+    //  generate buffer and array objects
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    //  bind vertex array to vertex object  (?)
+    glBindVertexArray(VAO);
+
+    //  bind array buffer to vbo
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+    //  buffer vertece data
+    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_vertices), triangle_vertices, GL_STATIC_DRAW);
+
+    //  define vertex attribute data
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(triangle_vertices [0]), (void*) 0);
+    glEnableVertexAttribArray(0);
+
     SDL_Event event;
 
-    uint32_t  triangle_id;
-
-    //  create a buffer for our memory
-    glGenBuffers(1, &triangle_id);
-
-    //  make buffer an active object
-    glBindBuffer(GL_ARRAY_BUFFER, triangle_id);
-
-    //  copy vertex data to the buffer
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_vertecies), &triangle_vertecies, GL_STATIC_DRAW);
-
-    const uint32_t attribute_index = 0;
-    glEnableVertexAttribArray(attribute_index);
-    glVertexAttribPointer(attribute_index, 2, GL_FLOAT, GL_FALSE, sizeof(triangle_vertecies [0]), 0);
-
-    //  create a shader
-    std::string vertex_shader =
-        "#version 460 core\n"  //  vrode pravilno
-        "\n"
-        "layout(location = 0) in vec4 position;\n"  //  0 = attribute_index
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = position;\n"
-        "}\n";
-
-    std::string frament_shader =
-        "#version 460 core\n"
-        "\n"
-        "layout(location = 0) out vec4 color;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   color = vec4(0.0, 1.0, 1.0, 1.0);\n"
-        "}\n";
-
-    uint32_t program = engine_t::create_shaders(vertex_shader, frament_shader);
-
-    glUseProgram(program);
-
-    while (m_running)
+    //  main loop
+    while (true)
     {
-        //  process events
+        //  handle events
         while (SDL_PollEvent(&event))
         {
+            switch (event.type)
+            {
+                case SDL_QUIT:
+                    break;
+                case SDL_WINDOWEVENT:
+                    switch (event.window.event)
+                    {
+                        case SDL_WINDOWEVENT_RESIZED:
+                            glViewport(0, 0, event.window.data1, event.window.data2);
+                    }
+            }
         }
 
-        //  update event states, draw a frame etc.
-        //  specify clear values
-        glClearColor(0, 0, 0, 0);
-
-        //  clear buffer
+        //  set clear color and clear the window
+        glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //  render data from array
+        //  draw our vertices using our shader program
+        glUseProgram(shader_program_id);
+        glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        //  update the window using opengl
+        //  switch current frame
         SDL_GL_SwapWindow(m_window);
     }
 
-    //  clean up on finish
+    //  clean up
+    SDL_GL_DeleteContext(m_opengl_context);
+    SDL_DestroyWindow(m_window);
     SDL_Quit();
 }
 
