@@ -39,54 +39,6 @@ engine_t::engine_t(const char* in_window_name, int32_t in_pos_x, int32_t in_pos_
     }
 }
 
-uint32_t engine_t::compile_shader(uint32_t shader_type, const char* shader)
-{
-    //  create shader (GL_VERTEX_SHADER and GL_FRAGMENT_SHADER)
-    uint32_t shader_id = glCreateShader(shader_type);
-
-    //  change shader source to the given one
-    glShaderSource(shader_id, 1, &shader, NULL);
-
-    //  compile the shader
-    glCompileShader(shader_id);
-    int32_t param;
-    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &param);
-    if (param != GL_TRUE)
-    {
-        //  TODO: add error handling
-        //  compilation failed
-        return -1;
-    }
-
-    return shader_id;
-}
-
-uint32_t engine_t::create_shader_program(const char* vertex_shader, const char* fragment_shader)
-{
-    //  create shader program
-    uint32_t shader_program = glCreateProgram();
-
-    //  compile vertex and fragment shaders
-    uint32_t vertex_shader_id   = compile_shader(GL_VERTEX_SHADER, vertex_shader);
-    uint32_t fragment_shader_id = compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
-
-    //  attach shaders to shader program
-    glAttachShader(shader_program, vertex_shader_id);
-    glAttachShader(shader_program, fragment_shader_id);
-
-    //  link the program object
-    glLinkProgram(shader_program);
-    int32_t param;
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &param);
-    if (param != GL_TRUE)
-    {
-        //  TODO: add error handling
-        //  link failed
-    }
-
-    return shader_program;
-}
-
 void engine_t::run()
 {
     const char* vertex_shader =
@@ -148,12 +100,15 @@ void engine_t::run()
             {
                 case SDL_QUIT:
                     break;
+
                 case SDL_WINDOWEVENT:
+                {
                     switch (event.window.event)
                     {
                         case SDL_WINDOWEVENT_RESIZED:
                             glViewport(0, 0, event.window.data1, event.window.data2);
                     }
+                }
             }
         }
 
@@ -174,6 +129,54 @@ void engine_t::run()
     SDL_GL_DeleteContext(m_opengl_context);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
+}
+
+uint32_t engine_t::compile_shader(uint32_t shader_type, const char* shader)
+{
+    //  create shader (GL_VERTEX_SHADER and GL_FRAGMENT_SHADER)
+    uint32_t shader_id = glCreateShader(shader_type);
+
+    //  change shader source to the given one
+    glShaderSource(shader_id, 1, &shader, NULL);
+
+    //  compile the shader
+    glCompileShader(shader_id);
+    int32_t param;
+    glGetShaderiv(shader_id, GL_COMPILE_STATUS, &param);
+    if (param != GL_TRUE)
+    {
+        //  TODO: add error handling
+        //  compilation failed
+        return -1;
+    }
+
+    return shader_id;
+}
+
+uint32_t engine_t::create_shader_program(const char* vertex_shader, const char* fragment_shader)
+{
+    //  create shader program
+    uint32_t shader_program = glCreateProgram();
+
+    //  compile vertex and fragment shaders
+    uint32_t vertex_shader_id   = compile_shader(GL_VERTEX_SHADER, vertex_shader);
+    uint32_t fragment_shader_id = compile_shader(GL_FRAGMENT_SHADER, fragment_shader);
+
+    //  attach shaders to shader program
+    glAttachShader(shader_program, vertex_shader_id);
+    glAttachShader(shader_program, fragment_shader_id);
+
+    //  link the program object
+    glLinkProgram(shader_program);
+    int32_t param;
+    glGetProgramiv(shader_program, GL_LINK_STATUS, &param);
+    if (param != GL_TRUE)
+    {
+        //  TODO: add error handling
+        //  link failed
+    }
+
+    return shader_program;
 }
 
 }  //  namespace zeno::core
