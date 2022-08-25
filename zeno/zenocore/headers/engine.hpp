@@ -11,11 +11,7 @@ public:
         int32_t in_size_y = 0
     );
 
-    uint32_t compile_shader(uint32_t shader_type, const char* shader);
-
-    uint32_t create_shader_program(const char* vertex_shader, const char* fragment_shader);
-
-    void     run();
+    void run();
 
 private:
     std::string   m_command_line = "";
@@ -25,5 +21,9 @@ private:
     SDL_GLContext m_opengl_context;
 
     bool          m_running = true;
+
+    uint32_t      compile_shader(uint32_t shader_type, const char* shader);
+
+    uint32_t      create_shader_program(const char* vertex_shader, const char* fragment_shader);
 };
 }  //  namespace zeno::core
