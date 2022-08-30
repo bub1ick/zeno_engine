@@ -3,8 +3,6 @@ add_library(zenocore STATIC)
 target_link_libraries(
     zenocore
     PUBLIC
-    SDL2.lib
-    glew32s.lib
 )
 
 target_compile_definitions(

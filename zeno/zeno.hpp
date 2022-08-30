@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <fstream>
+#include <sstream>
 
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>

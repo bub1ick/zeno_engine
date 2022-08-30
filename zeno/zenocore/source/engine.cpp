@@ -41,21 +41,8 @@ engine_t::engine_t(const char* in_window_name, int32_t in_pos_x, int32_t in_pos_
 
 void engine_t::run()
 {
-    const char* vertex_shader =
-        "#version 460 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "}\0";
-
-    const char* fragment_shader =
-        "#version 460 core\n"
-        "out vec4 FragColor;\n"
-        "void main()\n"
-        "{\n"
-        "FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-        "}\0";
+    std::string vertex_shader_string = load_shaders("vertex_shader.glsl");
+    std::string fragment_shader_string = load_shaders("fragment_shader.glsl");
 
     float triangle_vertices [3][2] = {
         {-1.0f, -1.0f},
@@ -64,27 +51,25 @@ void engine_t::run()
     };
 
     //  create a shader program and save its id
-    uint32_t shader_program_id = create_shader_program(vertex_shader, fragment_shader);
+    uint32_t shader_program_id = create_shader_program(vertex_shader_string.c_str(), fragment_shader_string.c_str());
     //  std::cout << shader_program_id; // test
 
     //  create vertex buffer object and vertex array object
     uint32_t VBO;
     uint32_t VAO;
 
-    //  generate buffer and array objects
+    //  generate vertex buffer and array objects
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
-    //  bind vertex array to vertex object  (?)
+    //  set current opengl used vertex buffer and array to triangle's
     glBindVertexArray(VAO);
-
-    //  bind array buffer to vbo
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    //  buffer vertece data
+    //  provide vertex buffer with vertex data
     glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_vertices), triangle_vertices, GL_STATIC_DRAW);
 
-    //  define vertex attribute data
+    //  define vertex array attribute data
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(triangle_vertices [0]), (void*) 0);
     glEnableVertexAttribArray(0);
 
@@ -177,6 +162,24 @@ uint32_t engine_t::create_shader_program(const char* vertex_shader, const char* 
     }
 
     return shader_program;
+}
+
+std::string engine_t::load_shaders(const char* shader_path) const
+{
+    std::ifstream shader_file(shader_path, std::ios::in);
+    std::string   shader_string;
+
+    if (shader_file.is_open())
+    {
+        std::string shader_line = "";
+        while (not shader_file.eof())
+        {
+            std::getline(shader_file, shader_line);
+            shader_string.append(shader_line + "\n");
+        }
+    }
+
+    return shader_string;
 }
 
 }  //  namespace zeno::core

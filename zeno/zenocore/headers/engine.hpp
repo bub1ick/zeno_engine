@@ -25,5 +25,7 @@ private:
     uint32_t      compile_shader(uint32_t shader_type, const char* shader);
 
     uint32_t      create_shader_program(const char* vertex_shader, const char* fragment_shader);
+
+    std::string   load_shaders(const char* shader_path) const;
 };
 }  //  namespace zeno::core
