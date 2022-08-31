@@ -14,9 +14,12 @@ project(
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
-# Enable some of the standard C++ features, such as literals for logical operators.
+
 if(MSVC)
+    # Enable some of the standard C++ features, such as literals for logical operators.
     add_compile_options(/permissive-)
+
+    # Enable utf-8 source and runtime encoding on msvc. When using clang on Windows it's the default.
     add_compile_options(/utf-8)
 endif()
 
