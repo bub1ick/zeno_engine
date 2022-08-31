@@ -24,6 +24,7 @@ endif()
 ## Build settings:
 # By default, use dynamic libs for modules, unless it's not a module
 set(BUILD_SHARED_LIBS ON)
+set(CMAKE_DEBUG_POSTFIX "_d")
 
 # We can exclude zeno sample from the build.
 option(ZENO_DO_BUILD_SAMPLE "Whether or not build the sample project provided." OFF)
@@ -35,14 +36,6 @@ elseif(${UNIX} AND NOT ${APPLE})
 elseif(${APPLE})
     message(FATAL_ERROR "Currently support only for Windows and Linux is planned.")
 endif()
-
-## SDL
-#set(ZENO_SDL_INCLUDE_PATH "${CMAKE_HOME_DIRECTORY}/third_party/SDL2/include/SDL2")
-#set(ZENO_SDL_LIB_PATH "${CMAKE_HOME_DIRECTORY}/third_party/SDL2/lib")
-
-## glew
-#set(ZENO_GLEW_INCLUDE_PATH "${CMAKE_HOME_DIRECTORY}/third_party/glew/include/GL")
-#set(ZENO_GLEW_LIB_PATH "${CMAKE_HOME_DIRECTORY}/third_party/glew/lib/Release/x64/")
 
 set(ZENO_THIRD_PARTY_LIB_PATH "${CMAKE_HOME_DIRECTORY}/third_party/lib")
 set(ZENO_THIRD_PARTY_INCLUDE_PATH "${CMAKE_HOME_DIRECTORY}/third_party/include")
@@ -66,12 +59,12 @@ install(
     TARGETS zenocore
     CONFIGURATIONS Release
     ARCHIVE 
-    DESTINATION ${CMAKE_HOME_DIRECTORY}/lib/Release
+    DESTINATION "${CMAKE_HOME_DIRECTORY}/lib"
 )
 
 install(
     TARGETS zenocore
     CONFIGURATIONS Debug
     ARCHIVE 
-    DESTINATION ${CMAKE_HOME_DIRECTORY}/lib/Debug
+    DESTINATION "${CMAKE_HOME_DIRECTORY}/lib"
 )
