@@ -15,9 +15,6 @@
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-
 #include "zeno_defines.hpp"
 
 //  engine libs
