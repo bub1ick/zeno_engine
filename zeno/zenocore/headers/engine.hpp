@@ -16,8 +16,6 @@ public:
 private:
     std::string   m_command_line = "";
 
-    SDL_Window*   m_window;
-
     bool          m_running = true;
 
     std::string   load_shaders(const char* shader_path) const;

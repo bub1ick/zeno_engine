@@ -12,8 +12,16 @@
 #include <fstream>
 #include <sstream>
 
-#define SDL_MAIN_HANDLED
-#include <SDL2/SDL.h>
+#if defined(ZENO_WINDOWS)
+#    define NOGDI
+#    define NOKERNEL
+#    define NOMINMAX
+
+#    include <windows.h>
+
+#    include <d3d11_4.h>
+#    include <dxgi1_6.h>
+#endif
 
 #include "zeno_defines.hpp"
 
