@@ -1,10 +1,5 @@
 add_library(zenocore STATIC)
 
-target_link_libraries(
-    zenocore
-    PUBLIC
-)
-
 target_compile_definitions(
     zenocore
     PUBLIC
