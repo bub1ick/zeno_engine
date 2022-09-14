@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- declare our application -->
+<assembly
+    xmlns = "urn:schemas-microsoft-com:asm.v1"
+    manifestVersion = "1.0"
+>
+    <!-- details about our application-->
+    <assemblyIdentity
+        type = "win32"
+        name = "YourOrg.AppName"
+        processorArchitecture = "amd64"
+        version = "1.0.0.0"
+    />
+
+    <!-- add support only for Windows 10 or later-->
+    <compatibility>
+        <application>
+            <supportedOS
+                Id = "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
+            />
+        </application>
+    </compatibility>
+
+    <!-- use utf-8 instead of ASCII-->
+    <activeCodePage>
+        UTF-8
+    </activeCodePage>
+
+    <!-- process is dpi aware (monitor scaling factor) -->
+    <dpiAwareness>
+        permonitorv2,
+        unaware
+    </dpiAwareness>
+
+    <!-- process can work with long paths (>250 symbols) -->
+    <longPathAware>
+        true
+    </longPathAware>
+
+</assembly>
