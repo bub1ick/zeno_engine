@@ -59,14 +59,14 @@ if(${ZENO_DO_BUILD_SAMPLE})
 endif()
 
 install(
-    TARGETS zenocore
+    TARGETS zenocore zenodx11 zenosys
     CONFIGURATIONS Release
     ARCHIVE 
     DESTINATION "${CMAKE_HOME_DIRECTORY}/lib"
 )
 
 install(
-    TARGETS zenocore
+    TARGETS zenocore zenodx11 zenosys
     CONFIGURATIONS Debug
     ARCHIVE 
     DESTINATION "${CMAKE_HOME_DIRECTORY}/lib"

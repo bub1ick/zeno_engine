@@ -5,6 +5,8 @@ target_link_libraries(
     sample
     PRIVATE
     zenocore
+    zenodx11
+    zenosys
 )
 
 # Add include directory to be able to use engine's primary include file (zeno.hpp)

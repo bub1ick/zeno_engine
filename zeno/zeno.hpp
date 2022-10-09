@@ -11,11 +11,16 @@
 #include <functional>
 #include <fstream>
 #include <sstream>
+#include <memory>
 
 #if defined(ZENO_WINDOWS)
 #    define NOGDI
 #    define NOKERNEL
 #    define NOMINMAX
+
+//  HACK: Use this to let the windows headers define the GUIDs of interfaces.
+// We want such behavior because using compiler intrinsincs is kinda bad imo.
+#    define INITGUID
 
 #    include <windows.h>
 
@@ -26,4 +31,6 @@
 #include "zeno_defines.hpp"
 
 //  engine libs
+#include "zenosys/zenosys.hpp"
+#include "zenodx11/zenodx11.hpp"
 #include "zenocore/zenocore.hpp"
