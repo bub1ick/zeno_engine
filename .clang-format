@@ -50,8 +50,8 @@ AlwaysBreakBeforeMultilineStrings: true
 
 AlwaysBreakTemplateDeclarations: Yes
 
-BinPackParameters: true
-BinPackArguments: true
+BinPackParameters: false
+BinPackArguments: false
 
 BitFieldColonSpacing: Both
 
