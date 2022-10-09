@@ -24,7 +24,7 @@
     <!-- application settings -->
     <application>
         <windowsSettings>
-            <!-- use utf-8 instead of ASCII-->
+            <!-- use utf-8 instead of ANSI-->
             <activeCodePage xmlns="http://schemas.microsoft.com/SMI/2019/WindowsSettings">
                 UTF-8
             </activeCodePage>

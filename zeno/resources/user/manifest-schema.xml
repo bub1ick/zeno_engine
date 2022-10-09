@@ -1,12 +1,7 @@
 <?xml version="1.0"?>
-<Schema
-    xmlns="urn:schemas-microsoft-com:xml-data"
-    xmlns:dt="urn:schemas-microsoft-com:datatypes"
-    name="urn:schemas-microsoft-com:asm.v1"
-    xmlns:asmv3="urn:schemas-microsoft-com:asm.v3"
->
+<Schema xmlns="urn:schemas-microsoft-com:xml-data" xmlns:dt="urn:schemas-microsoft-com:datatypes" name="urn:schemas-microsoft-com:asm.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
     <!--  Attributes  -->
-    <AttributeType name="manifestVersion" dt:type="enumeration" dt:values="1.0"/>
+    <AttributeType name="manifestVersion" dt:type="enumeration" dt:values="1.0" />
     <AttributeType name="name" dt:type="string" />
     <AttributeType name="type" dt:type="string" />
     <AttributeType name="publicKeyToken" dt:type="bin.hex" />
@@ -69,7 +64,7 @@
         <attribute type="threadingModel" required="no" />
         <element type="progid" minOccurs="0" maxOccurs="*" />
     </ElementType>
-    
+
     <ElementType name="clrSurrogate" model="closed" content="empty">
         <attribute type="clsid" required="yes" />
         <attribute type="name" required="yes" />
@@ -159,7 +154,7 @@
     <ElementType name="noInherit" model="closed" content="empty" />
 
     <ElementType name="noInheritable" model="closed" content="empty" />
-    
+
     <ElementType name="progid" />
 
     <!-- WindowsSettings elements from XML namespace http://schemas.microsoft.com/SMI/2005/WindowsSettings  -->
