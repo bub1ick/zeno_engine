@@ -1,13 +1,13 @@
 #include <zeno.hpp>
 
-namespace zeno::core
+namespace zeno
 {
 engine_t::engine_t(const char* in_window_name, int32_t in_pos_x, int32_t in_pos_y, int32_t in_size_x, int32_t in_size_y)
     : m_window(in_window_name, in_pos_x, in_pos_y, in_size_x, in_size_y)
 {
 }
 
-void engine_t::run()
+int32_t engine_t::run()
 {
     auto engine_loop = [this]() -> bool
     {
@@ -18,6 +18,8 @@ void engine_t::run()
     };
 
     m_window.loop(engine_loop);
+
+    return 0;
 }
 
 std::string engine_t::load_shaders(const char* shader_path) const

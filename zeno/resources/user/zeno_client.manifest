@@ -7,7 +7,7 @@
     <!-- details about our application-->
     <assemblyIdentity
             type="win32"
-            name="zeno.sample"
+            name="OrgName.AppName"
             language="*"
             processorArchitecture="amd64"
             version="1.0.0.0"

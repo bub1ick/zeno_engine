@@ -19,7 +19,7 @@ if(MSVC)
     # Enable some of the standard C++ features, such as literals for logical operators.
     add_compile_options(/permissive-)
 
-    # Enable utf-8 source and runtime encoding on msvc. When using clang on Windows it's the default.
+    # Enable utf-8 source and runtime(?) encoding on msvc. When using clang on Windows it's the default.
     add_compile_options(/utf-8)
 endif()
 
@@ -55,18 +55,19 @@ add_subdirectory(zeno)
 # At last build the sample to test the engine.
 if(${ZENO_DO_BUILD_SAMPLE})
     add_subdirectory(sample)
-    add_dependencies(sample zenocore)
+    add_dependencies(sample zeno)
+    add_dependencies(sample zenosys)
 endif()
 
 install(
-    TARGETS zenocore zenodx11 zenosys
+    TARGETS zeno zenodx11 zenosys
     CONFIGURATIONS Release
     ARCHIVE 
     DESTINATION "${CMAKE_HOME_DIRECTORY}/lib"
 )
 
 install(
-    TARGETS zenocore zenodx11 zenosys
+    TARGETS zeno zenodx11 zenosys
     CONFIGURATIONS Debug
     ARCHIVE 
     DESTINATION "${CMAKE_HOME_DIRECTORY}/lib"

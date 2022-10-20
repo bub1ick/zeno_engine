@@ -1,20 +1,20 @@
-add_library(zenocore STATIC)
+add_library(zeno STATIC)
 
 target_compile_definitions(
-    zenocore
+    zeno
     PUBLIC
     ZENO_LIB
 )
 
 # Add include directory to be able to use engine's primary include file (zeno.hpp)
 target_include_directories(
-    zenocore
+    zeno
     PRIVATE
     "../"
 )
 
 target_sources(
-    zenocore
+    zeno
     PUBLIC
     "source/engine.cpp"
 )

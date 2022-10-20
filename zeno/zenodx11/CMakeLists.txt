@@ -1,12 +1,13 @@
-add_library(zenodx11)
+add_library(zenodx11 STATIC)
 
+# provide access to zenosys to dependants of zenodx11
 target_link_libraries(
     zenodx11
     PUBLIC
-    d3d11.lib
-    dxgi.lib
+    zenosys
 )
 
+# define needed macro
 target_compile_definitions(
     zenodx11
     PUBLIC
