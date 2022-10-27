@@ -63,7 +63,7 @@ void window_t::loop(std::function<bool()> engine_loop_callback)
     while (not done)
     {
         //  check whether we are safe to call engine loop and if we can handle message
-        if (not should_call_engine_loop(&message, done))  
+        if (not queue_is_ok(&message, done))  
             continue;
 
         //  do the engine suff
@@ -71,7 +71,7 @@ void window_t::loop(std::function<bool()> engine_loop_callback)
     }
 }
 
-bool window_t::should_call_engine_loop(MSG* in_out_message, bool& out_done)
+bool window_t::queue_is_ok(MSG* in_out_message, bool& out_done)
 {
     //  check the message queue if it's empty
     int32_t queue_is_empty =
