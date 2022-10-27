@@ -81,9 +81,7 @@ bool window_t::queue_is_ok(MSG* in_out_message, bool& out_done)
         return true;  //  go straight to engine loop if no messages were found
 
     //  check the queue for errors
-    int32_t error_check = GetMessageA(in_out_message, m_handle, 0, 0);
-
-    switch (error_check)
+    switch (GetMessageA(in_out_message, m_handle, 0, 0))
     {
         case 0:  //  WM_QUIT -> must quit the application
         {
