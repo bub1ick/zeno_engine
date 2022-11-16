@@ -1,9 +1,10 @@
-add_library(zenodx11 STATIC)
+add_library(zenodx11)
 
 # provide access to zenosys to dependants of zenodx11
 target_link_libraries(
     zenodx11
     PUBLIC
+    DXGI.lib
     zenosys
 )
 

@@ -30,7 +30,7 @@ set(BUILD_SHARED_LIBS ON)
 set(CMAKE_DEBUG_POSTFIX "_d")
 
 # We can exclude zeno sample from the build.
-option(ZENO_DO_BUILD_SAMPLE "Whether or not build the sample project provided." OFF)
+option(ZENO_DO_BUILD_SAMPLE "Whether or not build the sample project is provided." OFF)
 
 if(${WIN32})
     add_compile_definitions("ZENO_WINDOWS")

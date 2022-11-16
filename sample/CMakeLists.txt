@@ -7,8 +7,6 @@ target_link_libraries(
     zeno
     zenosys
     zenodx11
-    direct3d.lib
-    dxgi.lib
 )
 
 # Add include directory to be able to use engine's primary include file (zeno.hpp)
