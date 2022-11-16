@@ -19,6 +19,11 @@ public:
     void update();
 
 private:
+
+    /// @brief search for all dxgi adapters (graphics cards) in the system
+    /// @param out_adapters reference to a vector to hold found adapters
+    void get_all_available_adapters(std::vector<IDXGIAdapter4*>& out_adapters);
+
     const D3D_FEATURE_LEVEL m_feature_level = D3D_FEATURE_LEVEL_11_1;
 
     dxgi_t             m_dxgi;

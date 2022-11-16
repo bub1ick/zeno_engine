@@ -11,30 +11,10 @@ renderer_t::renderer_t()
 
     std::vector<IDXGIAdapter4*> adapters;  //  vector holding all found adapters
 
-    //  search for video adapters
-    {
-        IDXGIAdapter4* adapter;  //  used to temporary store found adapter
+    get_all_available_adapters(adapters);
 
-        //  getting all the adapters
-        uint8_t        index = 0;   //  adapter index
-        bool           could_find;  //  to check wether there are adapters left
-        while (true)
-        {
-            could_find =
-                m_dxgi.factory->EnumAdapterByGpuPreference(
-                    index, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_IDXGIAdapter4, reinterpret_cast<void**>(&adapter)
-                ) != DXGI_ERROR_NOT_FOUND;  //  get the adapter in order of "highest performance first"
-
-            if (not could_find)  //  finish if couldn't find the next adapter
-                break;
-
-            adapters.push_back(adapter);  //  store the found adapter
-
-            index++;  //  next adapter
-        }
-    }
-
-    //  print adapter names
+    //  TODO: wchar to utf-8 automatic converter
+    //   print adapter names
     for (auto adapter : adapters)
     {
         std::cout << "adapter description:\t";  //  decorator
@@ -67,6 +47,29 @@ renderer_t::renderer_t()
         );
 
         std::cout << utf8_name << std::endl;  //  print the name
+    }
+}
+
+void renderer_t::get_all_available_adapters(std::vector<IDXGIAdapter4*>& out_adapters)
+{
+    IDXGIAdapter4* adapter;  //  used to temporary store found adapter
+
+    //  getting all the adapters
+    uint8_t        index = 0;   //  adapter index
+    bool           could_find;  //  to check wether there are adapters left
+    while (true)
+    {
+        could_find =
+            m_dxgi.factory->EnumAdapterByGpuPreference(
+                index, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_IDXGIAdapter4, reinterpret_cast<void**>(&adapter)
+            ) != DXGI_ERROR_NOT_FOUND;  //  get the adapter in order of "highest performance first"
+
+        if (not could_find)  //  finish if couldn't find the next adapter
+            break;
+
+        out_adapters.push_back(adapter);  //  store the found adapter
+
+        index++;  //  next adapter
     }
 }
 }  //  namespace zeno::dx11
