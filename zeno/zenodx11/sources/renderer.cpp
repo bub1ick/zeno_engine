@@ -13,7 +13,6 @@ renderer_t::renderer_t()
 
     get_all_available_adapters(adapters);
 
-    //  FIXME: wchar to utf-8 automatic converter
     //   print adapter names
     for (auto adapter : adapters)
     {
