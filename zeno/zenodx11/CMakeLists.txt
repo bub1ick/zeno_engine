@@ -4,8 +4,9 @@ add_library(zenodx11)
 target_link_libraries(
     zenodx11
     PUBLIC
-    DXGI.lib
     zenosys
+    zenoutils
+    DXGI.lib
 )
 
 # define needed macro

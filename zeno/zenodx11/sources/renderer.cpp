@@ -13,7 +13,7 @@ renderer_t::renderer_t()
 
     get_all_available_adapters(adapters);
 
-    //  TODO: wchar to utf-8 automatic converter
+    //  FIXME: wchar to utf-8 automatic converter
     //   print adapter names
     for (auto adapter : adapters)
     {
@@ -22,29 +22,9 @@ renderer_t::renderer_t()
         DXGI_ADAPTER_DESC3 adapter_descriptor;   //  variable to store various info about the adapter
         adapter->GetDesc3(&adapter_descriptor);  //  retrieve the descriptor
 
-        std::wstring wide_name   = adapter_descriptor.Description;  //  store the widechar version of the adapter name
-        size_t       size_needed = WideCharToMultiByte(             //  get the size of the adapter name string
-            CP_UTF8,
-            0,
-            &wide_name [0],
-            wide_name.size(),
-            0,
-            0,
-            0,
-            0
-        );
+        std::wstring wide_name = adapter_descriptor.Description;  //  store the widechar version of the adapter name
 
-        std::string  utf8_name(size_needed, 0);  //  initialize a utf-8 string for storing adapter name
-        WideCharToMultiByte(                     //  translate wchar_t to char
-            CP_UTF8,
-            0,
-            &wide_name [0],
-            (int) wide_name.size(),
-            &utf8_name [0],
-            size_needed,
-            0,
-            0
-        );
+        std::string  utf8_name = utils::utf16_to_utf8(wide_name);
 
         std::cout << utf8_name << std::endl;  //  print the name
     }
@@ -57,12 +37,12 @@ void renderer_t::get_all_available_adapters(std::vector<IDXGIAdapter4*>& out_ada
     //  getting all the adapters
     uint8_t        index = 0;   //  adapter index
     bool           could_find;  //  to check wether there are adapters left
-    while (true)
+    for (;;)
     {
         could_find =
             m_dxgi.factory->EnumAdapterByGpuPreference(
                 index, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_IDXGIAdapter4, reinterpret_cast<void**>(&adapter)
-            ) != DXGI_ERROR_NOT_FOUND;  //  get the adapter in order of "highest performance first"
+            ) != DXGI_ERROR_NOT_FOUND;  //  get the adapter in the order of "highest performance first"
 
         if (not could_find)  //  finish if couldn't find the next adapter
             break;
