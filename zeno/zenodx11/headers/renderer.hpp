@@ -19,15 +19,18 @@ public:
     void update();
 
 private:
-
-    /// @brief search for all dxgi adapters (graphics cards) in the system
-    /// @param out_adapters reference to a vector to hold found adapters
-    void get_all_available_adapters(std::vector<IDXGIAdapter4*>& out_adapters);
+    ///  @brief search for all dxgi adapters (graphics cards) in the system
+    ///  @param out_adapters reference to a vector to hold found adapters
+    void                    get_all_available_adapters(std::vector<IDXGIAdapter4*>& out_adapters);
 
     const D3D_FEATURE_LEVEL m_feature_level = D3D_FEATURE_LEVEL_11_1;
 
-    dxgi_t             m_dxgi;
+    dxgi_t                  m_dxgi;
 
-    HRESULT m_result;
+    ID3D11Device5*          m_device;
+
+    ID3D11DeviceContext4*   m_device_context;
+
+    HRESULT                 m_result;
 };
 }  //  namespace zeno::dx11
