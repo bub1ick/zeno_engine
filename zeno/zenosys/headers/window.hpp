@@ -18,6 +18,10 @@ public:
     ///  @param engine_loop callback to the engine loop function, which handles engine systems
     void loop(std::function<bool()> engine_loop);
 
+    ///  @brief get the win32 window handle
+    ///  @return the handle
+    HWND get_handle() { return m_handle; };
+
 private:
     ///  @brief win32 window procedure to handle win32 events
     ///  @param window_handle handle to a window
