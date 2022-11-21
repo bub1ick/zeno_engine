@@ -7,14 +7,14 @@ struct dxgi_t
 {
     IDXGIFactory7* factory;
     IDXGIDevice4*  device;
-    IDXGIAdapter4* video_card;
+    IDXGIAdapter4* graphics_card;
     IDXGIOutput6*  monitor;
 };
 
 class ZENO_API renderer_t
 {
 public:
-    renderer_t();
+    renderer_t(HWND window_handle);
 
     void update();
 
@@ -28,6 +28,8 @@ private:
     dxgi_t                  m_dxgi;
 
     ID3D11Device5*          m_device;
+
+    IDXGISwapChain4*        m_swapchain;
 
     ID3D11DeviceContext4*   m_device_context;
 
