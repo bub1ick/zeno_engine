@@ -31,18 +31,7 @@ window_t::window_t(const char* in_window_name, int32_t in_pos_x, int32_t in_pos_
 
     //  create our window, but don't show it yet untill we are fully initialized
     m_handle = CreateWindowExA(
-        0,
-        MAKEINTATOM(m_class_atom),
-        in_window_name,
-        0,
-        in_pos_x,
-        in_pos_y,
-        in_size_x,
-        in_size_y,
-        nullptr,
-        nullptr,
-        m_application_instance,
-        nullptr
+        0, MAKEINTATOM(m_class_atom), in_window_name, 0, in_pos_x, in_pos_y, in_size_x, in_size_y, nullptr, nullptr, m_application_instance, nullptr
     );
 
     int32_t error;
@@ -63,7 +52,7 @@ void window_t::loop(std::function<bool()> engine_loop_callback)
     while (not done)
     {
         //  check whether we are safe to call engine loop and if we can handle message
-        if (not queue_is_ok(&message, done))  
+        if (not queue_is_ok(&message, done))
             continue;
 
         //  do the engine suff
@@ -74,8 +63,7 @@ void window_t::loop(std::function<bool()> engine_loop_callback)
 bool window_t::queue_is_ok(MSG* in_out_message, bool& out_done)
 {
     //  check the message queue if it's empty
-    int32_t queue_is_empty =
-        not PeekMessageA(in_out_message, m_handle, 0, 0, PM_NOREMOVE);  //  returns 0 if empty so we negate it
+    int32_t queue_is_empty = not PeekMessageA(in_out_message, m_handle, 0, 0, PM_NOREMOVE);  //  returns 0 if empty so we negate it
 
     if (queue_is_empty)
         return true;  //  go straight to engine loop if no messages were found
@@ -87,7 +75,7 @@ bool window_t::queue_is_ok(MSG* in_out_message, bool& out_done)
         {
             out_done = true;  //  mark as done
 
-            return false; // don't call engine loop
+            return false;  //  don't call engine loop
         }
         case -1:  //  there was an error
         {
