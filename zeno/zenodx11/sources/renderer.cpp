@@ -14,6 +14,18 @@ renderer_t::renderer_t(HWND window_handle)
     get_all_available_adapters(adapters);  //  the first adapter is the the most powerful one
     m_dxgi.graphics_card = adapters [0];   //  the first adapter should be our graphics card, or generic windows renderer
 
+
+    //  DEBUG print chosen graphics card
+    {
+        DXGI_ADAPTER_DESC3 adapter_descriptor {};
+        m_dxgi.graphics_card->GetDesc3(&adapter_descriptor);
+
+        std::wstring wide_description   = adapter_descriptor.Description;
+        std::string  graphics_card_name = utils::utf16_to_utf8(wide_description);
+
+        std::cout << graphics_card_name << std::endl;
+    }
+
     //  get the monitor
     m_result = m_dxgi.graphics_card->EnumOutputs(0, reinterpret_cast<IDXGIOutput**>(&m_dxgi.monitor));
 
@@ -33,15 +45,17 @@ renderer_t::renderer_t(HWND window_handle)
     swapchain_descriptor.Scaling     = DXGI_SCALING_NONE;                                          //  stretch preserving the original rendered aspect ratio
     swapchain_descriptor.SwapEffect  = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;                           //  use flip model instead of bitblt model (more in MSDN)
     swapchain_descriptor.AlphaMode   = DXGI_ALPHA_MODE_UNSPECIFIED;                                //  FIXME IDK what is this
-    swapchain_descriptor.Flags       = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING | DXGI_SWAP_CHAIN_FLAG_FULLSCREEN_VIDEO | DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+    swapchain_descriptor.Flags       = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+    uint32_t number_of_display_modes = 0;
+    m_dxgi.monitor->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_SCALING, &number_of_display_modes, nullptr);
+    DXGI_MODE_DESC1* display_modes = new DXGI_MODE_DESC1 [number_of_display_modes];
+    m_dxgi.monitor->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_SCALING, &number_of_display_modes, display_modes);
+
+    DXGI_MODE_DESC1 best_display_mode = display_modes [number_of_display_modes - 1];
 
     //  DEBUG print display modes
     {
-        uint32_t number_of_display_modes = 0;
-        m_dxgi.monitor->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_SCALING, &number_of_display_modes, nullptr);
-        DXGI_MODE_DESC1* display_modes = new DXGI_MODE_DESC1 [number_of_display_modes];
-        m_dxgi.monitor->GetDisplayModeList1(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_ENUM_MODES_SCALING, &number_of_display_modes, display_modes);
-
         DXGI_OUTPUT_DESC1 monitor_descriptor {};
         m_dxgi.monitor->GetDesc1(&monitor_descriptor);
 
@@ -65,11 +79,45 @@ renderer_t::renderer_t(HWND window_handle)
 
     DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapchain_fullscreen_descriptor {};
 
+    swapchain_fullscreen_descriptor.RefreshRate      = best_display_mode.RefreshRate;
+    swapchain_fullscreen_descriptor.ScanlineOrdering = best_display_mode.ScanlineOrdering;
+    swapchain_fullscreen_descriptor.Scaling          = DXGI_MODE_SCALING_CENTERED;
+    swapchain_fullscreen_descriptor.Windowed         = false;
+
     //  TODO: implement fullscreen swapchain (https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_2/nf-dxgi1_2-idxgioutput1-getdisplaymodelist1)
     //  this is how to get the refresh rate of the monitor. the modes are resolutions combined with refresh rate and etc.
     m_result = m_dxgi.factory->CreateSwapChainForHwnd(
-        m_dxgi.device, window_handle, &swapchain_descriptor, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(&m_swapchain)
+        m_dxgi.device, window_handle, &swapchain_descriptor, &swapchain_fullscreen_descriptor, nullptr, reinterpret_cast<IDXGISwapChain1**>(&m_swapchain)
     );
+
+    if (FAILED(m_result))
+    {
+        std::cout << "Couldn't create swapchain for the window:" << std::flush;
+
+        switch (m_result)
+        {
+            case DXGI_ERROR_INVALID_CALL:
+                std::cout << "\tinvalid params" << std::endl;
+                break;
+            case E_OUTOFMEMORY:
+                std::cout << "\tmemory is unavailable to complete the operation" << std::endl;
+                break;
+            default:
+                std::cout << "\t other shit" << std::endl;
+        }
+    }
+
+    DXGI_MODE_DESC new_resolution {};
+    new_resolution.Width            = best_display_mode.Width;
+    new_resolution.Height           = best_display_mode.Height;
+    new_resolution.RefreshRate      = best_display_mode.RefreshRate;
+    new_resolution.Format           = best_display_mode.Format;
+    new_resolution.ScanlineOrdering = best_display_mode.ScanlineOrdering;
+    new_resolution.Scaling          = best_display_mode.Scaling;
+
+    m_swapchain->ResizeTarget(&new_resolution);
+
+    delete [] display_modes;
 
     //  TODO: continue to make a renderer(follow some guides idk)
 }
