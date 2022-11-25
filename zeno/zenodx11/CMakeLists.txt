@@ -7,6 +7,7 @@ target_link_libraries(
     zenosys
     zenoutils
     DXGI.lib
+    D3D11.lib
 )
 
 # define needed macro

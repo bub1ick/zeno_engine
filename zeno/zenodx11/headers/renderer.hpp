@@ -23,7 +23,11 @@ private:
     ///  @param out_adapters reference to a vector to hold found adapters
     void                    get_all_available_adapters(std::vector<IDXGIAdapter4*>& out_adapters);
 
-    const D3D_FEATURE_LEVEL m_feature_level = D3D_FEATURE_LEVEL_11_1;
+    ///  @brief create direct3d and dxgi device and its context
+    ///  @return true on success, false on error
+    bool                    create_device();
+
+    const D3D_FEATURE_LEVEL m_feature_level;
 
     dxgi_t                  m_dxgi;
 
