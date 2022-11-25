@@ -6,7 +6,6 @@ window_t::window_t(const char* in_window_name, int32_t in_pos_x, int32_t in_pos_
 {
     m_application_instance = GetModuleHandleA(0);
 
-
     //  set up the window class
     WNDCLASSEXA window_class {};
     window_class.cbSize        = sizeof(WNDCLASSEXA);     //  size of the structure
