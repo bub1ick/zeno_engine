@@ -34,23 +34,6 @@ renderer_t::renderer_t(HWND window_handle)
         //  TODO: handle error
     }
 
-    DXGI_SWAP_CHAIN_DESC1 swapchain_descriptor {};
-    swapchain_descriptor.Width       = 0;                               //  determine by the set window size
-    swapchain_descriptor.Height      = 0;                               //  determine by the set window size
-    swapchain_descriptor.Format      = DXGI_FORMAT_R16G16B16A16_FLOAT;  //  some random format that is supported by flip swap chain
-    swapchain_descriptor.Stereo      = false;                           //  true is for VR-like things (two screens rendering at the same time)
-    swapchain_descriptor.SampleDesc  = {1, 0};                          //  disable MSAA
-    swapchain_descriptor.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;  //  how can the swapchain be used
-    swapchain_descriptor.BufferCount = 2;                                                          //  we want the front and the back buffer (sums up to 2)
-    swapchain_descriptor.Scaling     = DXGI_SCALING_NONE;                                          //  stretch preserving the original rendered aspect ratio
-    swapchain_descriptor.SwapEffect  = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;                           //  use flip model instead of bitblt model (more in MSDN)
-    swapchain_descriptor.AlphaMode   = DXGI_ALPHA_MODE_UNSPECIFIED;                                //  FIXME IDK what is this
-    swapchain_descriptor.Flags       = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-    //  info on the dxgi format topic:
-    //      - https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/converting-data-color-space
-    //      - https://developer.nvidia.com/gpugems/gpugems3/part-iv-image-effects/chapter-24-importance-being-linear
-
 
     //  get display modes and take the best one (highest resolution and refresh rate)
     uint32_t number_of_display_modes = 0;
@@ -82,23 +65,39 @@ renderer_t::renderer_t(HWND window_handle)
         }
     }
 
-    DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapchain_fullscreen_descriptor {};
 
+    //  info on the dxgi format topic:
+    //      - https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/converting-data-color-space
+    //      - https://developer.nvidia.com/gpugems/gpugems3/part-iv-image-effects/chapter-24-importance-being-linear
+    DXGI_SWAP_CHAIN_DESC1 swapchain_descriptor {};
+    swapchain_descriptor.Width       = best_display_mode.Width;         //  set the swapchain size to the native resolution
+    swapchain_descriptor.Height      = best_display_mode.Height;        //  set the swapchain size to the native resolution
+    swapchain_descriptor.Format      = DXGI_FORMAT_R16G16B16A16_FLOAT;  //  some random format that is supported by flip swap chain
+    swapchain_descriptor.Stereo      = false;                           //  true is for VR-like things (two screens rendering at the same time)
+    swapchain_descriptor.SampleDesc  = {1, 0};                          //  disable MSAA
+    swapchain_descriptor.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;  //  how can the swapchain be used
+    swapchain_descriptor.BufferCount = 2;                                                          //  we want the front and the back buffer (sums up to 2)
+    swapchain_descriptor.Scaling     = DXGI_SCALING_NONE;                                          //  stretch preserving the original rendered aspect ratio
+    swapchain_descriptor.SwapEffect  = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;                           //  use flip model instead of bitblt model (more in MSDN)
+    swapchain_descriptor.AlphaMode   = DXGI_ALPHA_MODE_UNSPECIFIED;                                //  FIXME IDK what is this
+    swapchain_descriptor.Flags       = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+
+    DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapchain_fullscreen_descriptor {};
     swapchain_fullscreen_descriptor.RefreshRate      = best_display_mode.RefreshRate;       //  get the highest refresh rate from the monitor
     swapchain_fullscreen_descriptor.ScanlineOrdering = best_display_mode.ScanlineOrdering;  //  get scanline ordering from the monitor
-    swapchain_fullscreen_descriptor.Scaling          = DXGI_MODE_SCALING_CENTERED;          //  FIXME never use scaling (for now)
+    swapchain_fullscreen_descriptor.Scaling          = DXGI_MODE_SCALING_UNSPECIFIED;       //  never use scaling
     swapchain_fullscreen_descriptor.Windowed         = false;                               //  start the application in fullscreen
 
     //  this is how to get the refresh rate of the monitor. the modes are resolutions combined with refresh rate and etc.
     m_result = m_dxgi.factory->CreateSwapChainForHwnd(
-        m_dxgi.device, window_handle, &swapchain_descriptor, &swapchain_fullscreen_descriptor, nullptr, reinterpret_cast<IDXGISwapChain1**>(&m_swapchain)
+        m_device, window_handle, &swapchain_descriptor, &swapchain_fullscreen_descriptor, nullptr, reinterpret_cast<IDXGISwapChain1**>(&m_swapchain)
     );
     if (FAILED(m_result))
     {
         std::cout << "Couldn't create swapchain for the window:" << std::flush;
     }
 
-    // DEBUG
+    //  DEBUG
     {
         m_swapchain->GetDesc1(&swapchain_descriptor);
 
@@ -107,16 +106,6 @@ renderer_t::renderer_t(HWND window_handle)
             std::cout << swapchain_descriptor.Width << std::endl;
         }
     }
-
-    DXGI_MODE_DESC new_resolution {};
-    new_resolution.Width            = best_display_mode.Width;
-    new_resolution.Height           = best_display_mode.Height;
-    new_resolution.RefreshRate      = best_display_mode.RefreshRate;
-    new_resolution.Format           = best_display_mode.Format;
-    new_resolution.ScanlineOrdering = best_display_mode.ScanlineOrdering;
-    new_resolution.Scaling          = best_display_mode.Scaling;
-
-    m_swapchain->ResizeTarget(&new_resolution);
 
     delete [] display_modes;
 
