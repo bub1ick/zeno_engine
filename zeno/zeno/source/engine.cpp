@@ -12,9 +12,8 @@ int32_t engine_t::run()
 {
     auto engine_loop = [this]() -> bool
     {
-        //  handle all the engine systems
+        //  TODO: handle all the engine systems
 
-        m_renderer;
         return m_game_is_done;
     };
 
