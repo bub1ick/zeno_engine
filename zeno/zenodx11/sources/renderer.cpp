@@ -27,7 +27,7 @@ renderer_t::renderer_t(HWND window_handle)
     //  take the best resolution available to user
     DXGI_MODE_DESC1 best_display_mode = get_best_display_mode();
 
-    // create the swapchain
+    //  create the swapchain
     if (create_swapchain(&best_display_mode, true, window_handle) == false)
     {
         //  TODO: handle error
@@ -128,7 +128,7 @@ bool renderer_t::create_swapchain(DXGI_MODE_DESC1* in_fullscreen_display_mode, b
     swapchain_descriptor.BufferCount = 2;                                                          //  we want the front and the back buffer (sums up to 2)
     swapchain_descriptor.Scaling     = DXGI_SCALING_NONE;                                          //  stretch preserving the original rendered aspect ratio
     swapchain_descriptor.SwapEffect  = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;                           //  use flip model instead of bitblt model (more in MSDN)
-    swapchain_descriptor.AlphaMode   = DXGI_ALPHA_MODE_UNSPECIFIED;                                //  FIXME IDK what is this
+    swapchain_descriptor.AlphaMode   = DXGI_ALPHA_MODE_UNSPECIFIED;                                //  FIXME: IDK what is this
     swapchain_descriptor.Flags       = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
     DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapchain_fullscreen_descriptor {};

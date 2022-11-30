@@ -19,7 +19,7 @@
 #    define NOMINMAX
 
 //  HACK: Use this to let the windows headers define the GUIDs of interfaces.
-// We want such behavior because using compiler intrinsincs is kinda bad imo.
+//  We want such behavior because using compiler intrinsincs is kinda bad imo.
 #    define INITGUID
 
 #    include <windows.h>
