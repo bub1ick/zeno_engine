@@ -86,7 +86,7 @@ renderer_t::renderer_t(HWND window_handle)
     swapchain_fullscreen_descriptor.RefreshRate      = best_display_mode.RefreshRate;       //  get the highest refresh rate from the monitor
     swapchain_fullscreen_descriptor.ScanlineOrdering = best_display_mode.ScanlineOrdering;  //  get scanline ordering from the monitor
     swapchain_fullscreen_descriptor.Scaling          = DXGI_MODE_SCALING_UNSPECIFIED;       //  never use scaling
-    swapchain_fullscreen_descriptor.Windowed         = false;                               //  start the application in fullscreen
+    swapchain_fullscreen_descriptor.Windowed         = true;                                //  start the application in windowed mode
 
     //  this is how to get the refresh rate of the monitor. the modes are resolutions combined with refresh rate and etc.
     m_result = m_dxgi.factory->CreateSwapChainForHwnd(
