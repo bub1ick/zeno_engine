@@ -1,8 +1,9 @@
 #include <zeno.hpp>
+#include <assert.h>
 
 namespace zeno::dx11
 {
-renderer_t::renderer_t(HWND window_handle)
+renderer_t::renderer_t(HWND in_window_handle)
     : m_feature_level(D3D_FEATURE_LEVEL_11_1)
 {
     //  create DXGI factory to handle DXGI
@@ -28,12 +29,74 @@ renderer_t::renderer_t(HWND window_handle)
     DXGI_MODE_DESC1 best_display_mode = get_best_display_mode();
 
     //  create the swapchain
-    if (create_swapchain(&best_display_mode, true, window_handle) == false)
+    if (create_swapchain(&best_display_mode, true, in_window_handle) == false)
     {
         //  TODO: handle error
     }
 
-    //  TODO: continue to make a renderer(follow some guides idk)
+    ID3D11Texture2D1* frame_buffer;
+    m_result = m_swapchain->GetBuffer(0, IID_ID3D11Texture2D1, reinterpret_cast<void**>(&frame_buffer));
+    if (FAILED(m_result))
+    {
+        std::cerr << "Couldn't get the swap chain buffer!" << std::endl;
+    }
+
+    ID3D11RenderTargetView1* render_target_view;
+    m_result = m_device->CreateRenderTargetView1(frame_buffer, 0, &render_target_view);
+    if (FAILED(m_result))
+    {
+        std::cerr << "Couldn't create Render Target view!" << std::endl;
+    }
+
+    ID3DBlob* vs_blob    = nullptr;
+    ID3DBlob* ps_blob    = nullptr;
+    ID3DBlob* error_blob = nullptr;
+
+    m_result = D3DCompileFromFile(
+        L"shaders.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "vs_main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vs_blob, &error_blob
+    );
+    if (FAILED(m_result))
+    {
+        if (error_blob)
+        {
+            OutputDebugStringA(reinterpret_cast<char*>(error_blob->GetBufferPointer()));
+            error_blob->Release();
+        }
+        if (vs_blob)
+            vs_blob->Release();
+        assert(false);
+    }
+
+    m_result = D3DCompileFromFile(
+        L"shaders.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "ps_main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &ps_blob, &error_blob
+    );
+    if (FAILED(m_result))
+    {
+        if (error_blob)
+        {
+            OutputDebugStringA(reinterpret_cast<char*>(error_blob->GetBufferPointer()));
+            error_blob->Release();
+        }
+        if (ps_blob)
+            ps_blob->Release();
+        assert(false);
+    }
+
+    ID3D11VertexShader* vs = nullptr;
+    ID3D11PixelShader*  ps = nullptr;
+
+    m_result = m_device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &vs);
+    assert(SUCCEEDED(m_result));
+
+    m_result = m_device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &ps);
+    assert(SUCCEEDED(m_result));
+
+    //  m_device->CreateInputLayout();
+    //  m_device_context->IASetInputLayout();
+    //  m_device->CreateBuffer();
+    //  m_device_context->IASetVertexBuffers();
+
+    //  TODO: continue to make a renderer (follow some guides idk)
 }
 
 renderer_t::~renderer_t()
@@ -86,7 +149,7 @@ bool renderer_t::create_device()
         m_dxgi.graphics_card,
         D3D_DRIVER_TYPE_UNKNOWN,
         nullptr,
-        0,
+        D3D11_CREATE_DEVICE_SINGLETHREADED,
         &m_feature_level,
         1,
         D3D11_SDK_VERSION,
@@ -115,6 +178,10 @@ bool renderer_t::create_device()
 
 bool renderer_t::create_swapchain(DXGI_MODE_DESC1* in_fullscreen_display_mode, bool in_windowed, HWND in_window_handle)
 {
+    //  how can the swapchain be used
+    DXGI_USAGE            buffer_usage    = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
+    uint32_t              swapchain_flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+
     //  info on the dxgi format topic:
     //      - https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/converting-data-color-space
     //      - https://developer.nvidia.com/gpugems/gpugems3/part-iv-image-effects/chapter-24-importance-being-linear
@@ -124,12 +191,12 @@ bool renderer_t::create_swapchain(DXGI_MODE_DESC1* in_fullscreen_display_mode, b
     swapchain_descriptor.Format      = DXGI_FORMAT_R16G16B16A16_FLOAT;                        //  use linear format that is supported by flip mode swap chain
     swapchain_descriptor.Stereo      = false;   //  true is for VR-like things (two screens rendering at the same time)
     swapchain_descriptor.SampleDesc  = {1, 0};  //  disable MSAA
-    swapchain_descriptor.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;  //  how can the swapchain be used
-    swapchain_descriptor.BufferCount = 2;                                                          //  we want the front and the back buffer (sums up to 2)
-    swapchain_descriptor.Scaling     = DXGI_SCALING_NONE;                                          //  stretch preserving the original rendered aspect ratio
-    swapchain_descriptor.SwapEffect  = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;                           //  use flip model instead of bitblt model (more in MSDN)
-    swapchain_descriptor.AlphaMode   = DXGI_ALPHA_MODE_UNSPECIFIED;                                //  FIXME: IDK what is this
-    swapchain_descriptor.Flags       = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+    swapchain_descriptor.BufferUsage = buffer_usage;
+    swapchain_descriptor.BufferCount = 2;                                 //  we want the front and the back buffer (sums up to 2)
+    swapchain_descriptor.Scaling     = DXGI_SCALING_NONE;                 //  stretch preserving the original rendered aspect ratio
+    swapchain_descriptor.SwapEffect  = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;  //  use flip model instead of bitblt model (more in MSDN)
+    swapchain_descriptor.AlphaMode   = DXGI_ALPHA_MODE_UNSPECIFIED;       //  FIXME: IDK what is this
+    swapchain_descriptor.Flags       = swapchain_flags;
 
     DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapchain_fullscreen_descriptor {};
     swapchain_fullscreen_descriptor.RefreshRate      = in_fullscreen_display_mode->RefreshRate;       //  get the highest refresh rate from the monitor

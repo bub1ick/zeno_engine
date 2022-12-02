@@ -25,6 +25,7 @@
 #    include <windows.h>
 
 #    include <d3d11_4.h>
+#    include <d3dcompiler.h>
 #    include <dxgi1_6.h>
 #endif
 
