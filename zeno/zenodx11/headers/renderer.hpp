@@ -16,7 +16,7 @@ struct dxgi_t
 class ZENO_API renderer_t
 {
 public:
-    renderer_t(HWND window_handle);
+    renderer_t(HWND in_window_handle);
     ~renderer_t();
 
     void update();
