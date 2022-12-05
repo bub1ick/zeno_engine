@@ -4,7 +4,8 @@
 namespace zeno::dx11
 {
 renderer_t::renderer_t(HWND in_window_handle)
-    : m_feature_level(D3D_FEATURE_LEVEL_11_1)
+    : m_feature_level(D3D_FEATURE_LEVEL_11_1),
+      m_window_handle {in_window_handle}
 {
     //  create DXGI factory to handle DXGI
     m_result = CreateDXGIFactory2(0, IID_IDXGIFactory7, reinterpret_cast<void**>(&m_dxgi.factory));
@@ -29,11 +30,12 @@ renderer_t::renderer_t(HWND in_window_handle)
     DXGI_MODE_DESC1 best_display_mode = get_best_display_mode();
 
     //  create the swapchain
-    if (create_swapchain(&best_display_mode, true, in_window_handle) == false)
+    if (create_swapchain(&best_display_mode, true, m_window_handle) == false)
     {
         //  TODO: handle error
     }
 
+    //  take out the current frame from the swapchain
     ID3D11Texture2D1* frame_buffer;
     m_result = m_swapchain->GetBuffer(0, IID_ID3D11Texture2D1, reinterpret_cast<void**>(&frame_buffer));
     if (FAILED(m_result))
@@ -41,17 +43,18 @@ renderer_t::renderer_t(HWND in_window_handle)
         std::cerr << "Couldn't get the swap chain buffer!" << std::endl;
     }
 
-    ID3D11RenderTargetView1* render_target_view;
-    m_result = m_device->CreateRenderTargetView1(frame_buffer, 0, &render_target_view);
+    //  from the frame get the target view
+    m_result = m_device->CreateRenderTargetView1(frame_buffer, 0, &m_render_target_view);
     if (FAILED(m_result))
     {
         std::cerr << "Couldn't create Render Target view!" << std::endl;
     }
 
-    ID3DBlob* vs_blob    = nullptr;
-    ID3DBlob* ps_blob    = nullptr;
-    ID3DBlob* error_blob = nullptr;
+    ID3DBlob* vs_blob    = nullptr;  //  holds compiled vertex shader
+    ID3DBlob* ps_blob    = nullptr;  //  holds compiled pixel shader
+    ID3DBlob* error_blob = nullptr;  //  holds error if such exists
 
+    //  compile vertex shader
     m_result = D3DCompileFromFile(
         L"shaders.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "vs_main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vs_blob, &error_blob
     );
@@ -67,6 +70,7 @@ renderer_t::renderer_t(HWND in_window_handle)
         assert(false);
     }
 
+    //  compile pixel shader
     m_result = D3DCompileFromFile(
         L"shaders.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "ps_main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &ps_blob, &error_blob
     );
@@ -82,17 +86,57 @@ renderer_t::renderer_t(HWND in_window_handle)
         assert(false);
     }
 
-    ID3D11VertexShader* vs = nullptr;
-    ID3D11PixelShader*  ps = nullptr;
 
-    m_result = m_device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &vs);
+    //  pass the vertex shader to graphics card
+    m_result = m_device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &m_vs);
     assert(SUCCEEDED(m_result));
 
-    m_result = m_device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &ps);
+    //  pass the pixel shader to graphics card
+    m_result = m_device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &m_ps);
     assert(SUCCEEDED(m_result));
 
-    //  m_device->CreateInputLayout();
-    //  m_device_context->IASetInputLayout();
+    //  the data that can be passed to vertex shader
+    D3D11_INPUT_ELEMENT_DESC input_descriptor [] = {
+        {"POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
+  //    {"COL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+  //    {"NOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+  //    {"TEX", 0,    DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+    };
+
+    //  apply the input layout
+    m_result = m_device->CreateInputLayout(
+        input_descriptor, ARRAYSIZE(input_descriptor), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &m_vertex_input_layout
+    );
+    assert(SUCCEEDED(m_result));
+
+    m_device_context->IASetInputLayout(m_vertex_input_layout);
+
+    ///  an array defining a triangle mesh in a 2D space with 3 points:
+    float vertex_data_array [][3] = {
+        { 0.0f,  0.5f, 0.0f}, //  point at top
+        { 0.5f, -0.5f, 0.0f}, //  point at bottom-right
+        {-0.5f, -0.5f, 0.0f}, //  point at bottom-left
+    };
+
+    m_vertex_stride = 3 * sizeof(float);  //  how big each complex piece of data is
+    m_vertex_offset = 0;                  //  offset where the array starts
+    m_vertex_count  = 3;                  //  how big the array is
+
+    //  creating a vertex buffer
+    {
+        D3D11_BUFFER_DESC vertex_buffer_descriptor = {};
+        vertex_buffer_descriptor.ByteWidth         = sizeof(vertex_data_array);
+        vertex_buffer_descriptor.Usage             = D3D11_USAGE_DEFAULT;
+        vertex_buffer_descriptor.BindFlags         = D3D11_BIND_VERTEX_BUFFER;
+
+        D3D11_SUBRESOURCE_DATA sr_data = {0};
+        sr_data.pSysMem                = vertex_data_array;
+
+        HRESULT hr = m_device->CreateBuffer(&vertex_buffer_descriptor, &sr_data, &m_current_vertex_buffer);
+        assert(SUCCEEDED(hr));
+    }
+
+
     //  m_device->CreateBuffer();
     //  m_device_context->IASetVertexBuffers();
 
@@ -112,6 +156,38 @@ renderer_t::~renderer_t()
     //  clean up d3d11
     m_device->Release();
     m_device_context->Release();
+}
+
+void renderer_t::update()
+{
+    float background_color [4] = {0x64 / 255.0f, 0x95 / 255.0f, 0xED / 255.0f, 1.0f};
+    m_device_context->ClearRenderTargetView(reinterpret_cast<ID3D11RenderTargetView*>(m_render_target_view), background_color);
+
+    RECT window_rectangle {};
+    GetClientRect(m_window_handle, &window_rectangle);
+
+    D3D11_VIEWPORT viewport {};
+    viewport.TopLeftX = 0.0f;
+    viewport.TopLeftY = 0.0f;
+    viewport.Width    = static_cast<float>(window_rectangle.right - window_rectangle.left);
+    viewport.Height   = static_cast<float>(window_rectangle.bottom - window_rectangle.top);
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+
+    m_device_context->RSSetViewports(1, &viewport);
+
+    m_device_context->OMSetRenderTargets(1, reinterpret_cast<ID3D11RenderTargetView**>(&m_render_target_view), nullptr);
+
+    m_device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_device_context->IASetInputLayout(m_vertex_input_layout);
+    m_device_context->IASetVertexBuffers(0, 1, &m_current_vertex_buffer, &m_vertex_stride, &m_vertex_offset);
+
+    m_device_context->VSSetShader(m_vs, nullptr, 0);
+    m_device_context->PSSetShader(m_ps, nullptr, 0);
+    
+    m_device_context->Draw(m_vertex_count, 0);
+
+    m_swapchain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 }
 
 void renderer_t::get_all_available_adapters(std::vector<IDXGIAdapter4*>& out_adapters)
