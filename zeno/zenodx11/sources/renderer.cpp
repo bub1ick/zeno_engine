@@ -7,7 +7,6 @@ renderer_t::renderer_t(HWND in_window_handle)
     : m_feature_level(D3D_FEATURE_LEVEL_11_1),
       m_window_handle {in_window_handle}
 {
-    //  create DXGI factory to handle DXGI
     m_result = CreateDXGIFactory2(0, IID_IDXGIFactory7, reinterpret_cast<void**>(&m_dxgi.factory));
     if (FAILED(m_result))
         std::cerr << "Failed on CreateDXGIFactory2!\t" << std::hex << m_result << std::endl;
@@ -17,7 +16,7 @@ renderer_t::renderer_t(HWND in_window_handle)
     get_all_available_adapters(adapters);
     m_dxgi.graphics_card = adapters [0];
 
-    //  get the monitor
+    // FIXME: determine monitor to display to by
     m_result = m_dxgi.graphics_card->EnumOutputs(0, reinterpret_cast<IDXGIOutput**>(&m_dxgi.monitor));
 
     //  create the device
@@ -97,8 +96,8 @@ renderer_t::renderer_t(HWND in_window_handle)
 
     //  the data that can be passed to vertex shader
     D3D11_INPUT_ELEMENT_DESC input_descriptor [] = {
-        {"POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
-  //    {"COL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,                            0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {   "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
   //    {"NOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
   //    {"TEX", 0,    DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
     };
@@ -135,10 +134,6 @@ renderer_t::renderer_t(HWND in_window_handle)
         HRESULT hr = m_device->CreateBuffer(&vertex_buffer_descriptor, &sr_data, &m_current_vertex_buffer);
         assert(SUCCEEDED(hr));
     }
-
-
-    //  m_device->CreateBuffer();
-    //  m_device_context->IASetVertexBuffers();
 
     //  TODO: continue to make a renderer (follow some guides idk)
 }
@@ -184,7 +179,7 @@ void renderer_t::update()
 
     m_device_context->VSSetShader(m_vs, nullptr, 0);
     m_device_context->PSSetShader(m_ps, nullptr, 0);
-    
+
     m_device_context->Draw(m_vertex_count, 0);
 
     m_swapchain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
