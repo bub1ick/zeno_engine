@@ -13,14 +13,14 @@ renderer_t::renderer_t(HWND in_window_handle)
 
     //  find the most powerful graphics card
     std::vector<IDXGIAdapter4*> adapters;
-    get_all_available_adapters(adapters);
+    m_get_all_available_adapters(adapters);
     m_dxgi.graphics_card = adapters [0];
 
-    // FIXME: determine monitor to display to
+    //  FIXME: determine monitor to display to
     m_result = m_dxgi.graphics_card->EnumOutputs(0, reinterpret_cast<IDXGIOutput**>(&m_dxgi.monitor));
 
     //  create the device
-    if (create_device() == false)
+    if (m_create_device() == false)
     {
         //  TODO: handle error
     }
@@ -29,25 +29,16 @@ renderer_t::renderer_t(HWND in_window_handle)
     DXGI_MODE_DESC1 best_display_mode = get_best_display_mode();
 
     //  create the swapchain
-    if (create_swapchain(&best_display_mode, true, m_window_handle) == false)
+    if (m_create_swapchain(&best_display_mode, true, m_window_handle) == false)
     {
         //  TODO: handle error
     }
 
-    //  take out the current frame from the swapchain
-    ID3D11Texture2D1* frame_buffer;
-    m_result = m_swapchain->GetBuffer(0, IID_ID3D11Texture2D1, reinterpret_cast<void**>(&frame_buffer));
-    if (FAILED(m_result))
+    if (m_create_target_view() == false)
     {
-        std::cerr << "Couldn't get the swap chain buffer!" << std::endl;
+        //  TODO: handle error
     }
 
-    //  from the frame get the target view
-    m_result = m_device->CreateRenderTargetView1(frame_buffer, 0, &m_render_target_view);
-    if (FAILED(m_result))
-    {
-        std::cerr << "Couldn't create Render Target view!" << std::endl;
-    }
 
     ID3DBlob* vs_blob    = nullptr;  //  holds compiled vertex shader
     ID3DBlob* ps_blob    = nullptr;  //  holds compiled pixel shader
@@ -185,7 +176,7 @@ void renderer_t::update()
     m_swapchain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 }
 
-void renderer_t::get_all_available_adapters(std::vector<IDXGIAdapter4*>& out_adapters)
+void renderer_t::m_get_all_available_adapters(std::vector<IDXGIAdapter4*>& out_adapters)
 {
     IDXGIAdapter4* adapter;  //  used to temporary store found adapter
 
@@ -214,7 +205,7 @@ DXGI_MODE_DESC1 renderer_t::get_best_display_mode()
     return m_dxgi.display_modes [number_of_display_modes - 1];
 }
 
-bool renderer_t::create_device()
+bool renderer_t::m_create_device()
 {
     m_result = D3D11CreateDevice(
         m_dxgi.graphics_card,
@@ -247,7 +238,7 @@ bool renderer_t::create_device()
     return true;
 }
 
-bool renderer_t::create_swapchain(DXGI_MODE_DESC1* in_fullscreen_display_mode, bool in_windowed, HWND in_window_handle)
+bool renderer_t::m_create_swapchain(DXGI_MODE_DESC1* in_fullscreen_display_mode, bool in_windowed, HWND in_window_handle)
 {
     //  how can the swapchain be used
     DXGI_USAGE            buffer_usage    = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
@@ -286,4 +277,26 @@ bool renderer_t::create_swapchain(DXGI_MODE_DESC1* in_fullscreen_display_mode, b
 
     return true;
 }
+
+bool renderer_t::m_create_target_view()
+{
+    //  take out the current frame from the swapchain
+    ID3D11Texture2D1* frame_buffer;
+    m_result = m_swapchain->GetBuffer(0, IID_ID3D11Texture2D1, reinterpret_cast<void**>(&frame_buffer));
+    if (FAILED(m_result))
+    {
+        std::cerr << "Couldn't get the swap chain buffer!" << std::endl;
+        return false;
+    }
+
+    //  from the frame get the target view
+    m_result = m_device->CreateRenderTargetView1(frame_buffer, 0, &m_render_target_view);
+    if (FAILED(m_result))
+    {
+        std::cerr << "Couldn't create Render Target view!" << std::endl;
+        return false;
+    }
+}
+
+
 }  //  namespace zeno::dx11

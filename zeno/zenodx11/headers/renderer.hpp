@@ -24,7 +24,7 @@ public:
 private:
     ///  @brief search for all dxgi adapters (graphics cards) in the system
     ///  @param out_adapters reference to a vector to hold found adapters
-    void                     get_all_available_adapters(std::vector<IDXGIAdapter4*>& out_adapters);
+    void                     m_get_all_available_adapters(std::vector<IDXGIAdapter4*>& out_adapters);
 
     ///  @brief this fucntion gets all the display modes available to user
     ///  @return the mode with the best resolution and refresh rate
@@ -32,14 +32,24 @@ private:
 
     ///  @brief create direct3d and dxgi device and its context
     ///  @return true on success, false on error
-    bool                     create_device();
+    bool                     m_create_device();
 
     ///  @brief  create a dxgi swapchain to render to
     ///  @param in_fullscreen_display_mode default fullscreen resolution, refresh rate etc.
     ///  @param in_windowed whether to create a windowed swapchain or a fullscreen one
     ///  @param in_window_handle a handle to a win32 window to bind swapchain to
     ///  @return true on success, false on error
-    bool                     create_swapchain(DXGI_MODE_DESC1* in_fullscreen_display_mode, bool in_windowed, HWND in_window_handle);
+    bool                     m_create_swapchain(DXGI_MODE_DESC1* in_fullscreen_display_mode, bool in_windowed, HWND in_window_handle);
+
+    ///  @brief is used to create a target view for device context to draw to
+    ///  @return true on success, false on error
+    bool                     m_create_target_view();
+
+    ///  @brief !!!TESTING!!! temporary used to compile vertex and pixel
+    ///  @param out_vs_blob vertex shader blob (binary data)
+    ///  @param out_ps_blob pixel shader blob (binary data)
+    ///  @return true on success, false on error
+    bool                     m_compile_shaders(ID3DBlob** out_vs_blob, ID3DBlob** out_ps_blob);
 
     ///  @brief shows which version of direct3d to request
     const D3D_FEATURE_LEVEL  m_feature_level;
