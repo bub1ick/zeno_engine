@@ -16,7 +16,7 @@ renderer_t::renderer_t(HWND in_window_handle)
     get_all_available_adapters(adapters);
     m_dxgi.graphics_card = adapters [0];
 
-    // FIXME: determine monitor to display to by
+    // FIXME: determine monitor to display to
     m_result = m_dxgi.graphics_card->EnumOutputs(0, reinterpret_cast<IDXGIOutput**>(&m_dxgi.monitor));
 
     //  create the device
