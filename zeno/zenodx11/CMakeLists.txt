@@ -28,4 +28,6 @@ target_sources(
     zenodx11
     PUBLIC
     "sources/renderer.cpp"
+    "sources/dxgi/dxgi_module.cpp"
+    "sources/exceptions/exceptions.cpp"
 )

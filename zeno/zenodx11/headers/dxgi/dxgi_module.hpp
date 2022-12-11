@@ -1,0 +1,45 @@
+#pragma once
+
+namespace zeno::dx11
+{
+
+class dxgi_module_t
+{
+public:
+    dxgi_module_t();
+
+    void             initialize_device(ID3D11Device5* const in_d3d11_device);
+
+    void             create_swapchain(ID3D11Device5* in_device, bool in_windowed, HWND in_window_handle);
+
+    IDXGISwapChain4* get_swapchain() const noexcept { return m_swapchain; };
+
+    IDXGIAdapter4*   get_graphics_card() const noexcept { return m_graphics_card; };
+
+private:
+    ///  @brief search for all dxgi adapters (graphics cards) in the system
+    ///  @param out_adapters reference to a vector to hold found adapters
+    void                        m_get_all_available_adapters();
+
+    ///  @brief this fucntion gets all the display modes available to user
+    ///  @return the mode with the best resolution and refresh rate
+    DXGI_MODE_DESC1             m_get_best_display_mode();
+
+    HRESULT                     m_result;
+
+    IDXGIFactory7*              m_factory;
+
+    IDXGIDevice4*               m_device;
+
+    std::vector<IDXGIAdapter4*> m_adapters;
+
+    IDXGIAdapter4*              m_graphics_card;
+
+    IDXGIOutput6*               m_monitor;
+
+    DXGI_MODE_DESC1*            m_display_modes;
+
+    IDXGISwapChain4*            m_swapchain;
+};
+
+}  //  namespace zeno::dx11
