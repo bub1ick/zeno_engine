@@ -6,7 +6,7 @@ target_link_libraries(
     PUBLIC
     zeno
     zenosys
-    zenodx11
+    zenogfx
 )
 
 # Add include directory to be able to use engine's primary include file (zeno.hpp)

@@ -1,8 +1,8 @@
-add_library(zenodx11)
+add_library(zenogfx)
 
 # provide access to zenosys to dependants of zenodx11
 target_link_libraries(
-    zenodx11
+    zenogfx
     PUBLIC
     zenosys
     zenoutils
@@ -13,19 +13,19 @@ target_link_libraries(
 
 # define needed macro
 target_compile_definitions(
-    zenodx11
+    zenogfx
     PUBLIC
     ZENO_LIB
 )
 
 target_include_directories(
-    zenodx11
+    zenogfx
     PRIVATE
     "../"
 )
 
 target_sources(
-    zenodx11
+    zenogfx
     PUBLIC
     "sources/renderer.cpp"
     "sources/dxgi/dxgi_module.cpp"
