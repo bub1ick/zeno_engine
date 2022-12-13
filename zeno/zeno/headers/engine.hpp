@@ -17,16 +17,16 @@ public:
     int32_t run();
 
 private:
-    sys::window_t    m_window;
+    sys::window_t   m_window;
 
     gfx::renderer_t m_renderer;
 
-    std::string      m_command_line = "";
+    std::string     m_command_line = "";
 
-    bool             m_game_is_done = false;
+    bool            m_game_is_done = false;
 
-    std::string      load_shaders(const char* shader_path) const;
+    std::string     load_shaders(const char* shader_path) const;
 
-    void             loop();
+    void            loop();
 };
 }  //  namespace zeno
