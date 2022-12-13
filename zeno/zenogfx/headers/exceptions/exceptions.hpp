@@ -1,6 +1,6 @@
 #pragma once
 
-namespace zeno::dx11
+namespace zeno::gfx
 {
 class dxgi_exception_t
 {

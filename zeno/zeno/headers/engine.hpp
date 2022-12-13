@@ -19,7 +19,7 @@ public:
 private:
     sys::window_t    m_window;
 
-    dx11::renderer_t m_renderer;
+    gfx::renderer_t m_renderer;
 
     std::string      m_command_line = "";
 

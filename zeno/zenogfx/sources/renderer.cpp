@@ -1,7 +1,7 @@
 #include <zeno.hpp>
 #include <assert.h>
 
-namespace zeno::dx11
+namespace zeno::gfx
 {
 
 renderer_t::renderer_t(HWND in_window_handle)

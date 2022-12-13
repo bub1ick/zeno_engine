@@ -1,6 +1,6 @@
 #include <zeno.hpp>
 
-namespace zeno::dx11
+namespace zeno::gfx
 {
 dxgi_exception_t::dxgi_exception_t(std::string_view in_error_string, HRESULT in_result)
     : m_error_message(in_error_string),

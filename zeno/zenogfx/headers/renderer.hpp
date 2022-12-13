@@ -3,7 +3,7 @@
 #include "exceptions/exceptions.hpp"
 #include "dxgi/dxgi_module.hpp"
 
-namespace zeno::dx11
+namespace zeno::gfx
 {
 
 ///  @brief struct holding all rarely used/not essential dxgi interfaces and data

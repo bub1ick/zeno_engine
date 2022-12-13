@@ -1,6 +1,6 @@
 #include <zeno.hpp>
 
-namespace zeno::dx11
+namespace zeno::gfx
 {
 
 dxgi_module_t::dxgi_module_t()
