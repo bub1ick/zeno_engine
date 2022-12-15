@@ -70,16 +70,13 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window_handle{in_window_handle}
 
     //  the data that can be passed to vertex shader
     D3D11_INPUT_ELEMENT_DESC input_descriptor [] = {
-        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,                            0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {   "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
-  //    {"NOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+ //    {"NOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
   //    {"TEX", 0,    DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
     };
 
     //  apply the input layout
-    m_result = m_device->CreateInputLayout(
-        input_descriptor, ARRAYSIZE(input_descriptor), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &m_vertex_input_layout
-    );
+    m_result = m_device->CreateInputLayout(input_descriptor, ARRAYSIZE(input_descriptor), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &m_vertex_input_layout);
     assert(SUCCEEDED(m_result));
 
     m_device_context->IASetInputLayout(m_vertex_input_layout);
@@ -212,4 +209,4 @@ bool renderer_t::m_create_target_view()
     return true;
 }
 
-}  //  namespace zeno::dx11
+}  //  namespace zeno::gfx
