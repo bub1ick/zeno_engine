@@ -20,7 +20,7 @@ public:
 
     ///  @brief get the win32 window handle
     ///  @return the handle
-    HWND get_handle() { return m_handle; };
+    HWND get_handle() const { return m_handle; };
 
 private:
     ///  @brief win32 window procedure to handle win32 events

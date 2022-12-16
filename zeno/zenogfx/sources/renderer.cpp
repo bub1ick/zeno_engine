@@ -4,9 +4,9 @@
 namespace zeno::gfx
 {
 
-renderer_t::renderer_t(HWND in_window_handle)
+renderer_t::renderer_t(const sys::window_t& in_window)
 
-try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window_handle{in_window_handle}, m_dxgi_module()
+try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_module()
 {
     //  create the device
     if (m_create_device() == false)
@@ -14,7 +14,7 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window_handle{in_window_handle}
         //  TODO: handle error
     }
 
-    m_dxgi_module.create_swapchain(m_device, true, in_window_handle);
+    m_dxgi_module.create_swapchain(m_device, true, m_window.get_handle());
 
 
     if (m_create_target_view() == false)
@@ -127,7 +127,7 @@ void renderer_t::update()
     m_device_context->ClearRenderTargetView(reinterpret_cast<ID3D11RenderTargetView*>(m_render_target_view), background_color);
 
     RECT window_rectangle {};
-    GetClientRect(m_window_handle, &window_rectangle);
+    GetClientRect(m_window.get_handle(), &window_rectangle);
 
     D3D11_VIEWPORT viewport {};
     viewport.TopLeftX = 0.0f;

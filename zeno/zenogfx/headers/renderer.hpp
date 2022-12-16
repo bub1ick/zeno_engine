@@ -19,7 +19,7 @@ struct dxgi_t
 class ZENO_API renderer_t
 {
 public:
-    renderer_t(HWND in_window_handle);
+    renderer_t(const sys::window_t& in_window);
     ~renderer_t();
 
     void update();
@@ -39,11 +39,13 @@ private:
     ///  @return true on success, false on error
     bool                     m_compile_shaders(ID3DBlob** out_vs_blob, ID3DBlob** out_ps_blob);
 
-    ///  @brief shows which version of direct3d to request
-    const D3D_FEATURE_LEVEL  m_feature_level;
-
     ///  @brief holds all dxgi related interfaces
     dxgi_module_t            m_dxgi_module;
+
+    const sys::window_t&     m_window;
+
+    ///  @brief shows which version of direct3d to request
+    const D3D_FEATURE_LEVEL  m_feature_level;
 
     ///  @brief the direct3d device
     ID3D11Device5*           m_device;
@@ -56,9 +58,6 @@ private:
 
     ///  @brief holds the results of direct3d and dxgi functions
     HRESULT                  m_result;
-
-    ///  @brief a handle to a win32 window
-    HWND                     m_window_handle;
 
     ///  @brief describes how data is organized before being passed to vertex shader
     ID3D11InputLayout*       m_vertex_input_layout;
@@ -76,4 +75,4 @@ private:
     ID3D11VertexShader*      m_vs = nullptr;
     ID3D11PixelShader*       m_ps = nullptr;
 };
-}  //  namespace zeno::dx11
+}  //  namespace zeno::gfx
