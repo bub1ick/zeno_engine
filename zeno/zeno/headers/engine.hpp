@@ -17,6 +17,8 @@ public:
     int32_t run();
 
 private:
+    void            loop();
+
     sys::window_t   m_window;
 
     gfx::renderer_t m_renderer;
@@ -24,10 +26,6 @@ private:
     std::string     m_command_line = "";
 
     bool            m_game_is_done = false;
-
-    std::string     load_shaders(const char* shader_path) const;
-
-    void            loop();
 };
 
 }  //  namespace zeno

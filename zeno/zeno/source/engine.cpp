@@ -24,23 +24,4 @@ int32_t engine_t::run()
     return 0;
 }
 
-std::string engine_t::load_shaders(const char* shader_path) const
-{
-    std::ifstream shader_file(shader_path, std::ios::in);
-    std::string   shader_string;
-
-    if (shader_file.is_open())
-    {
-        std::string shader_line = "";
-        while (not shader_file.eof())
-        {
-            std::getline(shader_file, shader_line);
-
-            shader_string.append(shader_line + "\n");
-        }
-    }
-
-    return shader_string;
-}
-
 }  //  namespace zeno
