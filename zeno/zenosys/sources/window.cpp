@@ -28,13 +28,15 @@ window_t::window_t(const char* in_window_name, int32_t in_pos_x, int32_t in_pos_
     if (in_window_name == nullptr)
         in_window_name = "ZenoApplication";  //  otherwise provide with default name for the .exe
 
+    const uint32_t window_style = WS_CAPTION | WS_SYSMENU;
+
     //  create our window, but don't show it yet untill we are fully initialized
     m_handle = CreateWindowExA(
-        0, MAKEINTATOM(m_class_atom), in_window_name, 0, in_pos_x, in_pos_y, in_size_x, in_size_y, nullptr, nullptr, m_application_instance, nullptr
+        0, MAKEINTATOM(m_class_atom), in_window_name, window_style, in_pos_x, in_pos_y, in_size_x, in_size_y, nullptr, nullptr, m_application_instance, nullptr
     );
 
     int32_t error;
-    if (not m_handle)
+    if (!m_handle)
         error = GetLastError();
 
     ShowWindow(m_handle, SW_SHOWDEFAULT);
@@ -48,10 +50,10 @@ void window_t::loop(std::function<bool()> engine_loop_callback)
     bool done = false;
 
     //  as long as we are not done
-    while (not done)
+    while (!done)
     {
         //  check whether we are safe to call engine loop and if we can handle message
-        if (not queue_is_ok(&message, done))
+        if (!queue_is_ok(&message, done))
             continue;
 
         //  do the engine suff
@@ -62,8 +64,7 @@ void window_t::loop(std::function<bool()> engine_loop_callback)
 bool window_t::queue_is_ok(MSG* in_out_message, bool& out_done)
 {
     //  check the message queue if it's empty
-    int32_t queue_is_empty = not PeekMessageA(in_out_message, m_handle, 0, 0, PM_NOREMOVE);  //  returns 0 if empty so we negate it
-
+    int32_t queue_is_empty = !PeekMessageA(in_out_message, m_handle, 0, 0, PM_NOREMOVE);  //  returns 0 if empty so we negate it
     if (queue_is_empty)
         return true;  //  go straight to engine loop if no messages were found
 
@@ -98,9 +99,18 @@ LRESULT window_t::window_procedure(HWND window_handle, UINT message_id, WPARAM w
 {
     switch (message_id)
     {
-        case WM_DESTROY:
-            return 0;
+        case WM_CLOSE:
+        {
+            DestroyWindow(window_handle);
 
+            return 0;
+        }
+        case WM_DESTROY:
+        {
+            PostQuitMessage(0);
+
+            return 0;
+        }
         default:
             return DefWindowProcA(window_handle, message_id, w_param, l_param);
     }
