@@ -69,7 +69,7 @@ bool window_t::queue_is_ok(MSG* in_out_message, bool& out_done)
         return true;  //  go straight to engine loop if no messages were found
 
     //  check the queue for errors
-    switch (GetMessageA(in_out_message, m_handle, 0, 0))
+    switch (GetMessageA(in_out_message, NULL, 0, 0))
     {
         case 0:  //  WM_QUIT -> must quit the application
         {
@@ -99,12 +99,6 @@ LRESULT window_t::window_procedure(HWND window_handle, UINT message_id, WPARAM w
 {
     switch (message_id)
     {
-        case WM_CLOSE:
-        {
-            DestroyWindow(window_handle);
-
-            return 0;
-        }
         case WM_DESTROY:
         {
             PostQuitMessage(0);
