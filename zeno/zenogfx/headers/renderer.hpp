@@ -6,16 +6,6 @@
 namespace zeno::gfx
 {
 
-///  @brief struct holding all rarely used/not essential dxgi interfaces and data
-struct dxgi_t
-{
-    IDXGIFactory7*   factory;
-    IDXGIDevice4*    device;
-    IDXGIAdapter4*   graphics_card;
-    IDXGIOutput6*    monitor;
-    DXGI_MODE_DESC1* display_modes;
-};
-
 class ZENO_API renderer_t
 {
 public:
