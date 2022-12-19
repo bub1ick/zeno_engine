@@ -8,7 +8,6 @@ renderer_t::renderer_t(const sys::window_t& in_window)
 
 try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_module()
 {
-    //  create the device
     if (m_create_device() == false)
     {
         //  TODO: handle error
@@ -60,11 +59,9 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_modul
     }
 
 
-    //  pass the vertex shader to graphics card
     m_result = m_device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &m_vs);
     assert(SUCCEEDED(m_result));
 
-    //  pass the pixel shader to graphics card
     m_result = m_device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &m_ps);
     assert(SUCCEEDED(m_result));
 
@@ -75,8 +72,9 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_modul
   //    {"TEX", 0,    DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
     };
 
-    //  apply the input layout
-    m_result = m_device->CreateInputLayout(input_descriptor, ARRAYSIZE(input_descriptor), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &m_vertex_input_layout);
+    m_result = m_device->CreateInputLayout(
+        input_descriptor, ARRAYSIZE(input_descriptor), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &m_vertex_input_layout
+    );
     assert(SUCCEEDED(m_result));
 
     m_device_context->IASetInputLayout(m_vertex_input_layout);
@@ -105,8 +103,6 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_modul
         HRESULT hr = m_device->CreateBuffer(&vertex_buffer_descriptor, &sr_data, &m_current_vertex_buffer);
         assert(SUCCEEDED(hr));
     }
-
-    //  TODO: continue to make a renderer (follow some guides idk)
 }
 
 catch (const dxgi_exception_t& dxgi_ex)
@@ -116,7 +112,6 @@ catch (const dxgi_exception_t& dxgi_ex)
 
 renderer_t::~renderer_t()
 {
-    //  clean up d3d11
     m_device->Release();
     m_device_context->Release();
 }
@@ -166,7 +161,7 @@ bool renderer_t::m_create_device()
         reinterpret_cast<ID3D11Device**>(&m_device),
         nullptr,
         reinterpret_cast<ID3D11DeviceContext**>(&m_device_context)
-    );  //  create the device and its context for our graphics card
+    );
 
     if (FAILED(m_result))
     {
@@ -174,7 +169,6 @@ bool renderer_t::m_create_device()
         return false;
     }
 
-    //  after creating the direct3d device, obtain the corresponding dxgi device
     try
     {
         m_dxgi_module.initialize_device(m_device);
