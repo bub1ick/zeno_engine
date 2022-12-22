@@ -46,6 +46,7 @@ private:
     ///  @brief the direct3d device context
     ID3D11DeviceContext4*    m_device_context;
     ID3D11Debug*             m_debug_device;
+    ID3D11InfoQueue*         m_info_queue;
 
 
     ///  @brief is used to create a target view for device context to draw to

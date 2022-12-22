@@ -28,8 +28,8 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_modul
         {"POSITION", 0,    DXGI_FORMAT_R32G32B32_FLOAT, 0,                            0, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {   "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
     };
-    m_result = m_device->CreateInputLayout(layout, ARRAYSIZE(layout), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr);
-    assert(FAILED(m_result));
+    m_result = m_device->CreateInputLayout(layout, ARRAYSIZE(layout), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &m_vertex_input_layout);
+    assert(SUCCEEDED(m_result));
 
     m_device_context->IASetInputLayout(m_vertex_input_layout);
 
@@ -87,6 +87,11 @@ void renderer_t::update()
 
     m_world_matrix = DirectX::XMMatrixRotationY(delta_time);
 
+    ID3D11RenderTargetView* old_target_view;
+    m_result = m_render_target_view->QueryInterface<ID3D11RenderTargetView>(&old_target_view);
+    assert(SUCCEEDED(m_result));
+    m_device_context->OMSetRenderTargets(1, &old_target_view, nullptr);
+
     m_device_context->ClearRenderTargetView(m_render_target_view, background_color);
 
     matrix_buffer_t matrix_buffer;
@@ -99,6 +104,16 @@ void renderer_t::update()
     m_device_context->VSSetShader(m_vs, nullptr, 0);
     m_device_context->VSSetConstantBuffers(0, 1, &m_current_constant_buffer);
     m_device_context->PSSetShader(m_ps, nullptr, 0);
+
+    D3D11_RECT window_rectangle;
+    GetClientRect(m_window.get_handle(), &window_rectangle);
+
+    D3D11_VIEWPORT viewport {};
+    viewport.Width    = static_cast<float>(window_rectangle.right - window_rectangle.left);
+    viewport.Height   = static_cast<float>(window_rectangle.bottom - window_rectangle.top);
+    viewport.MaxDepth = 1.f;
+    m_device_context->RSSetViewports(1, &viewport);
+
     m_device_context->DrawIndexed(36, 0, 0);
 
     m_dxgi_module.get_swapchain()->Present(0, DXGI_PRESENT_ALLOW_TEARING);
@@ -110,7 +125,7 @@ bool renderer_t::m_create_device()
         m_dxgi_module.get_graphics_card(),
         D3D_DRIVER_TYPE_UNKNOWN,
         nullptr,
-        D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_DEBUG | D3D11_CREATE_DEVICE_DEBUGGABLE,
+        D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_DEBUG,
         &m_feature_level,
         1,
         D3D11_SDK_VERSION,
@@ -138,6 +153,10 @@ bool renderer_t::m_create_device()
     m_result = m_device->QueryInterface<ID3D11Debug>(&m_debug_device);
     assert(SUCCEEDED(m_result));
 
+    m_result = m_debug_device->QueryInterface<ID3D11InfoQueue>(&m_info_queue);
+    assert(SUCCEEDED(m_result));
+
+
     return true;
 }
 
@@ -153,7 +172,7 @@ bool renderer_t::m_create_target_view()
     }
 
     //  from the frame get the target view
-    m_result = m_device->CreateRenderTargetView1(frame_buffer, 0, &m_render_target_view);
+    m_result = m_device->CreateRenderTargetView1(frame_buffer, nullptr, &m_render_target_view);
     if (FAILED(m_result))
     {
         std::cerr << "Couldn't create Render Target view!" << std::endl;
