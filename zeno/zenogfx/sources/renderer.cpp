@@ -44,9 +44,9 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_modul
     m_world_matrix = DirectX::XMMatrixIdentity();
 
     //  initialize view matrix
-    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, -5.f, 0.f, 0.f);
+    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, 7.f, 0.f);
     DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);
-    DirectX::XMVECTOR cam_up        = DirectX::XMVectorSet(0.f, 0.f, 1.f, 0.f);  //  ?
+    DirectX::XMVECTOR cam_up        = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);  //  ?
     m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up);
 
     int  width {};
@@ -228,14 +228,14 @@ bool renderer_t::m_compile_shaders(ID3DBlob*& out_vs_blob, ID3DBlob*& out_ps_blo
 bool renderer_t::m_setup_vertex_buffer()
 {
     simple_vertex_t vertices [] = {
-        { {-1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, //  0th vertex
-        {  {1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, //  1st vertex
-        {   {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, //  2nd vertex
-        {  {-1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, //  3rd vertex
-        {{-1.0f, -1.0f, -1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, //  4th vertex
-        { {1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, //  5th vertex
-        {  {1.0f, -1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}, //  6th vertex
-        { {-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}, //  7th vertex
+        { {-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, //  0th vertex
+        {  {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, //  1st vertex
+        {   {1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, //  2nd vertex
+        {  {-1.0f, 1.0f, -1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, //  3rd vertex
+        {{-1.0f, -1.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, //  4th vertex
+        { {1.0f, -1.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, //  5th vertex
+        {  {1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}, //  6th vertex
+        { {-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}, //  7th vertex
     };
 
     m_vertex_stride = sizeof(simple_vertex_t);  //  how big each complex piece of data is
