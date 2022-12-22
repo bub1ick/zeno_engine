@@ -8,146 +8,37 @@ renderer_t::renderer_t(const sys::window_t& in_window)
 
 try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_module()
 {
-    if (m_create_device() == false)
-    {
-        //  TODO: handle error
-    }
+    assert(m_create_device());
 
     m_dxgi_module.create_swapchain(m_device, true, m_window.get_handle());
 
+    assert(m_create_target_view());
 
-    if (m_create_target_view() == false)
-    {
-        //  TODO: handle error
-    }
-
-
-    ID3DBlob* vs_blob    = nullptr;  //  holds compiled vertex shader
-    ID3DBlob* ps_blob    = nullptr;  //  holds compiled pixel shader
-    ID3DBlob* error_blob = nullptr;  //  holds error if such exists
-
-    //  compile vertex shader
-    m_result = D3DCompileFromFile(
-        L"shaders.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "vs_main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vs_blob, &error_blob
-    );
-    if (FAILED(m_result))
-    {
-        if (error_blob)
-        {
-            OutputDebugStringA(reinterpret_cast<char*>(error_blob->GetBufferPointer()));
-            error_blob->Release();
-        }
-        if (vs_blob)
-            vs_blob->Release();
-        assert(false);
-    }
-
-    //  compile pixel shader
-    m_result = D3DCompileFromFile(
-        L"shaders.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "ps_main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &ps_blob, &error_blob
-    );
-    if (FAILED(m_result))
-    {
-        if (error_blob)
-        {
-            OutputDebugStringA(reinterpret_cast<char*>(error_blob->GetBufferPointer()));
-            error_blob->Release();
-        }
-        if (ps_blob)
-            ps_blob->Release();
-        assert(false);
-    }
-
+    ID3DBlob* vs_blob = nullptr;  //  holds compiled vertex shader
+    ID3DBlob* ps_blob = nullptr;  //  holds compiled pixel shader
+    assert(m_compile_shaders(vs_blob, ps_blob));
 
     m_result = m_device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &m_vs);
     assert(SUCCEEDED(m_result));
-
     m_result = m_device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &m_ps);
     assert(SUCCEEDED(m_result));
 
     //  the data that can be passed to vertex shader
-    D3D11_INPUT_ELEMENT_DESC input_descriptor [] = {
-        {"POSITION", 0,    DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {   "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+    D3D11_INPUT_ELEMENT_DESC layout [] = {
+        {"POSITION", 0,    DXGI_FORMAT_R32G32B32_FLOAT, 0,                            0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {   "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
     };
-
-    m_result = m_device->CreateInputLayout(
-        input_descriptor, ARRAYSIZE(input_descriptor), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &m_vertex_input_layout
-    );
-    assert(SUCCEEDED(m_result));
+    m_result = m_device->CreateInputLayout(layout, ARRAYSIZE(layout), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr);
+    assert(FAILED(m_result));
 
     m_device_context->IASetInputLayout(m_vertex_input_layout);
 
-    simple_vertex_t vertices [] = {
-        { {-1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, //  0th vertex
-        {  {1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, //  1st vertex
-        {   {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, //  2nd vertex
-        {  {-1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, //  3rd vertex
-        {{-1.0f, -1.0f, -1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, //  4th vertex
-        { {1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, //  5th vertex
-        {  {1.0f, -1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}, //  6th vertex
-        { {-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}, //  7th vertex
-    };
+    assert(m_setup_vertex_buffer());
+    assert(m_setup_index_buffer());
 
-    m_vertex_stride = sizeof(simple_vertex_t);  //  how big each complex piece of data is
-    m_vertex_offset = 0;                        //  offset where the array starts
-    m_vertex_count  = 8;                        //  how big the array is
-
-    //  creating a vertex buffer
-    D3D11_BUFFER_DESC vertex_buffer_descriptor = {};
-    vertex_buffer_descriptor.ByteWidth         = sizeof(vertices);
-    vertex_buffer_descriptor.Usage             = D3D11_USAGE_DEFAULT;
-    vertex_buffer_descriptor.BindFlags         = D3D11_BIND_VERTEX_BUFFER;
-
-    D3D11_SUBRESOURCE_DATA sr_data = {};
-    sr_data.pSysMem                = vertices;
-
-    HRESULT hr = m_device->CreateBuffer(&vertex_buffer_descriptor, &sr_data, &m_current_vertex_buffer);
-    assert(SUCCEEDED(hr));
-
-    m_device_context->IASetVertexBuffers(0, 1, &m_current_vertex_buffer, &m_vertex_stride, &m_vertex_offset);
-
-    uint16_t indices [] {
-        //  clang-format off
-        3, 1, 0,  //  vertices
-        2, 1, 3,  //  corresponding indices
-
-        0, 5, 4,  //  vertices
-        1, 5, 0,  //  corresponding indices
-
-        3, 4, 7,  //  vertices
-        0, 4, 3,  //  corresponding indices
-
-        1, 6, 5,  //  vertices
-        2, 6, 1,  //  corresponding indices
-
-        2, 7, 6,  //  vertices
-        3, 7, 2,  //  corresponding indices
-
-        6, 4, 5,  //  vertices
-        7, 4, 6,  //  corresponding indices
-        //  clang-format on
-    };
-
-    //  initialize an index buffer
-    vertex_buffer_descriptor.Usage          = D3D11_USAGE_DEFAULT;
-    vertex_buffer_descriptor.ByteWidth      = sizeof(indices);
-    vertex_buffer_descriptor.BindFlags      = D3D11_BIND_INDEX_BUFFER;
-    vertex_buffer_descriptor.CPUAccessFlags = 0;
-    sr_data.pSysMem                         = indices;
-    hr                                      = m_device->CreateBuffer(&vertex_buffer_descriptor, &sr_data, &m_current_index_buffer);
-    assert(SUCCEEDED(hr));
-
-    m_device_context->IASetIndexBuffer(m_current_index_buffer, DXGI_FORMAT_R16_UINT, 0);
     m_device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    //  initialize a matrix buffer
-    vertex_buffer_descriptor.Usage          = D3D11_USAGE_DEFAULT;
-    vertex_buffer_descriptor.ByteWidth      = sizeof(matrix_buffer_t);
-    vertex_buffer_descriptor.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
-    vertex_buffer_descriptor.CPUAccessFlags = 0;
-    hr                                      = m_device->CreateBuffer(&vertex_buffer_descriptor, nullptr, &m_current_constant_buffer);
-    assert(SUCCEEDED(hr));
+    assert(m_setup_constant_buffer());
 
     //  initialize world matrix
     m_world_matrix = DirectX::XMMatrixIdentity();
@@ -160,8 +51,7 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_modul
 
     int  width {};
     int  height {};
-
-    RECT rect;
+    RECT rect {};
     if (GetWindowRect(m_window.get_handle(), &rect))
     {
         width  = rect.right - rect.left;
@@ -197,7 +87,7 @@ void renderer_t::update()
 
     m_world_matrix = DirectX::XMMatrixRotationY(delta_time);
 
-    m_device_context->ClearRenderTargetView(m_render_target_view, DirectX::Colors::MidnightBlue);
+    m_device_context->ClearRenderTargetView(m_render_target_view, background_color);
 
     matrix_buffer_t matrix_buffer;
     matrix_buffer.world_matrix      = DirectX::XMMatrixTranspose(m_world_matrix);
@@ -220,7 +110,7 @@ bool renderer_t::m_create_device()
         m_dxgi_module.get_graphics_card(),
         D3D_DRIVER_TYPE_UNKNOWN,
         nullptr,
-        D3D11_CREATE_DEVICE_SINGLETHREADED,
+        D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_DEBUG | D3D11_CREATE_DEVICE_DEBUGGABLE,
         &m_feature_level,
         1,
         D3D11_SDK_VERSION,
@@ -244,6 +134,9 @@ bool renderer_t::m_create_device()
         std::cerr << dxgi_ex.get_error_message() << std::endl;
         return false;
     }
+
+    m_result = m_device->QueryInterface<ID3D11Debug>(&m_debug_device);
+    assert(SUCCEEDED(m_result));
 
     return true;
 }
@@ -269,4 +162,140 @@ bool renderer_t::m_create_target_view()
     return true;
 }
 
+bool renderer_t::m_compile_shaders(ID3DBlob*& out_vs_blob, ID3DBlob*& out_ps_blob)
+{
+    ID3DBlob* error_blob = nullptr;
+
+    //  compile vertex shader
+    m_result = D3DCompileFromFile(
+        L"shaders.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "vs_main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &out_vs_blob, &error_blob
+    );
+    if (FAILED(m_result))
+    {
+        if (error_blob)
+        {
+            OutputDebugStringA(reinterpret_cast<char*>(error_blob->GetBufferPointer()));
+            error_blob->Release();
+        }
+        if (out_vs_blob)
+            out_vs_blob->Release();
+
+        out_vs_blob = nullptr;
+        out_ps_blob = nullptr;
+        return false;
+    }
+
+    //  compile pixel shader
+    m_result = D3DCompileFromFile(
+        L"shaders.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "ps_main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &out_ps_blob, &error_blob
+    );
+    if (FAILED(m_result))
+    {
+        if (error_blob)
+        {
+            OutputDebugStringA(reinterpret_cast<char*>(error_blob->GetBufferPointer()));
+            error_blob->Release();
+        }
+        if (out_ps_blob)
+            out_ps_blob->Release();
+        out_vs_blob = nullptr;
+        out_ps_blob = nullptr;
+        return false;
+    }
+
+    return true;
+}
+
+bool renderer_t::m_setup_vertex_buffer()
+{
+    simple_vertex_t vertices [] = {
+        { {-1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, //  0th vertex
+        {  {1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, //  1st vertex
+        {   {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, //  2nd vertex
+        {  {-1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, //  3rd vertex
+        {{-1.0f, -1.0f, -1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, //  4th vertex
+        { {1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, //  5th vertex
+        {  {1.0f, -1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}, //  6th vertex
+        { {-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}, //  7th vertex
+    };
+
+    m_vertex_stride = sizeof(simple_vertex_t);  //  how big each complex piece of data is
+    m_vertex_offset = 0;                        //  offset where the array starts
+    m_vertex_count  = 8;                        //  how big the array is
+
+    //  creating a vertex buffer
+    D3D11_BUFFER_DESC buff_desc {};
+    buff_desc.ByteWidth = sizeof(vertices);
+    buff_desc.Usage     = D3D11_USAGE_DEFAULT;
+    buff_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA subres_data {};
+    subres_data.pSysMem = vertices;
+
+    m_result = m_device->CreateBuffer(&buff_desc, &subres_data, &m_current_vertex_buffer);
+
+    if (FAILED(m_result))
+        return false;
+
+    m_device_context->IASetVertexBuffers(0, 1, &m_current_vertex_buffer, &m_vertex_stride, &m_vertex_offset);
+
+    return true;
+}
+
+bool renderer_t::m_setup_index_buffer()
+{
+    uint16_t indices [] {
+        //  clang-format off
+        3, 1, 0,  //  vertices
+        2, 1, 3,  //  corresponding indices
+
+        0, 5, 4,  //  vertices
+        1, 5, 0,  //  corresponding indices
+
+        3, 4, 7,  //  vertices
+        0, 4, 3,  //  corresponding indices
+
+        1, 6, 5,  //  vertices
+        2, 6, 1,  //  corresponding indices
+
+        2, 7, 6,  //  vertices
+        3, 7, 2,  //  corresponding indices
+
+        6, 4, 5,  //  vertices
+        7, 4, 6,  //  corresponding indices
+        //  clang-format on
+    };
+
+    //  initialize an index buffer
+    D3D11_BUFFER_DESC buff_desc {};
+    buff_desc.Usage          = D3D11_USAGE_DEFAULT;
+    buff_desc.ByteWidth      = sizeof(indices);
+    buff_desc.BindFlags      = D3D11_BIND_INDEX_BUFFER;
+    buff_desc.CPUAccessFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA subres_data {};
+    subres_data.pSysMem = indices;
+
+    m_result = m_device->CreateBuffer(&buff_desc, &subres_data, &m_current_index_buffer);
+    if (FAILED(m_result))
+        return false;
+
+    m_device_context->IASetIndexBuffer(m_current_index_buffer, DXGI_FORMAT_R16_UINT, 0);
+
+    return true;
+}
+
+bool renderer_t::m_setup_constant_buffer()
+{
+    //  initialize a matrix buffer
+    D3D11_BUFFER_DESC buff_desc {};
+    buff_desc.Usage          = D3D11_USAGE_DEFAULT;
+    buff_desc.ByteWidth      = sizeof(matrix_buffer_t);
+    buff_desc.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
+    buff_desc.CPUAccessFlags = 0;
+
+    m_result = m_device->CreateBuffer(&buff_desc, nullptr, &m_current_constant_buffer);
+
+    return FAILED(m_result) ? false : true;
+}
 }  //  namespace zeno::gfx
