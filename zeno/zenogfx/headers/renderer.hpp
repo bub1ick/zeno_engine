@@ -6,6 +6,19 @@
 namespace zeno::gfx
 {
 
+struct simple_vertex_t
+{
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT4 color;
+};
+
+struct matrix_buffer_t
+{
+    DirectX::XMMATRIX world_matrix;
+    DirectX::XMMATRIX view_matrix;
+    DirectX::XMMATRIX projection_matrix;
+};
+
 class ZENO_API renderer_t
 {
 public:
@@ -52,14 +65,23 @@ private:
     ///  @brief describes how data is organized before being passed to vertex shader
     ID3D11InputLayout*       m_vertex_input_layout;
 
-    ///  @brief an array of vertecies described by 3 coordinates on the screen
+    ///  @brief an array of vertices described by 3 coordinates on the screen
     ID3D11Buffer*            m_current_vertex_buffer;
+
+    ///  @brief an array of indices for each vertex
+    ID3D11Buffer*            m_current_index_buffer;
+
+    ID3D11Buffer*            m_current_constant_buffer;
 
     uint32_t                 m_vertex_stride;
 
     uint32_t                 m_vertex_offset;
 
     uint32_t                 m_vertex_count;
+
+    DirectX::XMMATRIX        m_world_matrix;
+    DirectX::XMMATRIX        m_view_matrix;
+    DirectX::XMMATRIX        m_projection_matrix;
 
     //  vertex and pixel shaders
     ID3D11VertexShader*      m_vs = nullptr;

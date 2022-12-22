@@ -67,9 +67,8 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_modul
 
     //  the data that can be passed to vertex shader
     D3D11_INPUT_ELEMENT_DESC input_descriptor [] = {
-        {"POS", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
- //    {"NOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-  //    {"TEX", 0,    DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+        {"POSITION", 0,    DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {   "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
     };
 
     m_result = m_device->CreateInputLayout(
@@ -79,30 +78,98 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_modul
 
     m_device_context->IASetInputLayout(m_vertex_input_layout);
 
-    ///  an array defining a triangle mesh in a 2D space with 3 points:
-    float vertex_data_array [][3] = {
-        { 0.0f,  0.5f, 0.0f}, //  point at top
-        { 0.5f, -0.5f, 0.0f}, //  point at bottom-right
-        {-0.5f, -0.5f, 0.0f}, //  point at bottom-left
+    simple_vertex_t vertices [] = {
+        { {-1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, //  0th vertex
+        {  {1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, //  1st vertex
+        {   {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, //  2nd vertex
+        {  {-1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, //  3rd vertex
+        {{-1.0f, -1.0f, -1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, //  4th vertex
+        { {1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, //  5th vertex
+        {  {1.0f, -1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}, //  6th vertex
+        { {-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}, //  7th vertex
     };
 
-    m_vertex_stride = 3 * sizeof(float);  //  how big each complex piece of data is
-    m_vertex_offset = 0;                  //  offset where the array starts
-    m_vertex_count  = 3;                  //  how big the array is
+    m_vertex_stride = sizeof(simple_vertex_t);  //  how big each complex piece of data is
+    m_vertex_offset = 0;                        //  offset where the array starts
+    m_vertex_count  = 8;                        //  how big the array is
 
     //  creating a vertex buffer
+    D3D11_BUFFER_DESC vertex_buffer_descriptor = {};
+    vertex_buffer_descriptor.ByteWidth         = sizeof(vertices);
+    vertex_buffer_descriptor.Usage             = D3D11_USAGE_DEFAULT;
+    vertex_buffer_descriptor.BindFlags         = D3D11_BIND_VERTEX_BUFFER;
+
+    D3D11_SUBRESOURCE_DATA sr_data = {};
+    sr_data.pSysMem                = vertices;
+
+    HRESULT hr = m_device->CreateBuffer(&vertex_buffer_descriptor, &sr_data, &m_current_vertex_buffer);
+    assert(SUCCEEDED(hr));
+
+    m_device_context->IASetVertexBuffers(0, 1, &m_current_vertex_buffer, &m_vertex_stride, &m_vertex_offset);
+
+    uint16_t indices [] {
+        //  clang-format off
+        3, 1, 0,  //  vertices
+        2, 1, 3,  //  corresponding indices
+
+        0, 5, 4,  //  vertices
+        1, 5, 0,  //  corresponding indices
+
+        3, 4, 7,  //  vertices
+        0, 4, 3,  //  corresponding indices
+
+        1, 6, 5,  //  vertices
+        2, 6, 1,  //  corresponding indices
+
+        2, 7, 6,  //  vertices
+        3, 7, 2,  //  corresponding indices
+
+        6, 4, 5,  //  vertices
+        7, 4, 6,  //  corresponding indices
+        //  clang-format on
+    };
+
+    //  initialize an index buffer
+    vertex_buffer_descriptor.Usage          = D3D11_USAGE_DEFAULT;
+    vertex_buffer_descriptor.ByteWidth      = sizeof(indices);
+    vertex_buffer_descriptor.BindFlags      = D3D11_BIND_INDEX_BUFFER;
+    vertex_buffer_descriptor.CPUAccessFlags = 0;
+    sr_data.pSysMem                         = indices;
+    hr                                      = m_device->CreateBuffer(&vertex_buffer_descriptor, &sr_data, &m_current_index_buffer);
+    assert(SUCCEEDED(hr));
+
+    m_device_context->IASetIndexBuffer(m_current_index_buffer, DXGI_FORMAT_R16_UINT, 0);
+    m_device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    //  initialize a matrix buffer
+    vertex_buffer_descriptor.Usage          = D3D11_USAGE_DEFAULT;
+    vertex_buffer_descriptor.ByteWidth      = sizeof(matrix_buffer_t);
+    vertex_buffer_descriptor.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
+    vertex_buffer_descriptor.CPUAccessFlags = 0;
+    hr                                      = m_device->CreateBuffer(&vertex_buffer_descriptor, nullptr, &m_current_constant_buffer);
+    assert(SUCCEEDED(hr));
+
+    //  initialize world matrix
+    m_world_matrix = DirectX::XMMatrixIdentity();
+
+    //  initialize view matrix
+    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, -5.f, 0.f, 0.f);
+    DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);
+    DirectX::XMVECTOR cam_up        = DirectX::XMVectorSet(0.f, 0.f, 1.f, 0.f);  //  ?
+    m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up);
+
+    int  width {};
+    int  height {};
+
+    RECT rect;
+    if (GetWindowRect(m_window.get_handle(), &rect))
     {
-        D3D11_BUFFER_DESC vertex_buffer_descriptor = {};
-        vertex_buffer_descriptor.ByteWidth         = sizeof(vertex_data_array);
-        vertex_buffer_descriptor.Usage             = D3D11_USAGE_DEFAULT;
-        vertex_buffer_descriptor.BindFlags         = D3D11_BIND_VERTEX_BUFFER;
-
-        D3D11_SUBRESOURCE_DATA sr_data = {0};
-        sr_data.pSysMem                = vertex_data_array;
-
-        HRESULT hr = m_device->CreateBuffer(&vertex_buffer_descriptor, &sr_data, &m_current_vertex_buffer);
-        assert(SUCCEEDED(hr));
+        width  = rect.right - rect.left;
+        height = rect.bottom - rect.top;
     }
+
+    //  initialize projection matrix
+    m_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XM_PIDIV2, static_cast<float>(width / height), 0.01f, 100.f);
 }
 
 catch (const dxgi_exception_t& dxgi_ex)
@@ -118,32 +185,31 @@ renderer_t::~renderer_t()
 
 void renderer_t::update()
 {
-    float background_color [4] = {0x64 / 255.0f, 0x95 / 255.0f, 0xED / 255.0f, 1.0f};
-    m_device_context->ClearRenderTargetView(reinterpret_cast<ID3D11RenderTargetView*>(m_render_target_view), background_color);
+    float           background_color [4] = {0x64 / 255.0f, 0x95 / 255.0f, 0xED / 255.0f, 1.0f};
 
-    RECT window_rectangle {};
-    GetClientRect(m_window.get_handle(), &window_rectangle);
+    static float    delta_time   = 0.f;
+    static uint64_t time_start   = 0;
+    uint64_t        time_current = GetTickCount64();
 
-    D3D11_VIEWPORT viewport {};
-    viewport.TopLeftX = 0.0f;
-    viewport.TopLeftY = 0.0f;
-    viewport.Width    = static_cast<float>(window_rectangle.right - window_rectangle.left);
-    viewport.Height   = static_cast<float>(window_rectangle.bottom - window_rectangle.top);
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
+    if (time_start == 0)
+        time_start = time_current;
+    delta_time = (time_current - time_start) / 1000.f;
 
-    m_device_context->RSSetViewports(1, &viewport);
+    m_world_matrix = DirectX::XMMatrixRotationY(delta_time);
 
-    m_device_context->OMSetRenderTargets(1, reinterpret_cast<ID3D11RenderTargetView**>(&m_render_target_view), nullptr);
+    m_device_context->ClearRenderTargetView(m_render_target_view, DirectX::Colors::MidnightBlue);
 
-    m_device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_device_context->IASetInputLayout(m_vertex_input_layout);
-    m_device_context->IASetVertexBuffers(0, 1, &m_current_vertex_buffer, &m_vertex_stride, &m_vertex_offset);
+    matrix_buffer_t matrix_buffer;
+    matrix_buffer.world_matrix      = DirectX::XMMatrixTranspose(m_world_matrix);
+    matrix_buffer.view_matrix       = DirectX::XMMatrixTranspose(m_view_matrix);
+    matrix_buffer.projection_matrix = DirectX::XMMatrixTranspose(m_projection_matrix);
+
+    m_device_context->UpdateSubresource(m_current_constant_buffer, 0, nullptr, &matrix_buffer, 0, 0);
 
     m_device_context->VSSetShader(m_vs, nullptr, 0);
+    m_device_context->VSSetConstantBuffers(0, 1, &m_current_constant_buffer);
     m_device_context->PSSetShader(m_ps, nullptr, 0);
-
-    m_device_context->Draw(m_vertex_count, 0);
+    m_device_context->DrawIndexed(36, 0, 0);
 
     m_dxgi_module.get_swapchain()->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 }
