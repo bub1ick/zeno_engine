@@ -28,14 +28,19 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_modul
         {"POSITION", 0,    DXGI_FORMAT_R32G32B32_FLOAT, 0,                            0, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {   "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
     };
+
+    //  create an input layout and store it in m_vertex_input_layout
     m_result = m_device->CreateInputLayout(layout, ARRAYSIZE(layout), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &m_vertex_input_layout);
     assert(SUCCEEDED(m_result));
 
+    //  set the input layer we just created
     m_device_context->IASetInputLayout(m_vertex_input_layout);
 
     assert(m_setup_vertex_buffer());
     assert(m_setup_index_buffer());
 
+    //  set rendering topology
+    //  topology types:  https://learn.microsoft.com/en-us/windows/win32/api/d3dcommon/ne-d3dcommon-d3d_primitive_topology
     m_device_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     assert(m_setup_constant_buffer());
@@ -44,14 +49,14 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_modul
     m_world_matrix = DirectX::XMMatrixIdentity();
 
     //  initialize view matrix
-    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, 7.f, 0.f);
-    DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);
-    DirectX::XMVECTOR cam_up        = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);  //  ?
-    m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up);
+    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, 7.f, 0.f);  //  camera position in a right-handed coordinate position
+    DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);  //  a point in space the camera is looking at
+    DirectX::XMVECTOR cam_up        = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);  //  ? (perhaps a camera up vector)
+    m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up);  //  set the camera
 
-    int  width {};
-    int  height {};
-    RECT rect {};
+    int  width {};      //  window width
+    int  height {};     //  window height
+    RECT rect {};       //  window rectangle from which we get the width and height of the window
     if (GetWindowRect(m_window.get_handle(), &rect))
     {
         width  = rect.right - rect.left;
@@ -75,25 +80,30 @@ renderer_t::~renderer_t()
 
 void renderer_t::update()
 {
+    //  declare a backgorund color
     float           background_color [4] = {0x64 / 255.0f, 0x95 / 255.0f, 0xED / 255.0f, 1.0f};
 
-    static float    delta_time   = 0.f;
-    static uint64_t time_start   = 0;
-    uint64_t        time_current = GetTickCount64();
+    static float    delta_time   = 0.f;                 //  time delta (ms)
+    static uint64_t time_start   = 0;                   //  time buffer (ms)
+    uint64_t        time_current = GetTickCount64();    //  time since system started (ms)
 
     if (time_start == 0)
-        time_start = time_current;
-    delta_time = (time_current - time_start) / 1000.f;
+        time_start = time_current;  //  save tick count into the buffer
+    delta_time = (time_current - time_start) / 1000.f;  //  calculate next rotation angle
 
     m_world_matrix = DirectX::XMMatrixRotationY(delta_time);
 
-    ID3D11RenderTargetView* old_target_view;
-    m_result = m_render_target_view->QueryInterface<ID3D11RenderTargetView>(&old_target_view);
+    ID3D11RenderTargetView* old_target_view;    //  stores a pointer to older render target structure
+    m_result = m_render_target_view->QueryInterface<ID3D11RenderTargetView>(&old_target_view);  //  query the older structure from the newer one
     assert(SUCCEEDED(m_result));
+
+    //  set it as a render target
     m_device_context->OMSetRenderTargets(1, &old_target_view, nullptr);
 
+    //  clear it with a color declared earlier
     m_device_context->ClearRenderTargetView(m_render_target_view, background_color);
 
+    //  set constant matrix buffer
     matrix_buffer_t matrix_buffer;
     matrix_buffer.world_matrix      = DirectX::XMMatrixTranspose(m_world_matrix);
     matrix_buffer.view_matrix       = DirectX::XMMatrixTranspose(m_view_matrix);
@@ -105,15 +115,16 @@ void renderer_t::update()
     m_device_context->VSSetConstantBuffers(0, 1, &m_current_constant_buffer);
     m_device_context->PSSetShader(m_ps, nullptr, 0);
 
-    D3D11_RECT window_rectangle;
+    D3D11_RECT window_rectangle;    //  stores current window rectangle
     GetClientRect(m_window.get_handle(), &window_rectangle);
 
-    D3D11_VIEWPORT viewport {};
-    viewport.Width    = static_cast<float>(window_rectangle.right - window_rectangle.left);
-    viewport.Height   = static_cast<float>(window_rectangle.bottom - window_rectangle.top);
-    viewport.MaxDepth = 1.f;
+    D3D11_VIEWPORT viewport {}; //  stores rendering viewport
+    viewport.Width    = static_cast<float>(window_rectangle.right - window_rectangle.left); //  window width
+    viewport.Height   = static_cast<float>(window_rectangle.bottom - window_rectangle.top); //  window height
+    viewport.MaxDepth = 1.f;                                                                //  maximum window depth
     m_device_context->RSSetViewports(1, &viewport);
 
+    //  draw indexed vertices
     m_device_context->DrawIndexed(36, 0, 0);
 
     m_dxgi_module.get_swapchain()->Present(0, DXGI_PRESENT_ALLOW_TEARING);
@@ -142,7 +153,7 @@ bool renderer_t::m_create_device()
 
     try
     {
-        m_dxgi_module.initialize_device(m_device);
+        m_dxgi_module.initialize_device(m_device);  //initialize device
     }
     catch (const dxgi_exception_t& dxgi_ex)
     {
@@ -150,9 +161,11 @@ bool renderer_t::m_create_device()
         return false;
     }
 
+    //  get debug layer
     m_result = m_device->QueryInterface<ID3D11Debug>(&m_debug_device);
     assert(SUCCEEDED(m_result));
 
+    //  get debug info queue
     m_result = m_debug_device->QueryInterface<ID3D11InfoQueue>(&m_info_queue);
     assert(SUCCEEDED(m_result));
 
@@ -227,6 +240,7 @@ bool renderer_t::m_compile_shaders(ID3DBlob*& out_vs_blob, ID3DBlob*& out_ps_blo
 
 bool renderer_t::m_setup_vertex_buffer()
 {
+    //  store cube vertices
     simple_vertex_t vertices [] = {
         { {-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, //  0th vertex
         {  {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, //  1st vertex
