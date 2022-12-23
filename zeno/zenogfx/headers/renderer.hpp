@@ -65,7 +65,7 @@ private:
     ID3D11VertexShader*      m_vs = nullptr;
     ID3D11PixelShader*       m_ps = nullptr;
 
-    bool                     m_setup_input_layout();
+    bool                     m_setup_input_layout(ID3DBlob* const& in_vs_blob);
 
 
     bool                     m_setup_vertex_buffer();
@@ -87,8 +87,16 @@ private:
     ID3D11Buffer*            m_current_constant_buffer;
 
 
+    void                     m_setup_camera();
+    void                     m_update_rotation();
     DirectX::XMMATRIX        m_world_matrix;
     DirectX::XMMATRIX        m_view_matrix;
     DirectX::XMMATRIX        m_projection_matrix;
+    matrix_buffer_t          m_matrix_buffer;
+
+
+    float                    get_delta_time();
+    uint64_t                 m_start_time = 0;  //  time buffer (ms)
+    uint64_t                 m_current_time;    //  time since system started (ms)
 };
 }  //  namespace zeno::gfx
