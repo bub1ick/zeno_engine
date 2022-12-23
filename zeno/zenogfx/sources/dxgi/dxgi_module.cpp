@@ -16,14 +16,12 @@ dxgi_module_t::dxgi_module_t()
         throw dxgi_exception_t("Failed on EnumOutputs!", m_result);
 }
 
-
 void dxgi_module_t::initialize_device(ID3D11Device5* const in_d3d11_device)
 {
     m_result = in_d3d11_device->QueryInterface<IDXGIDevice4>(&m_device);
     if (FAILED(m_result))
         throw dxgi_exception_t("Failed to get DXGI device!", m_result);
 }
-
 
 void dxgi_module_t::create_swapchain(ID3D11Device5* in_device, bool in_windowed, HWND in_window_handle)
 {
@@ -39,7 +37,7 @@ void dxgi_module_t::create_swapchain(ID3D11Device5* in_device, bool in_windowed,
     DXGI_SWAP_CHAIN_DESC1 swapchain_descriptor {};
     swapchain_descriptor.Width       = in_windowed ? 0 : fullscreen_display_mode.Width;   //  set the swapchain size to the native resolution
     swapchain_descriptor.Height      = in_windowed ? 0 : fullscreen_display_mode.Height;  //  set the swapchain size to the native resolution
-    swapchain_descriptor.Format      = DXGI_FORMAT_R16G16B16A16_FLOAT;                     //  use linear format that is supported by flip mode swap chain
+    swapchain_descriptor.Format      = DXGI_FORMAT_R16G16B16A16_FLOAT;                    //  use linear format that is supported by flip mode swap chain
     swapchain_descriptor.Stereo      = false;   //  true is for VR-like things (two screens rendering at the same time)
     swapchain_descriptor.SampleDesc  = {1, 0};  //  disable MSAA
     swapchain_descriptor.BufferUsage = buffer_usage;
@@ -52,8 +50,8 @@ void dxgi_module_t::create_swapchain(ID3D11Device5* in_device, bool in_windowed,
     DXGI_SWAP_CHAIN_FULLSCREEN_DESC swapchain_fullscreen_descriptor {};
     swapchain_fullscreen_descriptor.RefreshRate      = fullscreen_display_mode.RefreshRate;       //  get the highest refresh rate from the monitor
     swapchain_fullscreen_descriptor.ScanlineOrdering = fullscreen_display_mode.ScanlineOrdering;  //  get scanline ordering from the monitor
-    swapchain_fullscreen_descriptor.Scaling          = DXGI_MODE_SCALING_UNSPECIFIED;              //  never use scaling
-    swapchain_fullscreen_descriptor.Windowed         = in_windowed;                                //  start the application in specified mode
+    swapchain_fullscreen_descriptor.Scaling          = DXGI_MODE_SCALING_UNSPECIFIED;             //  never use scaling
+    swapchain_fullscreen_descriptor.Windowed         = in_windowed;                               //  start the application in specified mode
 
     m_result = m_factory->CreateSwapChainForHwnd(
         in_device, in_window_handle, &swapchain_descriptor, &swapchain_fullscreen_descriptor, nullptr, reinterpret_cast<IDXGISwapChain1**>(&m_swapchain)
@@ -63,7 +61,6 @@ void dxgi_module_t::create_swapchain(ID3D11Device5* in_device, bool in_windowed,
         throw dxgi_exception_t("Failed to create Swap Chain!", m_result);
     }
 }
-
 
 void dxgi_module_t::m_get_all_available_adapters()
 {
@@ -83,7 +80,6 @@ void dxgi_module_t::m_get_all_available_adapters()
     }
 }
 
-
 DXGI_MODE_DESC1 dxgi_module_t::m_get_best_display_mode()
 {
     //  get display modes and take the best one (highest resolution and refresh rate)
@@ -94,4 +90,4 @@ DXGI_MODE_DESC1 dxgi_module_t::m_get_best_display_mode()
     return m_display_modes [number_of_display_modes - 1];
 }
 
-}  //  namespace zeno::dx11
+}  //  namespace zeno::gfx

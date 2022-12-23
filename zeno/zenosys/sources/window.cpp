@@ -54,6 +54,17 @@ void window_t::loop(std::function<bool()> engine_loop_callback)
     }
 }
 
+window_t::window_size_t window_t::get_window_size() const
+{
+    RECT rect;
+    GetClientRect(m_handle, &rect);
+
+    return
+    {
+        rect.right - rect.left, rect.bottom - rect.top
+    };
+}
+
 bool window_t::queue_is_ok(MSG* in_message, bool& out_done)
 {
     if (PeekMessageA(in_message, nullptr, 0, 0, PM_REMOVE))

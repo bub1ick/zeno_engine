@@ -51,13 +51,11 @@ void renderer_t::update()
     m_device_context->VSSetShader(m_vs, nullptr, 0);
     m_device_context->VSSetConstantBuffers(0, 1, &m_current_constant_buffer);
 
-    D3D11_RECT window_rectangle;  //  stores current window rectangle
-    GetClientRect(m_window.get_handle(), &window_rectangle);
-
-    D3D11_VIEWPORT viewport {};                                                              //  stores rendering viewport
-    viewport.Width    = static_cast<float>(window_rectangle.right - window_rectangle.left);  //  window width
-    viewport.Height   = static_cast<float>(window_rectangle.bottom - window_rectangle.top);  //  window height
-    viewport.MaxDepth = 1.f;                                                                 //  maximum window depth
+    sys::window_t::window_size_t window_size = m_window.get_window_size();
+    D3D11_VIEWPORT               viewport {};                    //  stores rendering viewport
+    viewport.Width    = static_cast<float>(window_size.width);   //  window width
+    viewport.Height   = static_cast<float>(window_size.height);  //  window height
+    viewport.MaxDepth = 1.f;                                     //  maximum window depth
     m_device_context->RSSetViewports(1, &viewport);
 
     m_device_context->PSSetShader(m_ps, nullptr, 0);

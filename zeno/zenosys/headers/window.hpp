@@ -22,6 +22,13 @@ public:
     ///  @return the handle
     HWND get_handle() const { return m_handle; };
 
+    /// @brief defines the size of the client area of the window;
+    struct window_size_t {
+        int32_t width;
+        int32_t height;
+    };
+    window_size_t get_window_size() const;
+
 private:
     ///  @brief win32 window procedure to handle win32 events
     ///  @param window_handle handle to a window
