@@ -56,36 +56,17 @@ void window_t::loop(std::function<bool()> engine_loop_callback)
 
 bool window_t::queue_is_ok(MSG* in_message, bool& out_done)
 {
-    //  PeekMessage returns 0 if empty so we negate it
-    int32_t queue_is_empty = !PeekMessageA(in_message, m_handle, 0, 0, PM_NOREMOVE);
-    if (queue_is_empty)
-        return true;
-
-    switch (GetMessageA(in_message, NULL, 0, 0))
+    if (PeekMessageA(in_message, nullptr, 0, 0, PM_REMOVE))
     {
-        case 0:  //  WM_QUIT -> must quit the application
+        if (in_message->message == WM_QUIT)
         {
             out_done = true;
-
             return false;
         }
-        case -1:  //  there was an error
-        {
-            int32_t error_code = GetLastError();
-
-            //  TODO: handle error
-
-            //  for now, we just exit the application
-            PostQuitMessage(0);
-            return false;
-        }
-        default:
-        {
-            DispatchMessageA(in_message);
-
-            return true;
-        }
+        DispatchMessageA(in_message);
     }
+
+    return true;
 }
 
 LRESULT window_t::window_procedure(HWND window_handle, UINT message_id, WPARAM w_param, LPARAM l_param)
