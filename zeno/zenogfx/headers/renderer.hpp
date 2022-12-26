@@ -95,7 +95,7 @@ private:
     matrix_buffer_t          m_matrix_buffer;
 
 
-    float                    get_delta_time();
+    float                    m_get_delta_time();
     uint64_t                 m_start_time = 0;  //  time buffer (ms)
     uint64_t                 m_current_time;    //  time since system started (ms)
 };

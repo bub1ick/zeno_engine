@@ -54,7 +54,7 @@ void window_t::loop(std::function<bool()> engine_loop_callback)
     }
 }
 
-window_t::window_size_t window_t::get_window_size() const
+window_t::dimentions_t window_t::get_dimentions() const
 {
     RECT rect;
     GetClientRect(m_handle, &rect);

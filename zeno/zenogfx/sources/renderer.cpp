@@ -51,7 +51,7 @@ void renderer_t::update()
     m_device_context->VSSetShader(m_vs, nullptr, 0);
     m_device_context->VSSetConstantBuffers(0, 1, &m_current_constant_buffer);
 
-    sys::window_t::window_size_t window_size = m_window.get_window_size();
+    sys::window_t::dimentions_t window_size = m_window.get_dimentions();
     D3D11_VIEWPORT               viewport {};                    //  stores rendering viewport
     viewport.Width    = static_cast<float>(window_size.width);   //  window width
     viewport.Height   = static_cast<float>(window_size.height);  //  window height
@@ -169,6 +169,7 @@ bool renderer_t::m_compile_shaders(ID3DBlob*& out_vs_blob, ID3DBlob*& out_ps_blo
         }
         if (out_ps_blob)
             out_ps_blob->Release();
+
         out_vs_blob = nullptr;
         out_ps_blob = nullptr;
         return false;
@@ -305,29 +306,22 @@ void renderer_t::m_setup_camera()
     DirectX::XMVECTOR cam_up        = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);                        //  ? (perhaps a camera up vector)
     m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up);  //  set the camera
 
-    int  width {};   //  window width
-    int  height {};  //  window height
-    RECT rect {};    //  window rectangle from which we get the width and height of the window
-    if (GetWindowRect(m_window.get_handle(), &rect))
-    {
-        width  = rect.right - rect.left;
-        height = rect.bottom - rect.top;
-    }
+    sys::window_t::dimentions_t window_size = m_window.get_dimentions();
 
     //  initialize projection matrix
-    m_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XM_PIDIV2, static_cast<float>(width / height), 0.01f, 100.f);
+    m_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XM_PIDIV2, static_cast<float>(window_size.width / window_size.height), 0.01f, 100.f);
 }
 
 void renderer_t::m_update_rotation()
 {
-    m_world_matrix = DirectX::XMMatrixRotationY(get_delta_time());
+    m_world_matrix = DirectX::XMMatrixRotationY(m_get_delta_time());
 
     m_matrix_buffer.world_matrix      = DirectX::XMMatrixTranspose(m_world_matrix);
     m_matrix_buffer.view_matrix       = DirectX::XMMatrixTranspose(m_view_matrix);
     m_matrix_buffer.projection_matrix = DirectX::XMMatrixTranspose(m_projection_matrix);
 }
 
-float renderer_t::get_delta_time()
+float renderer_t::m_get_delta_time()
 {
     m_current_time = GetTickCount64();
 
