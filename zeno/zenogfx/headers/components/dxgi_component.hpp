@@ -3,10 +3,10 @@
 namespace zeno::gfx
 {
 
-class dxgi_module_t
+class dxgi_component_t
 {
 public:
-    dxgi_module_t();
+    dxgi_component_t();
 
     void             initialize_device(ID3D11Device5* const in_d3d11_device);
 
