@@ -13,6 +13,6 @@
 #    define ZENO_API
 #endif
 
-#if defined(ZENO_LIB)
+#if !defined(ZENO_LIB)
 #    include "zeno_user_difines.hpp"
 #endif
