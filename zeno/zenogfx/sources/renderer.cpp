@@ -10,7 +10,7 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_modul
 {
     assert(m_create_device());
 
-    m_dxgi_module.create_swapchain(m_device, true, m_window.get_handle());
+    m_dxgi_module.create_swapchain(m_device, true, m_window);
 
     assert(m_create_target_view());
 
@@ -69,7 +69,6 @@ void renderer_t::update()
         m_result = m_render_target_view->QueryInterface<ID3D11RenderTargetView>(&old_target_view);  //  query the older structure from the newer one
         assert(SUCCEEDED(m_result));
     }
-
     //  set it as a render target
     m_device_context->OMSetRenderTargets(1, &old_target_view, nullptr);
 
@@ -307,9 +306,9 @@ void renderer_t::m_setup_camera()
     m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up);  //  set the camera
 
     sys::window_t::dimentions_t window_size = m_window.get_dimentions();
-
+    float aspect_ratio = static_cast<float>(window_size.width) / static_cast<float>(window_size.height);
     //  initialize projection matrix
-    m_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XM_PIDIV2, static_cast<float>(window_size.width / window_size.height), 0.01f, 100.f);
+    m_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XM_PIDIV2, aspect_ratio, 0.01f, 100.f);
 }
 
 void renderer_t::m_update_rotation()

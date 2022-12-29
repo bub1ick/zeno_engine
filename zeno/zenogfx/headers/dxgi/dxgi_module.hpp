@@ -10,7 +10,7 @@ public:
 
     void             initialize_device(ID3D11Device5* const in_d3d11_device);
 
-    void             create_swapchain(ID3D11Device5* in_device, bool in_windowed, HWND in_window_handle);
+    void             create_swapchain(ID3D11Device5* in_device, bool in_windowed, const sys::window_t& in_window);
 
     IDXGISwapChain4* get_swapchain() const noexcept { return m_swapchain; };
 
