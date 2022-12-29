@@ -6,11 +6,11 @@ namespace zeno::gfx
 
 renderer_t::renderer_t(const sys::window_t& in_window)
 
-try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi_module()
+try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi()
 {
     assert(m_create_device());
 
-    m_dxgi_module.create_swapchain(m_device, true, m_window);
+    m_dxgi.create_swapchain(m_device, true, m_window);
 
     assert(m_create_target_view());
 
@@ -52,7 +52,7 @@ void renderer_t::update()
     m_device_context->VSSetConstantBuffers(0, 1, &m_current_constant_buffer);
 
     sys::window_t::dimentions_t window_size = m_window.get_dimentions();
-    D3D11_VIEWPORT               viewport {};                    //  stores rendering viewport
+    D3D11_VIEWPORT              viewport {};                     //  stores rendering viewport
     viewport.Width    = static_cast<float>(window_size.width);   //  window width
     viewport.Height   = static_cast<float>(window_size.height);  //  window height
     viewport.MaxDepth = 1.f;                                     //  maximum window depth
@@ -75,13 +75,13 @@ void renderer_t::update()
     //  draw indexed vertices
     m_device_context->DrawIndexed(36, 0, 0);
 
-    m_dxgi_module.get_swapchain()->Present(0, DXGI_PRESENT_ALLOW_TEARING);
+    m_dxgi.get_swapchain()->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 }
 
 bool renderer_t::m_create_device()
 {
     m_result = D3D11CreateDevice(
-        m_dxgi_module.get_graphics_card(),
+        m_dxgi.get_graphics_card(),
         D3D_DRIVER_TYPE_UNKNOWN,
         nullptr,
         D3D11_CREATE_DEVICE_SINGLETHREADED | D3D11_CREATE_DEVICE_DEBUG,
@@ -101,7 +101,7 @@ bool renderer_t::m_create_device()
 
     try
     {
-        m_dxgi_module.initialize_device(m_device);  //  initialize device
+        m_dxgi.initialize_device(m_device);  //  initialize device
     }
     catch (const dxgi_exception_t& dxgi_ex)
     {
@@ -115,7 +115,7 @@ bool renderer_t::m_create_target_view()
 {
     //  take out the current frame from the swapchain
     ID3D11Texture2D1* frame_buffer;
-    m_result = m_dxgi_module.get_swapchain()->GetBuffer(0, IID_ID3D11Texture2D1, reinterpret_cast<void**>(&frame_buffer));
+    m_result = m_dxgi.get_swapchain()->GetBuffer(0, IID_ID3D11Texture2D1, reinterpret_cast<void**>(&frame_buffer));
     if (FAILED(m_result))
     {
         std::cerr << "Couldn't get the swap chain buffer!" << std::endl;
@@ -180,29 +180,29 @@ bool renderer_t::m_compile_shaders(ID3DBlob*& out_vs_blob, ID3DBlob*& out_ps_blo
 bool renderer_t::m_setup_vertex_buffer()
 {
     //  store cube vertices
-    simple_vertex_t vertices [] = {
-        {  {-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, //  0th vertex
-        {   {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, //  1st vertex
-        {  {1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, //  2nd vertex
-        { {-1.0f, 1.0f, -1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, //  3rd vertex
-        { {-1.0f, -1.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, //  4th vertex
-        {  {1.0f, -1.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, //  5th vertex
-        { {1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}, //  6th vertex
-        {{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}, //  7th vertex
+    m_vertices = {
+        {  {-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, //  0th vertex
+        {   {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, //  1st vertex
+        {  {1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}}, //  2nd vertex
+        { {-1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}}, //  3rd vertex
+        { {-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, //  4th vertex
+        {  {1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, //  5th vertex
+        { {1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}}, //  6th vertex
+        {{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}}, //  7th vertex
     };
 
     m_vertex_stride = sizeof(simple_vertex_t);  //  how big each complex piece of data is
     m_vertex_offset = 0;                        //  offset where the array starts
-    m_vertex_count  = 8;                        //  how big the array is
+    m_vertex_count  = m_vertices.size();        //  how big the array is
 
     //  creating a vertex buffer
     D3D11_BUFFER_DESC buff_desc {};
-    buff_desc.ByteWidth = sizeof(vertices);
+    buff_desc.ByteWidth = sizeof(simple_vertex_t) * m_vertices.size();
     buff_desc.Usage     = D3D11_USAGE_DEFAULT;
     buff_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
     D3D11_SUBRESOURCE_DATA subres_data {};
-    subres_data.pSysMem = vertices;
+    subres_data.pSysMem = m_vertices.data();
 
     m_result = m_device->CreateBuffer(&buff_desc, &subres_data, &m_current_vertex_buffer);
 
@@ -275,8 +275,8 @@ bool renderer_t::m_setup_input_layout(ID3DBlob* const& in_vs_blob)
 {
     //  the data that can be passed to vertex shader
     D3D11_INPUT_ELEMENT_DESC layout [] = {
-        {"POSITION", 0,    DXGI_FORMAT_R32G32B32_FLOAT, 0,                            0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {   "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
+        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,                            0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {  "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
     //  create an input layout and store it in m_vertex_input_layout
@@ -305,8 +305,8 @@ void renderer_t::m_setup_camera()
     DirectX::XMVECTOR cam_up        = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);                        //  ? (perhaps a camera up vector)
     m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up);  //  set the camera
 
-    sys::window_t::dimentions_t window_size = m_window.get_dimentions();
-    float aspect_ratio = static_cast<float>(window_size.width) / static_cast<float>(window_size.height);
+    sys::window_t::dimentions_t window_size  = m_window.get_dimentions();
+    float                       aspect_ratio = static_cast<float>(window_size.width) / static_cast<float>(window_size.height);
     //  initialize projection matrix
     m_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XM_PIDIV2, aspect_ratio, 0.01f, 100.f);
 }

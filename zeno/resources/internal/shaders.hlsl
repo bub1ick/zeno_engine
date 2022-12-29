@@ -7,19 +7,19 @@ cbuffer matrix_buffer : register(b0)
 };
 
 /* outputs from vertex shader go here. can be interpolated to pixel shader */
-struct vs_out {
+struct vs_out
+{
   float4 position : SV_Position; // required output of VS
   float4 color : COLOR;
 };
 
-vs_out vs_main(float4 position : POSITION, float4 color : COLOR) {
+vs_out vs_main(float4 position : POSITION, float4 normal : NORMAL)
+{
   vs_out output = (vs_out)0; // zero the memory first
 
   output.position = mul(position, world_matrix);
   output.position = mul(output.position, view_matrix);
   output.position = mul(output.position, projection_matrix);
-
-  output.color = color;
 
   return output;
 }
