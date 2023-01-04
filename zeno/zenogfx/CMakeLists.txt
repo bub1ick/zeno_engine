@@ -28,7 +28,8 @@ target_sources(
     zenogfx
     PUBLIC
     "sources/renderer.cpp"
-    "sources/components/dxgi_module.cpp"
-    "sources/components/exceptions.cpp"
+    "sources/components/dxgi_component.cpp"
+    "sources/components/dx11_component.cpp"
     "sources/components/drawable.cpp"
+    "sources/exceptions.cpp"
 )

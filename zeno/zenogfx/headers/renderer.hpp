@@ -1,8 +1,9 @@
 #pragma once
 
-#include "components/exceptions.hpp"
 #include "components/dxgi_component.hpp"
+#include "components/dx11_component.hpp"
 #include "components/drawable.hpp"
+
 
 namespace zeno::gfx
 {
@@ -46,9 +47,6 @@ private:
     ID3D11Device5*               m_device;
     ///  @brief the direct3d device context
     ID3D11DeviceContext4*        m_device_context;
-    ID3D11Debug*                 m_debug_device;
-    ID3D11InfoQueue*             m_info_queue;
-
 
     ///  @brief is used to create a target view for device context to draw to
     ///  @return true on success, false on error

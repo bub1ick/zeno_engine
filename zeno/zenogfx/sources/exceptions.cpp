@@ -13,17 +13,17 @@ dxgi_exception_t::~dxgi_exception_t()
     //  nothing to deinitialize
 }
 
-dxgi_exception_t& dxgi_exception_t::operator=(const dxgi_exception_t& in_that)
+void dxgi_exception_t::operator=(const dxgi_exception_t& in_that)
 {
+    std::string_view test = in_that.get_error_message();
     this->m_error_message = in_that.get_error_message();
-    return *this;
 }
 
 std::string_view dxgi_exception_t::get_error_message() const
 {
     std::stringstream error_code;
     error_code << std::hex << m_result;  //  convert result value to hex format
-    return m_error_message + "\t" + error_code.str();
+    return m_error_message + '\t' + error_code.str();
 }
 
-}  //  namespace zeno::dx11
+}  //  namespace zeno::gfx
