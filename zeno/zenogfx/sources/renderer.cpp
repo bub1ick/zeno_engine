@@ -23,11 +23,6 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi()
     m_result = m_device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &m_ps);
     assert(SUCCEEDED(m_result));
 
-    dxgi_exception_t ex1("test_error", m_result);
-    dxgi_exception_t ex2("test_error2", m_result + 12098);
-
-    ex1 = ex2;
-
     assert(m_setup_input_layout(vs_blob));
     assert(m_setup_vertex_buffer());
     assert(m_setup_index_buffer());
