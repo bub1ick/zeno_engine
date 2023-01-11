@@ -14,6 +14,7 @@
 #    define ZENO_API
 #endif
 
+// various helper macros that ease development for windows
 #if defined(ZENO_WINDOWS)
 #    if defined(interface)
 #        undef interface
