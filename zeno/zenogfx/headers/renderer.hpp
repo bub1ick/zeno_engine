@@ -2,12 +2,10 @@
 
 #include "components/dxgi_component.hpp"
 #include "components/dx11_component.hpp"
-#include "components/drawable.hpp"
 
 
 namespace zeno::gfx
 {
-
 struct simple_vertex_t
 {
     DirectX::XMFLOAT3 position;
@@ -32,6 +30,8 @@ public:
 private:
     ///  @brief holds all dxgi related interfaces
     dxgi_component_t             m_dxgi;
+    ///  @brief handles DirectX11
+    dx11_component_t             m_dx11;
     ///  @brief holds a reference to an application window for various rendering tasks
     const sys::window_t&         m_window;
     ///  @brief holds the results of direct3d and dxgi functions
@@ -96,7 +96,7 @@ private:
 
 
     float                        m_get_delta_time();
-    uint64_t                     m_start_time = 0;  //  time buffer (ms)
-    uint64_t                     m_current_time;    //  time since system started (ms)
+    uint64_t                     m_start_time_ms = 0;  //  time buffer (ms)
+    uint64_t                     m_current_time_ms;    //  time since system started (ms)
 };
 }  //  namespace zeno::gfx

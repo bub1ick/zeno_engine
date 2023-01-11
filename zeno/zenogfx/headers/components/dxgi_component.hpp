@@ -21,7 +21,7 @@ private:
     ///  @param out_adapters reference to a vector to hold found adapters
     void                        m_get_all_available_adapters();
 
-    ///  @brief this fucntion gets all the display modes available to user
+    ///  @brief this function gets all the display modes available to user
     ///  @return the mode with the best resolution and refresh rate
     DXGI_MODE_DESC1             m_get_best_display_mode();
 

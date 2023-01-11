@@ -6,10 +6,11 @@ namespace zeno::gfx
 
 renderer_t::renderer_t(const sys::window_t& in_window)
 
-try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi()
+try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dx11(in_window)
 {
     assert(m_create_device());
 
+    m_dxgi.initialize_device(m_device);  //  initialize device
     m_dxgi.create_swapchain(m_device, true, m_window);
 
     assert(m_create_target_view());
@@ -31,15 +32,13 @@ try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dxgi()
     m_setup_camera();
 }
 
-catch (const dxgi_exception_t& dxgi_ex)
+catch (const dx_exception_t& dx_ex)
 {
-    std::cerr << dxgi_ex.get_error_message() << std::endl;
+    std::cerr << dx_ex.get_error_message() << std::endl;
 }
 
 renderer_t::~renderer_t()
 {
-    m_device->Release();
-    m_device_context->Release();
 }
 
 void renderer_t::update()
@@ -96,16 +95,6 @@ bool renderer_t::m_create_device()
     if (FAILED(m_result))
     {
         std::cerr << "Failed to create Direct3D device!\t" << std::hex << m_result << std::endl;
-        return false;
-    }
-
-    try
-    {
-        m_dxgi.initialize_device(m_device);  //  initialize device
-    }
-    catch (const dxgi_exception_t& dxgi_ex)
-    {
-        std::cerr << dxgi_ex.get_error_message() << std::endl;
         return false;
     }
     return true;
@@ -322,11 +311,11 @@ void renderer_t::m_update_rotation()
 
 float renderer_t::m_get_delta_time()
 {
-    m_current_time = GetTickCount64();
+    m_current_time_ms = GetTickCount64();
 
-    if (m_start_time == 0)
-        m_start_time = m_current_time;  //  save tick count into the buffer
+    if (m_start_time_ms == 0)
+        m_start_time_ms = m_current_time_ms;  //  save tick count into the buffer
 
-    return (m_current_time - m_start_time) / 1000.f;  //  calculate next rotation angle
+    return (m_current_time_ms - m_start_time_ms) / 1000.f;  //  return in seconds
 }
 }  //  namespace zeno::gfx

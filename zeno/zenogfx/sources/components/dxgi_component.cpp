@@ -7,20 +7,20 @@ dxgi_component_t::dxgi_component_t()
 {
     m_result = CreateDXGIFactory2(0, IID_IDXGIFactory7, reinterpret_cast<void**>(&m_factory));
     if (FAILED(m_result))
-        throw dxgi_exception_t("Failed on CreateDXGIFactory2!", m_result);
+        throw dx_exception_t("Failed on CreateDXGIFactory2!", m_result, dx_exception_t::dxgi);
 
     m_get_all_available_adapters();
     m_graphics_card = m_adapters [0];
     m_result        = m_graphics_card->EnumOutputs(0, reinterpret_cast<IDXGIOutput**>(&m_monitor));
     if (FAILED(m_result))
-        throw dxgi_exception_t("Failed on EnumOutputs!", m_result);
+        throw dx_exception_t("Failed on EnumOutputs!", m_result, dx_exception_t::dxgi);
 }
 
 void dxgi_component_t::initialize_device(ID3D11Device5* const in_d3d11_device)
 {
     m_result = in_d3d11_device->QueryInterface<IDXGIDevice4>(&m_device);
     if (FAILED(m_result))
-        throw dxgi_exception_t("Failed to get DXGI device!", m_result);
+        throw dx_exception_t("Failed to get DXGI device!", m_result, dx_exception_t::dxgi);
 }
 
 void dxgi_component_t::create_swapchain(ID3D11Device5* in_device, bool in_windowed, const sys::window_t& in_window)
@@ -60,7 +60,7 @@ void dxgi_component_t::create_swapchain(ID3D11Device5* in_device, bool in_window
     );
     if (FAILED(m_result))
     {
-        throw dxgi_exception_t("Failed to create Swap Chain!", m_result);
+        throw dx_exception_t("Failed to create Swap Chain!", m_result, dx_exception_t::dxgi);
     }
 }
 
