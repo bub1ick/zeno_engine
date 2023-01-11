@@ -21,7 +21,7 @@
 #    endif
 //  a useful macro that allows for easy release of com objects with checking and nullifying
 //  typical usage: destructors
-#    define RELEASE_COM(interface)    \
+#    define SAFE_COM_RELEASE(interface)    \
         {                             \
             if (interface)            \
             {                         \
