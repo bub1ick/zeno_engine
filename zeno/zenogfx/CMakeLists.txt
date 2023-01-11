@@ -30,6 +30,5 @@ target_sources(
     "sources/renderer.cpp"
     "sources/components/dxgi_component.cpp"
     "sources/components/dx11_component.cpp"
-    "sources/components/drawable.cpp"
     "sources/exceptions.cpp"
 )
