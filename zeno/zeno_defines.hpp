@@ -3,6 +3,7 @@
 
 #pragma once
 
+//  linkage
 #if defined(ZENO_WINDOWS)
 #    if defined(ZENO_LIB)
 #        define ZENO_API __declspec(dllexport)
@@ -11,6 +12,23 @@
 #    endif
 #else
 #    define ZENO_API
+#endif
+
+#if defined(ZENO_WINDOWS)
+#    if defined(interface)
+#        undef interface
+#    endif
+//  a useful macro that allows for easy release of com objects with checking and nullifying
+//  typical usage: destructors
+#    define RELEASE_COM(interface)    \
+        {                             \
+            if (interface)            \
+            {                         \
+                interface->Release(); \
+                interface = nullptr;  \
+            }                         \
+        }
+
 #endif
 
 #if !defined(ZENO_LIB)
