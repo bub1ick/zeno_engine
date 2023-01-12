@@ -25,11 +25,11 @@ void dx_exception_t::category_format(category_e exception_category)
 {
     switch (exception_category)
     {
-        case category_e::d3d11:
+        case category_e::e_d3d11:
             m_error_message = "Direct3D exception caught:\n\t-";
             break;
 
-        case category_e::dxgi:
+        case category_e::e_dxgi:
             m_error_message = "DXGI exception caught:\n\t-";
             break;
 
