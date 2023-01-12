@@ -8,8 +8,6 @@ dx11_component_t::dx11_component_t(const sys::window_t& in_window)
       m_dxgi()
 {
     m_create_device();
-    if (true)
-        throw dx_exception_t("Failed to create Direct3D Device!", m_result, dx_exception_t::d3d11);
     m_dxgi.initialize_device(m_device);
     m_dxgi.create_swapchain(m_device, true, in_window);
     m_create_target_view();
