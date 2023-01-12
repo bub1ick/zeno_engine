@@ -6,19 +6,6 @@
 
 namespace zeno::gfx
 {
-struct simple_vertex_t
-{
-    DirectX::XMFLOAT3 position;
-    DirectX::XMFLOAT3 normal;
-};
-
-struct matrix_buffer_t
-{
-    DirectX::XMMATRIX world_matrix;
-    DirectX::XMMATRIX view_matrix;
-    DirectX::XMMATRIX projection_matrix;
-};
-
 class ZENO_API renderer_t
 {
 public:

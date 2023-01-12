@@ -8,27 +8,6 @@ renderer_t::renderer_t(const sys::window_t& in_window)
 
 try : m_feature_level{D3D_FEATURE_LEVEL_11_1}, m_window(in_window), m_dx11(in_window)
 {
-    assert(m_create_device());
-
-    m_dxgi.initialize_device(m_device);  //  initialize device
-    m_dxgi.create_swapchain(m_device, true, m_window);
-
-    assert(m_create_target_view());
-
-    ID3DBlob* vs_blob = nullptr;  //  holds compiled vertex shader
-    ID3DBlob* ps_blob = nullptr;  //  holds compiled pixel shader
-    assert(m_compile_shaders(vs_blob, ps_blob));
-
-    m_result = m_device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &m_vs);
-    assert(SUCCEEDED(m_result));
-    m_result = m_device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &m_ps);
-    assert(SUCCEEDED(m_result));
-
-    assert(m_setup_input_layout(vs_blob));
-    assert(m_setup_vertex_buffer());
-    assert(m_setup_index_buffer());
-    assert(m_setup_constant_buffer());
-
     m_setup_camera();
 }
 
