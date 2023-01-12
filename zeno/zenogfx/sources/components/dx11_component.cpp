@@ -11,14 +11,14 @@ dx11_component_t::dx11_component_t(const sys::window_t& in_window)
         throw dx_exception_t("Couldn't create Direct3D Device!", m_result, dx_exception_t::e_d3d11);
 
 
-    m_dxgi.initialize_device(m_device);
-    m_dxgi.create_swapchain(m_device, true, in_window);
+    m_dxgi.initialize_device(m_device.get());
+    m_dxgi.create_swapchain(m_device.get(), true, in_window);
 
     if (!m_create_target_view())
         throw dx_exception_t("Couldn't create Direct3D Target View!", m_result, dx_exception_t::e_d3d11);
 
-    ID3DBlob* vs_blob = nullptr;  //  holds compiled vertex shader
-    ID3DBlob* ps_blob = nullptr;  //  holds compiled pixel shader
+    utils::com_unique_ptr<ID3DBlob> vs_blob(nullptr);  //  holds compiled vertex shader
+    utils::com_unique_ptr<ID3DBlob> ps_blob(nullptr);  //  holds compiled pixel shader
 
     if (!m_compile_shaders(vs_blob, ps_blob))
         throw dx_exception_t("Couldn't compile Direct3D Shaders!", m_result, dx_exception_t::e_d3d11);
@@ -37,21 +37,11 @@ dx11_component_t::dx11_component_t(const sys::window_t& in_window)
     m_setup_constant_buffer();
 }
 
-dx11_component_t::~dx11_component_t()
-{
-    SAFE_COM_RELEASE(m_device);
-    SAFE_COM_RELEASE(m_device_context);
-    SAFE_COM_RELEASE(m_render_target_view);
-    SAFE_COM_RELEASE(m_vs);
-    SAFE_COM_RELEASE(m_ps);
-    SAFE_COM_RELEASE(m_vertex_input_layout);
-    SAFE_COM_RELEASE(m_current_vertex_buffer);
-    SAFE_COM_RELEASE(m_current_index_buffer);
-    SAFE_COM_RELEASE(m_current_constant_buffer);
-}
-
 bool dx11_component_t::m_create_device()
 {
+    ID3D11Device5*        raw_device         = nullptr;
+    ID3D11DeviceContext4* raw_device_context = nullptr;
+
     m_result = D3D11CreateDevice(
         m_dxgi.get_graphics_card(),
         D3D_DRIVER_TYPE_UNKNOWN,
@@ -60,80 +50,103 @@ bool dx11_component_t::m_create_device()
         &m_feature_level,
         1,
         D3D11_SDK_VERSION,
-        reinterpret_cast<ID3D11Device**>(&m_device),
+        reinterpret_cast<ID3D11Device**>(&raw_device),
         nullptr,
-        reinterpret_cast<ID3D11DeviceContext**>(&m_device_context)
+        reinterpret_cast<ID3D11DeviceContext**>(&raw_device_context)
     );
+
+    m_device.reset(raw_device);
+    m_device_context.reset(raw_device_context);
+
     return SUCCEEDED(m_result);
 }
 
 bool dx11_component_t::m_create_target_view()
 {
     //  take out the current frame from the swapchain
-    ID3D11Texture2D1* frame_buffer;
-    m_result = m_dxgi.get_swapchain()->GetBuffer(0, IID_ID3D11Texture2D1, reinterpret_cast<void**>(&frame_buffer));
+    ID3D11Texture2D1* raw_frame_buffer = nullptr;
+    m_result                           = m_dxgi.get_swapchain()->GetBuffer(0, IID_ID3D11Texture2D1, reinterpret_cast<void**>(&raw_frame_buffer));
     if (FAILED(m_result))
     {
         std::cerr << "Couldn't get the swap chain buffer!" << std::endl;
         return false;
     }
+    utils::com_unique_ptr<ID3D11Texture2D1> frame_buffer(raw_frame_buffer);
 
     //  from the frame get the target view
-    m_result = m_device->CreateRenderTargetView1(frame_buffer, nullptr, &m_render_target_view);
+    ID3D11RenderTargetView1*                raw_target_view = nullptr;
+    m_result                                                = m_device->CreateRenderTargetView1(frame_buffer.get(), nullptr, &raw_target_view);
     if (FAILED(m_result))
     {
         std::cerr << "Couldn't create Render Target view!" << std::endl;
         return false;
     }
+
+    m_render_target_view.reset(raw_target_view);
+
     return true;
 }
 
-bool dx11_component_t::m_compile_shaders(ID3DBlob*& out_vs_blob, ID3DBlob*& out_ps_blob)
+bool dx11_component_t::m_compile_shaders(utils::com_unique_ptr<ID3DBlob>& out_vs_blob, utils::com_unique_ptr<ID3DBlob>& out_ps_blob)
 {
-    ID3DBlob* error_blob = nullptr;
-
-    //  compile vertex shader
-    m_result = D3DCompileFromFile(
-        L"shaders.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "vs_main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &out_vs_blob, &error_blob
-    );
-    if (FAILED(m_result))
     {
-        if (error_blob)
-            OutputDebugStringA(reinterpret_cast<char*>(error_blob->GetBufferPointer()));
+        //  We need this as to pass a pointer to pointer as a function argument
+        //  we have to have a pointer to write data to and then feed this "hacky"
+        //  pointer to the unique_ptr to replace the address and destroy this
+        //  "hacky" pointer along the way.
+        //  That sentece is as simple as using a smart pointer.
+        ID3DBlob* raw_vs_blob = nullptr;
+        ID3DBlob* raw_ps_blob = nullptr;
+        ID3DBlob* error_blob  = nullptr;
 
-        SAFE_COM_RELEASE(error_blob);
-        SAFE_COM_RELEASE(out_vs_blob);
-        SAFE_COM_RELEASE(out_ps_blob);
-        return false;
+        //  compile vertex shader
+        m_result = D3DCompileFromFile(
+            L"shaders.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "vs_main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &raw_vs_blob, &error_blob
+        );
+        if (FAILED(m_result))
+        {
+            if (error_blob)
+                OutputDebugStringA(reinterpret_cast<char*>(error_blob->GetBufferPointer()));
+            utils::com_deleter_t<ID3DBlob>(error_blob);
+            return false;
+        }
+
+        //  compile pixel shader
+        m_result = D3DCompileFromFile(
+            L"shaders.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "ps_main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &raw_ps_blob, &error_blob
+        );
+        if (FAILED(m_result))
+        {
+            if (error_blob)
+                OutputDebugStringA(reinterpret_cast<char*>(error_blob->GetBufferPointer()));
+            utils::com_deleter_t<ID3DBlob>(error_blob);
+            return false;
+        }
+
+        out_vs_blob.reset(raw_vs_blob);
+        out_ps_blob.reset(raw_ps_blob);
     }
 
-    //  compile pixel shader
-    m_result = D3DCompileFromFile(
-        L"shaders.hlsl", nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "ps_main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &out_ps_blob, &error_blob
-    );
-    if (FAILED(m_result))
     {
-        if (error_blob)
-            OutputDebugStringA(reinterpret_cast<char*>(error_blob->GetBufferPointer()));
+        ID3D11VertexShader* raw_vs = nullptr;
+        ID3D11PixelShader*  raw_ps = nullptr;
 
-        SAFE_COM_RELEASE(error_blob);
-        SAFE_COM_RELEASE(out_vs_blob);
-        SAFE_COM_RELEASE(out_ps_blob);
-        return false;
+        m_result = m_device->CreateVertexShader(out_vs_blob->GetBufferPointer(), out_vs_blob->GetBufferSize(), nullptr, &raw_vs);
+        if (FAILED(m_result))
+            return false;
+
+        m_result = m_device->CreatePixelShader(out_ps_blob->GetBufferPointer(), out_ps_blob->GetBufferSize(), nullptr, &raw_ps);
+        if (FAILED(m_result))
+            return false;
+
+        m_vs.reset(raw_vs);
+        m_ps.reset(raw_ps);
     }
-
-    m_result = m_device->CreateVertexShader(out_vs_blob->GetBufferPointer(), out_vs_blob->GetBufferSize(), nullptr, &m_vs);
-    if (FAILED(m_result))
-        return false;
-
-    m_result = m_device->CreatePixelShader(out_ps_blob->GetBufferPointer(), out_ps_blob->GetBufferSize(), nullptr, &m_ps);
-    if (FAILED(m_result))
-        return false;
 
     return true;
 }
 
-bool dx11_component_t::m_setup_input_layout(ID3DBlob*& in_vs_blob)
+bool dx11_component_t::m_setup_input_layout(utils::com_unique_ptr<ID3DBlob>& in_vs_blob)
 {
     //  the data that can be passed to vertex shader
     D3D11_INPUT_ELEMENT_DESC layout [] = {
@@ -141,13 +154,16 @@ bool dx11_component_t::m_setup_input_layout(ID3DBlob*& in_vs_blob)
         {  "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
+
     //  create an input layout and store it in m_vertex_input_layout
-    m_result = m_device->CreateInputLayout(layout, ARRAYSIZE(layout), in_vs_blob->GetBufferPointer(), in_vs_blob->GetBufferSize(), &m_vertex_input_layout);
+    ID3D11InputLayout* raw_input_layout = nullptr;
+    m_result = m_device->CreateInputLayout(layout, ARRAYSIZE(layout), in_vs_blob->GetBufferPointer(), in_vs_blob->GetBufferSize(), &raw_input_layout);
     if (FAILED(m_result))
         return false;
+    m_vertex_input_layout.reset(raw_input_layout);
 
     //  set the input layout we just created
-    m_device_context->IASetInputLayout(m_vertex_input_layout);
+    m_device_context->IASetInputLayout(m_vertex_input_layout.get());
 
     //  set rendering topology
     //  topology types:  https://learn.microsoft.com/en-us/windows/win32/api/d3dcommon/ne-d3dcommon-d3d_primitive_topology
@@ -183,12 +199,14 @@ bool dx11_component_t::m_setup_vertex_buffer()
     D3D11_SUBRESOURCE_DATA subres_data {};
     subres_data.pSysMem = m_vertices.data();
 
-    m_result = m_device->CreateBuffer(&buff_desc, &subres_data, &m_current_vertex_buffer);
+    ID3D11Buffer* raw_buffer = nullptr;
+    m_result                 = m_device->CreateBuffer(&buff_desc, &subres_data, &raw_buffer);
+    m_current_vertex_buffer.reset(raw_buffer);
 
     if (FAILED(m_result))
         return false;
 
-    m_device_context->IASetVertexBuffers(0, 1, &m_current_vertex_buffer, &m_vertex_stride, &m_vertex_offset);
+    m_device_context->IASetVertexBuffers(0, 1, &raw_buffer, &m_vertex_stride, &m_vertex_offset);
 
     return true;
 }
@@ -227,11 +245,13 @@ bool dx11_component_t::m_setup_index_buffer()
     D3D11_SUBRESOURCE_DATA subres_data {};
     subres_data.pSysMem = indices;
 
-    m_result = m_device->CreateBuffer(&buff_desc, &subres_data, &m_current_index_buffer);
+    ID3D11Buffer* raw_buffer = nullptr;
+    m_result                 = m_device->CreateBuffer(&buff_desc, &subres_data, &raw_buffer);
     if (FAILED(m_result))
         return false;
+    m_current_index_buffer.reset(raw_buffer);
 
-    m_device_context->IASetIndexBuffer(m_current_index_buffer, DXGI_FORMAT_R16_UINT, 0);
+    m_device_context->IASetIndexBuffer(m_current_index_buffer.get(), DXGI_FORMAT_R16_UINT, 0);
 
     return true;
 }
@@ -245,7 +265,9 @@ bool dx11_component_t::m_setup_constant_buffer()
     buff_desc.BindFlags      = D3D11_BIND_CONSTANT_BUFFER;
     buff_desc.CPUAccessFlags = 0;
 
-    m_result = m_device->CreateBuffer(&buff_desc, nullptr, &m_current_constant_buffer);
+    ID3D11Buffer* raw_buffer = nullptr;
+    m_result                 = m_device->CreateBuffer(&buff_desc, nullptr, &raw_buffer);
+    m_current_constant_buffer.reset(raw_buffer);
 
     return FAILED(m_result) ? false : true;
 }
