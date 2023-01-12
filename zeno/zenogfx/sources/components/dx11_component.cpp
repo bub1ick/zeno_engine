@@ -25,13 +25,9 @@ dx11_component_t::dx11_component_t(const sys::window_t& in_window)
 
     if (!m_setup_input_layout(vs_blob))
     {
-        SAFE_COM_RELEASE(vs_blob);
-        SAFE_COM_RELEASE(ps_blob);
         throw dx_exception_t("Couldn't Setup Direct3D Input Layout!", m_result, dx_exception_t::e_d3d11);
     }
-    SAFE_COM_RELEASE(vs_blob);
-    SAFE_COM_RELEASE(ps_blob);
-
+    
     m_setup_vertex_buffer();
     m_setup_index_buffer();
     m_setup_constant_buffer();
