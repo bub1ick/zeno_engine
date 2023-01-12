@@ -17,8 +17,8 @@ dx11_component_t::dx11_component_t(const sys::window_t& in_window)
     if (!m_create_target_view())
         throw dx_exception_t("Couldn't create Direct3D Target View!", m_result, dx_exception_t::e_d3d11);
 
-    utils::com_unique_ptr<ID3DBlob> vs_blob(nullptr);  //  holds compiled vertex shader
-    utils::com_unique_ptr<ID3DBlob> ps_blob(nullptr);  //  holds compiled pixel shader
+    utils::unique_com_t<ID3DBlob> vs_blob(nullptr);  //  holds compiled vertex shader
+    utils::unique_com_t<ID3DBlob> ps_blob(nullptr);  //  holds compiled pixel shader
 
     if (!m_compile_shaders(vs_blob, ps_blob))
         throw dx_exception_t("Couldn't compile Direct3D Shaders!", m_result, dx_exception_t::e_d3d11);
@@ -71,7 +71,7 @@ bool dx11_component_t::m_create_target_view()
         std::cerr << "Couldn't get the swap chain buffer!" << std::endl;
         return false;
     }
-    utils::com_unique_ptr<ID3D11Texture2D1> frame_buffer(raw_frame_buffer);
+    utils::unique_com_t<ID3D11Texture2D1> frame_buffer(raw_frame_buffer);
 
     //  from the frame get the target view
     ID3D11RenderTargetView1*                raw_target_view = nullptr;
@@ -87,7 +87,7 @@ bool dx11_component_t::m_create_target_view()
     return true;
 }
 
-bool dx11_component_t::m_compile_shaders(utils::com_unique_ptr<ID3DBlob>& out_vs_blob, utils::com_unique_ptr<ID3DBlob>& out_ps_blob)
+bool dx11_component_t::m_compile_shaders(utils::unique_com_t<ID3DBlob>& out_vs_blob, utils::unique_com_t<ID3DBlob>& out_ps_blob)
 {
     {
         //  We need this as to pass a pointer to pointer as a function argument
@@ -146,7 +146,7 @@ bool dx11_component_t::m_compile_shaders(utils::com_unique_ptr<ID3DBlob>& out_vs
     return true;
 }
 
-bool dx11_component_t::m_setup_input_layout(utils::com_unique_ptr<ID3DBlob>& in_vs_blob)
+bool dx11_component_t::m_setup_input_layout(utils::unique_com_t<ID3DBlob>& in_vs_blob)
 {
     //  the data that can be passed to vertex shader
     D3D11_INPUT_ELEMENT_DESC layout [] = {
