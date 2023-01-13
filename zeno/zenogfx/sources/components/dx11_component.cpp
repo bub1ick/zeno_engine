@@ -38,6 +38,7 @@ void dx11_component_t::update(const sys::window_t& in_window, const float delta_
     m_update_rotation(delta_time_in_seconds);
 
     m_device_context->VSSetShader(m_vs.get(), nullptr, 0);
+
     ID3D11Buffer* raw_const_buffer = m_current_constant_buffer.get();
     m_device_context->VSSetConstantBuffers(0, 1, &raw_const_buffer);
     m_current_constant_buffer.reset(raw_const_buffer);
