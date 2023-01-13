@@ -27,10 +27,50 @@ dx11_component_t::dx11_component_t(const sys::window_t& in_window)
     {
         throw dx_exception_t("Couldn't Setup Direct3D Input Layout!", m_result, dx_exception_t::e_d3d11);
     }
-    
+
     m_setup_vertex_buffer();
     m_setup_index_buffer();
     m_setup_constant_buffer();
+}
+
+void dx11_component_t::update(const sys::window_t& in_window, const float delta_time_in_seconds)
+{
+    m_update_rotation(delta_time_in_seconds);
+
+    m_device_context->VSSetShader(m_vs.get(), nullptr, 0);
+    ID3D11Buffer* raw_const_buffer = m_current_constant_buffer.get();
+    m_device_context->VSSetConstantBuffers(0, 1, &raw_const_buffer);
+    m_current_constant_buffer.reset(raw_const_buffer);
+
+    sys::window_t::dimentions_t window_size = in_window.get_dimentions();
+    D3D11_VIEWPORT              viewport {};                     //  stores rendering viewport
+    viewport.Width    = static_cast<float>(window_size.width);   //  window width
+    viewport.Height   = static_cast<float>(window_size.height);  //  window height
+    viewport.MaxDepth = 1.f;                                     //  maximum window depth
+    m_device_context->RSSetViewports(1, &viewport);
+
+    m_device_context->PSSetShader(m_ps.get(), nullptr, 0);
+
+    //  clear it with a color declared earlier
+    m_device_context->ClearRenderTargetView(m_render_target_view.get(), DirectX::Colors::MidnightBlue);
+
+    static utils::unique_com_t<ID3D11RenderTargetView> old_target_view =
+        utils::unique_com_t<ID3D11RenderTargetView>();  //  stores a pointer to older render target structure (called once)
+    ID3D11RenderTargetView* raw_old_target_view = old_target_view.get();
+    if (!old_target_view.get())
+    {
+        ID3D11RenderTargetView* raw_old_target_view = old_target_view.get();
+        m_result = m_render_target_view->QueryInterface<ID3D11RenderTargetView>(&raw_old_target_view);  //  query the older structure from the newer one
+        assert(SUCCEEDED(m_result));
+        old_target_view.reset(raw_old_target_view);
+    }
+    //  set it as a render target
+    m_device_context->OMSetRenderTargets(1, &raw_old_target_view, nullptr);
+
+    //  draw indexed vertices
+    m_device_context->DrawIndexed(36, 0, 0);
+
+    m_dxgi.get_swapchain()->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 }
 
 bool dx11_component_t::m_create_device()
@@ -70,8 +110,8 @@ bool dx11_component_t::m_create_target_view()
     utils::unique_com_t<ID3D11Texture2D1> frame_buffer(raw_frame_buffer);
 
     //  from the frame get the target view
-    ID3D11RenderTargetView1*                raw_target_view = nullptr;
-    m_result                                                = m_device->CreateRenderTargetView1(frame_buffer.get(), nullptr, &raw_target_view);
+    ID3D11RenderTargetView1*              raw_target_view = nullptr;
+    m_result                                              = m_device->CreateRenderTargetView1(frame_buffer.get(), nullptr, &raw_target_view);
     if (FAILED(m_result))
     {
         std::cerr << "Couldn't create Render Target view!" << std::endl;
@@ -266,5 +306,33 @@ bool dx11_component_t::m_setup_constant_buffer()
     m_current_constant_buffer.reset(raw_buffer);
 
     return FAILED(m_result) ? false : true;
+}
+
+void dx11_component_t::m_setup_camera(const sys::window_t& in_window)
+{
+    //  initialize world matrix
+    m_world_matrix = DirectX::XMMatrixIdentity();
+
+    //  initialize view matrix
+    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, 5.f, 0.f);                        //  camera position in a right-handed coordinate position
+    DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);                        //  a point in space the camera is looking at
+    DirectX::XMVECTOR cam_up        = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);                        //  ? (perhaps a camera up vector)
+    m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up);  //  set the camera
+
+    sys::window_t::dimentions_t window_size  = in_window.get_dimentions();
+    float                       aspect_ratio = static_cast<float>(window_size.width) / static_cast<float>(window_size.height);
+    //  initialize projection matrix
+    m_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XM_PIDIV2, aspect_ratio, 0.01f, 100.f);
+}
+
+void dx11_component_t::m_update_rotation(const float delta_time_in_seconds)
+{
+    m_world_matrix = DirectX::XMMatrixRotationY(delta_time_in_seconds);
+
+    m_matrix_buffer.world_matrix      = DirectX::XMMatrixTranspose(m_world_matrix);
+    m_matrix_buffer.view_matrix       = DirectX::XMMatrixTranspose(m_view_matrix);
+    m_matrix_buffer.projection_matrix = DirectX::XMMatrixTranspose(m_projection_matrix);
+
+    m_device_context->UpdateSubresource(m_current_constant_buffer.get(), 0, nullptr, &m_matrix_buffer, 0, 0);
 }
 }  //  namespace zeno::gfx
