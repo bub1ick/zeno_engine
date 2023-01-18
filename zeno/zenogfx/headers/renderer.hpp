@@ -12,13 +12,11 @@ public:
     renderer_t(const sys::window_t& in_window);
     ~renderer_t();
 
-    void update();
+    void update(const sys::window_t& in_window);
 
 private:
     ///  @brief handles DirectX11
     dx11_component_t             m_dx11;
-    ///  @brief holds a reference to an application window for various rendering tasks
-    const sys::window_t&         m_window;
     ///  @brief holds the results of direct3d and dxgi functions
     HRESULT                      m_result;
 

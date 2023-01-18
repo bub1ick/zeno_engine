@@ -15,5 +15,5 @@ target_include_directories(
 target_sources(
     zenosys
     PUBLIC
-    "sources/window.cpp"
+    "sources/window_handling/window.cpp"
 )

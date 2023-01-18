@@ -17,8 +17,8 @@ dx11_component_t::dx11_component_t(const sys::window_t& in_window)
     if (!m_create_target_view())
         throw dx_exception_t("Couldn't create Direct3D Target View!", m_result, dx_exception_t::e_d3d11);
 
-    utils::unique_com_t<ID3DBlob> vs_blob(nullptr);  //  holds compiled vertex shader
-    utils::unique_com_t<ID3DBlob> ps_blob(nullptr);  //  holds compiled pixel shader
+    sys::unique_com_t<ID3DBlob> vs_blob(nullptr);  //  holds compiled vertex shader
+    sys::unique_com_t<ID3DBlob> ps_blob(nullptr);  //  holds compiled pixel shader
 
     if (!m_compile_shaders(vs_blob, ps_blob))
         throw dx_exception_t("Couldn't compile Direct3D Shaders!", m_result, dx_exception_t::e_d3d11);
@@ -40,7 +40,10 @@ void dx11_component_t::update(const sys::window_t& in_window, const float delta_
     m_device_context->VSSetShader(m_vs.get(), nullptr, 0);
 
     ID3D11Buffer* raw_const_buffer = m_current_constant_buffer.get();
+    m_current_constant_buffer->AddRef();
+
     m_device_context->VSSetConstantBuffers(0, 1, &raw_const_buffer);
+
     m_current_constant_buffer.reset(raw_const_buffer);
 
     sys::window_t::dimentions_t window_size = in_window.get_dimentions();
@@ -55,18 +58,12 @@ void dx11_component_t::update(const sys::window_t& in_window, const float delta_
     //  clear it with a color declared earlier
     m_device_context->ClearRenderTargetView(m_render_target_view.get(), DirectX::Colors::MidnightBlue);
 
-    static utils::unique_com_t<ID3D11RenderTargetView> old_target_view =
-        utils::unique_com_t<ID3D11RenderTargetView>();  //  stores a pointer to older render target structure (called once)
-    ID3D11RenderTargetView* raw_old_target_view = old_target_view.get();
-    if (!old_target_view.get())
-    {
-        ID3D11RenderTargetView* raw_old_target_view = old_target_view.get();
-        m_result = m_render_target_view->QueryInterface<ID3D11RenderTargetView>(&raw_old_target_view);  //  query the older structure from the newer one
-        assert(SUCCEEDED(m_result));
-        old_target_view.reset(raw_old_target_view);
-    }
     //  set it as a render target
+    ID3D11RenderTargetView* raw_old_target_view = dynamic_cast<ID3D11RenderTargetView*>(m_render_target_view.get());
+    m_render_target_view->AddRef();
+
     m_device_context->OMSetRenderTargets(1, &raw_old_target_view, nullptr);
+    m_render_target_view.reset(reinterpret_cast<ID3D11RenderTargetView1*>(raw_old_target_view));
 
     //  draw indexed vertices
     m_device_context->DrawIndexed(36, 0, 0);
@@ -92,6 +89,14 @@ bool dx11_component_t::m_create_device()
         reinterpret_cast<ID3D11DeviceContext**>(&raw_device_context)
     );
 
+    ID3D11Device5* new_raw_device = raw_device; // ref
+
+    raw_device->Release(); // 1 ref
+    raw_device = nullptr;
+
+    new_raw_device; // doens't work
+
+
     m_device.reset(raw_device);
     m_device_context.reset(raw_device_context);
 
@@ -108,11 +113,11 @@ bool dx11_component_t::m_create_target_view()
         std::cerr << "Couldn't get the swap chain buffer!" << std::endl;
         return false;
     }
-    utils::unique_com_t<ID3D11Texture2D1> frame_buffer(raw_frame_buffer);
+    sys::unique_com_t<ID3D11Texture2D1> frame_buffer(raw_frame_buffer);
 
     //  from the frame get the target view
-    ID3D11RenderTargetView1*              raw_target_view = nullptr;
-    m_result                                              = m_device->CreateRenderTargetView1(frame_buffer.get(), nullptr, &raw_target_view);
+    ID3D11RenderTargetView1*            raw_target_view = nullptr;
+    m_result                                            = m_device->CreateRenderTargetView1(frame_buffer.get(), nullptr, &raw_target_view);
     if (FAILED(m_result))
     {
         std::cerr << "Couldn't create Render Target view!" << std::endl;
@@ -124,7 +129,7 @@ bool dx11_component_t::m_create_target_view()
     return true;
 }
 
-bool dx11_component_t::m_compile_shaders(utils::unique_com_t<ID3DBlob>& out_vs_blob, utils::unique_com_t<ID3DBlob>& out_ps_blob)
+bool dx11_component_t::m_compile_shaders(sys::unique_com_t<ID3DBlob>& out_vs_blob, sys::unique_com_t<ID3DBlob>& out_ps_blob)
 {
     {
         //  We need this as to pass a pointer to pointer as a function argument
@@ -144,7 +149,7 @@ bool dx11_component_t::m_compile_shaders(utils::unique_com_t<ID3DBlob>& out_vs_b
         {
             if (error_blob)
                 OutputDebugStringA(reinterpret_cast<char*>(error_blob->GetBufferPointer()));
-            utils::com_deleter_t<ID3DBlob>(error_blob);
+            sys::com_deleter_t<ID3DBlob>(error_blob);
             return false;
         }
 
@@ -156,7 +161,7 @@ bool dx11_component_t::m_compile_shaders(utils::unique_com_t<ID3DBlob>& out_vs_b
         {
             if (error_blob)
                 OutputDebugStringA(reinterpret_cast<char*>(error_blob->GetBufferPointer()));
-            utils::com_deleter_t<ID3DBlob>(error_blob);
+            sys::com_deleter_t<ID3DBlob>(error_blob);
             return false;
         }
 
@@ -183,7 +188,7 @@ bool dx11_component_t::m_compile_shaders(utils::unique_com_t<ID3DBlob>& out_vs_b
     return true;
 }
 
-bool dx11_component_t::m_setup_input_layout(utils::unique_com_t<ID3DBlob>& in_vs_blob)
+bool dx11_component_t::m_setup_input_layout(sys::unique_com_t<ID3DBlob>& in_vs_blob)
 {
     //  the data that can be passed to vertex shader
     D3D11_INPUT_ELEMENT_DESC layout [] = {
@@ -317,7 +322,7 @@ void dx11_component_t::m_setup_camera(const sys::window_t& in_window)
     //  initialize view matrix
     DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, 5.f, 0.f);                        //  camera position in a right-handed coordinate position
     DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);                        //  a point in space the camera is looking at
-    DirectX::XMVECTOR cam_up        = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);                        //  ? (perhaps a camera up vector)
+    DirectX::XMVECTOR cam_up        = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);                        //  vector pointing up from camera pos
     m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up);  //  set the camera
 
     sys::window_t::dimentions_t window_size  = in_window.get_dimentions();

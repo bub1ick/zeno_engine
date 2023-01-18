@@ -22,13 +22,15 @@ public:
     ///  @return the handle
     HWND get_handle() const { return m_handle; };
 
-    ///  @brief defines the size of the client area of the window;
+    ///  @brief defines the size of the client area of the window
     struct dimentions_t
     {
         int32_t width;
         int32_t height;
     };
 
+    /// @brief used to get the dimentions (size) of the window
+    /// @return the size of the window in a struct @see window_t::dimentionas_t
     dimentions_t get_dimentions() const;
 
 private:

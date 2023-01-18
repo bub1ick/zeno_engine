@@ -6,7 +6,7 @@ namespace zeno::gfx
 
 renderer_t::renderer_t(const sys::window_t& in_window)
 
-try : m_window(in_window), m_dx11(in_window)
+try : m_dx11(in_window)
 {
 }
 
@@ -17,9 +17,9 @@ catch (const dx_exception_t& dx_ex)
 
 renderer_t::~renderer_t() { }
 
-void renderer_t::update()
+void renderer_t::update(const sys::window_t& in_window)
 {
-    m_dx11.update(m_window, m_get_delta_time());
+    m_dx11.update(in_window, m_get_delta_time());
 }
 
 float renderer_t::m_get_delta_time()

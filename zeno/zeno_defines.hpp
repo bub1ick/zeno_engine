@@ -34,5 +34,5 @@
 #endif
 
 #if !defined(ZENO_LIB)
-#    include "zeno_user_difines.hpp"
+#    include "zeno_user_defines.hpp"
 #endif

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace zeno::utils
+namespace zeno::sys
 {
 template <typename ComType>
 class com_deleter_t
@@ -15,4 +15,4 @@ public:
         }
     }
 };
-}  //  namespace zeno::utils
+}  //  namespace zeno::sys

@@ -8,38 +8,38 @@ class dxgi_component_t
 public:
     dxgi_component_t();
 
-    void             initialize_device(ID3D11Device5* const in_d3d11_device);
+    void                               initialize_device(ID3D11Device5* const in_d3d11_device);
 
-    void             create_swapchain(ID3D11Device5* in_device, bool in_windowed, const sys::window_t& in_window);
+    void                               create_swapchain(ID3D11Device5* in_device, bool in_windowed, const sys::window_t& in_window);
 
-    IDXGISwapChain4* get_swapchain() const noexcept { return m_swapchain; };
+    sys::shared_com_t<IDXGISwapChain4> get_swapchain() const noexcept { return m_swapchain; };
 
-    IDXGIAdapter4*   get_graphics_card() const noexcept { return m_graphics_card; };
+    sys::shared_com_t<IDXGIAdapter4>   get_graphics_card() const noexcept { return m_graphics_card; };
 
 private:
     ///  @brief search for all dxgi adapters (graphics cards) in the system
     ///  @param out_adapters reference to a vector to hold found adapters
-    void                        m_get_all_available_adapters();
+    void                                          m_get_all_available_adapters();
 
     ///  @brief this function gets all the display modes available to user
     ///  @return the mode with the best resolution and refresh rate
-    DXGI_MODE_DESC1             m_get_best_display_mode();
+    DXGI_MODE_DESC1                               m_get_best_display_mode();
 
-    HRESULT                     m_result;
+    HRESULT                                       m_result;
 
-    IDXGIFactory7*              m_factory;
+    sys::shared_com_t<IDXGIFactory7>              m_factory;
 
-    IDXGIDevice4*               m_device;
+    sys::shared_com_t<IDXGIDevice4>               m_device;
 
-    std::vector<IDXGIAdapter4*> m_adapters;
+    std::vector<sys::shared_com_t<IDXGIAdapter4>> m_adapters;
 
-    IDXGIAdapter4*              m_graphics_card;
+    sys::shared_com_t<IDXGIAdapter4>              m_graphics_card;
 
-    IDXGIOutput6*               m_monitor;
+    sys::shared_com_t<IDXGIOutput6>               m_monitor;
 
-    DXGI_MODE_DESC1*            m_display_modes;
+    DXGI_MODE_DESC1*                              m_display_modes;
 
-    IDXGISwapChain4*            m_swapchain;
+    sys::shared_com_t<IDXGISwapChain4>            m_swapchain;
 };
 
-}  //  namespace zeno::dx11
+}  //  namespace zeno::gfx
