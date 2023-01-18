@@ -44,7 +44,7 @@ private:
     ///  @param in_message the message to preprocess
     ///  @param out_done if we should quit the application or not
     ///  @return whether we can safely call the engine loop
-    bool           queue_is_ok(MSG* in_message, bool& out_done);
+    bool           queue_is_ok(MSG& in_message, bool& out_done);
 
     ///  @brief win32 application instance
     HINSTANCE      m_application_instance;

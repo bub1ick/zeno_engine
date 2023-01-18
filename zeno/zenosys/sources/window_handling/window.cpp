@@ -47,7 +47,7 @@ void window_t::loop(std::function<bool()> engine_loop_callback)
 
     while (!done)
     {
-        if (!queue_is_ok(&message, done))
+        if (!queue_is_ok(message, done))
             continue;
 
         done = engine_loop_callback();
@@ -65,16 +65,16 @@ window_t::dimentions_t window_t::get_dimentions() const
     };
 }
 
-bool window_t::queue_is_ok(MSG* in_message, bool& out_done)
+bool window_t::queue_is_ok(MSG& in_message, bool& out_done)
 {
-    if (PeekMessageA(in_message, nullptr, 0, 0, PM_REMOVE))
+    if (PeekMessageA(&in_message, nullptr, 0, 0, PM_REMOVE))
     {
-        if (in_message->message == WM_QUIT)
+        if (in_message.message == WM_QUIT)
         {
             out_done = true;
             return false;
         }
-        DispatchMessageA(in_message);
+        DispatchMessageA(&in_message);
     }
 
     return true;
