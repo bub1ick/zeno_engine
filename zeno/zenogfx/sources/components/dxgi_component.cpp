@@ -4,13 +4,8 @@ namespace zeno::gfx
 {
 
 dxgi_component_t::dxgi_component_t()
-    : m_factory(nullptr, sys::com_deleter_t<IDXGIFactory7>()),
-      m_device(nullptr, sys::com_deleter_t<IDXGIDevice4>()),
-      m_graphics_card(nullptr, sys::com_deleter_t<IDXGIAdapter4>()),
-      m_monitor(nullptr, sys::com_deleter_t<IDXGIOutput6>()),
-      m_swapchain(nullptr, sys::com_deleter_t<IDXGISwapChain4>())
 {
-    m_result = CreateDXGIFactory2(0, IID_IDXGIFactory7, reinterpret_cast<void**>(&raw_factory));
+    m_result = CreateDXGIFactory2(0, IID_IDXGIFactory7, reinterpret_cast<void**>(&m_factory));
     if (FAILED(m_result))
         throw dx_exception_t("Failed on CreateDXGIFactory2!", m_result, dx_exception_t::e_dxgi);
 
@@ -83,7 +78,7 @@ void dxgi_component_t::m_get_all_available_adapters()
         if (!could_find)  //  finish if couldn't find the next adapter
             break;
 
-        m_adapters.push_back(sys::unique_com_t<IDXGIAdapter4>(adapter));  //  store the found adapter
+        m_adapters.push_back(adapter);  //  store the found adapter
     }
 }
 

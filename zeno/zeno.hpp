@@ -23,8 +23,6 @@
 #    define INITGUID
 
 #    include <windows.h>
-#    include <comip.h>
-#    include <winrt/windows.graphics.directx.direct3d11.h>
 
 #    include <d3d11_4.h>
 #    include <d3dcompiler.h>
