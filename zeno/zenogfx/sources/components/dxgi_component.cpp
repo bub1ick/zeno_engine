@@ -16,6 +16,89 @@ dxgi_component_t::dxgi_component_t()
         throw dx_exception_t("Failed on EnumOutputs!", m_result, dx_exception_t::e_dxgi);
 }
 
+dxgi_component_t::dxgi_component_t(const dxgi_component_t& that)
+{
+    *this = that;
+}
+
+dxgi_component_t::dxgi_component_t(dxgi_component_t&& that)
+{
+    *this = std::move(that);
+}
+
+dxgi_component_t& dxgi_component_t::operator=(const dxgi_component_t& that)
+{
+    if (this == &that)
+        return *this;
+
+    COM_COPY(m_factory, that.m_factory);
+    COM_COPY(m_device, that.m_device);
+    COM_COPY(m_graphics_card, that.m_graphics_card);
+    COM_COPY(m_monitor, that.m_monitor);
+    COM_COPY(m_swapchain, that.m_swapchain);
+
+    m_result        = that.m_result;
+    m_display_modes = that.m_display_modes;
+
+    //  erase existing adapters
+    for (auto adapter : m_adapters)
+        COM_RELEASE(adapter);
+    m_adapters.clear();
+
+    //  add new adapters
+    for (auto adapter : that.m_adapters)
+    {
+        adapter->AddRef();
+        m_adapters.push_back(adapter);
+    }
+
+    return *this;
+}
+
+dxgi_component_t& dxgi_component_t::operator=(dxgi_component_t&& that)
+{
+    if (this == &that)
+        return *this;
+
+    COM_MOVE(m_factory, that.m_factory);
+    COM_MOVE(m_device, that.m_device);
+    COM_MOVE(m_graphics_card, that.m_graphics_card);
+    COM_MOVE(m_monitor, that.m_monitor);
+    COM_MOVE(m_swapchain, that.m_swapchain);
+
+    m_result        = that.m_result;
+    that.m_result   = 0;
+
+    m_display_modes = that.m_display_modes;
+    that.m_display_modes.clear();
+
+    //  erase existing adapters
+    for (auto adapter : m_adapters)
+        COM_RELEASE(adapter);
+    m_adapters.clear();
+
+    //  add new adapters
+    for (auto adapter : that.m_adapters)
+    {
+        m_adapters.push_back(adapter);
+        adapter = nullptr;
+    }
+
+    return *this;
+}
+
+dxgi_component_t::~dxgi_component_t()
+{
+    COM_RELEASE(m_factory)
+    COM_RELEASE(m_device)
+    COM_RELEASE(m_graphics_card)
+    COM_RELEASE(m_monitor)
+    COM_RELEASE(m_swapchain)
+
+    for (auto adapter : m_adapters)
+        COM_RELEASE(adapter);
+}
+
 void dxgi_component_t::initialize_device(ID3D11Device5* const in_d3d11_device)
 {
     m_result = in_d3d11_device->QueryInterface<IDXGIDevice4>(&m_device);
@@ -87,9 +170,10 @@ DXGI_MODE_DESC1 dxgi_component_t::m_get_best_display_mode()
     //  get display modes and take the best one (highest resolution and refresh rate)
     uint32_t number_of_display_modes = 0;
     m_monitor->GetDisplayModeList1(DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_ENUM_MODES_SCALING, &number_of_display_modes, nullptr);
-    m_display_modes = new DXGI_MODE_DESC1 [number_of_display_modes];
-    m_monitor->GetDisplayModeList1(DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_ENUM_MODES_SCALING, &number_of_display_modes, m_display_modes);
-    return m_display_modes [number_of_display_modes - 1];
+    //  m_display_modes = new DXGI_MODE_DESC1 [number_of_display_modes];
+    m_display_modes.reserve(number_of_display_modes);
+    m_monitor->GetDisplayModeList1(DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_ENUM_MODES_SCALING, &number_of_display_modes, m_display_modes.data());
+    return m_display_modes.back();
 }
 
 }  //  namespace zeno::gfx
