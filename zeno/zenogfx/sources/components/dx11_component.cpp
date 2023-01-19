@@ -161,7 +161,7 @@ bool dx11_component_t::m_create_device()
 
 bool dx11_component_t::m_create_target_view()
 {
-    ID3D11Texture2D1* frame_buffer {nullptr};
+    ID3D11Texture2D1* frame_buffer {};
     //  take out the current frame from the swapchain
     m_result = m_dxgi->get_swapchain()->GetBuffer(0, IID_ID3D11Texture2D1, reinterpret_cast<void**>(&frame_buffer));
     if (FAILED(m_result))
