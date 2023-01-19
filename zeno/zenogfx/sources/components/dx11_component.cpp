@@ -42,7 +42,7 @@ dx11_component_t::dx11_component_t(const dx11_component_t& that)
 dx11_component_t::dx11_component_t(dx11_component_t&& that)
     : m_feature_level {D3D_FEATURE_LEVEL_11_1}
 {
-    *this = that;
+    *this = std::move(that);
 }
 
 dx11_component_t& dx11_component_t::operator=(const dx11_component_t& that)

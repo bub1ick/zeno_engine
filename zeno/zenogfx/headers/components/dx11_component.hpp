@@ -19,14 +19,12 @@ class dx11_component_t
 {
 public:
     dx11_component_t(const sys::window_t& in_window);
-    //  rule of 5:
     dx11_component_t(const dx11_component_t& that);
     dx11_component_t(dx11_component_t&& that);
     dx11_component_t& operator=(const dx11_component_t& that);
     dx11_component_t& operator=(dx11_component_t&& that);
     ~dx11_component_t();
 
-    //  end rule of three.
 
     ID3D11Device5*        get_device() noexcept { return m_device; }
 
