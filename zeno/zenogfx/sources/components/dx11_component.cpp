@@ -51,7 +51,7 @@ dx11_component_t& dx11_component_t::operator=(const dx11_component_t& that)
         return *this;
 
     m_result = that.m_result;
-    m_dxgi   = new dxgi_component_t(*that.m_dxgi);  //  TODO: dxgi component copying
+    m_dxgi   = new dxgi_component_t(*that.m_dxgi);
 
     COM_COPY(m_device, that.m_device);
     COM_COPY(m_device_context, that.m_device_context);
@@ -103,6 +103,8 @@ dx11_component_t::~dx11_component_t()
     COM_RELEASE(m_current_vertex_buffer);
     COM_RELEASE(m_current_index_buffer);
     COM_RELEASE(m_current_constant_buffer);
+
+    delete m_dxgi;
 }
 
 void dx11_component_t::update(const sys::window_t& in_window, const float delta_time_in_seconds)
