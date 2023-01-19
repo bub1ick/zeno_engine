@@ -62,6 +62,16 @@ dx11_component_t& dx11_component_t::operator=(const dx11_component_t& that)
     COM_COPY(m_current_vertex_buffer, that.m_current_vertex_buffer);
     COM_COPY(m_current_constant_buffer, that.m_current_constant_buffer);
 
+    m_vertices      = that.m_vertices;
+    m_vertex_stride = that.m_vertex_stride;
+    m_vertex_offset = that.m_vertex_offset;
+    m_vertex_count  = that.m_vertex_count;
+
+    m_world_matrix      = that.m_world_matrix;
+    m_view_matrix       = that.m_view_matrix;
+    m_projection_matrix = that.m_projection_matrix;
+    m_matrix_buffer     = that.m_matrix_buffer;
+
     return *this;
 }
 
@@ -88,6 +98,22 @@ dx11_component_t& dx11_component_t::operator=(dx11_component_t&& that)
     COM_MOVE(m_vertex_input_layout, that.m_vertex_input_layout);
     COM_MOVE(m_current_vertex_buffer, that.m_current_vertex_buffer);
     COM_MOVE(m_current_constant_buffer, that.m_current_constant_buffer);
+
+    m_vertices = that.m_vertices;
+    that.m_vertices.clear();
+
+    m_vertex_stride = that.m_vertex_stride;
+    m_vertex_offset = that.m_vertex_offset;
+    m_vertex_count  = that.m_vertex_count;
+
+    that.m_vertex_stride = 0;
+    that.m_vertex_offset = 0;
+    that.m_vertex_count  = 0;
+
+    m_world_matrix      = that.m_world_matrix;
+    m_view_matrix       = that.m_view_matrix;
+    m_projection_matrix = that.m_projection_matrix;
+    m_matrix_buffer     = that.m_matrix_buffer;
 
     return *this;
 }
