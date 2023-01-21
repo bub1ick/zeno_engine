@@ -315,7 +315,7 @@ void renderer_t::m_setup_camera()
     }
 
     //  initialize projection matrix
-    m_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XM_PIDIV2, static_cast<float>(width / height), 0.01f, 100.f);
+    m_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XM_PIDIV2, static_cast<float>(width) / static_cast<float>(height), 0.01f, 100.f);
 }
 
 void renderer_t::m_update_rotation()
