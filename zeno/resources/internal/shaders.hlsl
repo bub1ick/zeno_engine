@@ -13,13 +13,15 @@ struct vs_out
   float4 color : COLOR;
 };
 
-vs_out vs_main(float4 position : POSITION, float4 normal : NORMAL)
+vs_out vs_main(float4 in_position : POSITION, float4 in_color : COLOR)
 {
   vs_out output = (vs_out)0; // zero the memory first
 
-  output.position = mul(position, world_matrix);
+  output.position = mul(in_position, world_matrix);
   output.position = mul(output.position, view_matrix);
   output.position = mul(output.position, projection_matrix);
+
+  output.color = in_color;
 
   return output;
 }

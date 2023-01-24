@@ -30,7 +30,7 @@ set(BUILD_SHARED_LIBS ON)
 set(CMAKE_DEBUG_POSTFIX "_d")
 
 # We can exclude zeno sample from the build.
-option(ZENO_DO_BUILD_SAMPLE "Whether or not build the sample project is provided." OFF)
+option(ZENO_BUILD_SAMPLE "Whether or not build the sample project is provided." OFF)
 
 if(${WIN32})
     add_compile_definitions("ZENO_WINDOWS")
@@ -53,7 +53,7 @@ include_directories(AFTER ${ZENO_THIRD_PARTY_INCLUDE_PATH})
 add_subdirectory(zeno)
 
 # At last build the sample to test the engine.
-if(${ZENO_DO_BUILD_SAMPLE})
+if(${ZENO_BUILD_SAMPLE})
     add_subdirectory(sample)
     add_dependencies(sample zeno)
     add_dependencies(sample zenosys)

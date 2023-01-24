@@ -5,7 +5,7 @@ namespace zeno::gfx
 struct simple_vertex_t
 {
     DirectX::XMFLOAT3 position;
-    DirectX::XMFLOAT3 normal;
+    DirectX::XMFLOAT4 color;
 };
 
 struct matrix_buffer_t

@@ -170,10 +170,12 @@ DXGI_MODE_DESC1 dxgi_component_t::m_get_best_display_mode()
     //  get display modes and take the best one (highest resolution and refresh rate)
     uint32_t number_of_display_modes = 0;
     m_monitor->GetDisplayModeList1(DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_ENUM_MODES_SCALING, &number_of_display_modes, nullptr);
-    //  m_display_modes = new DXGI_MODE_DESC1 [number_of_display_modes];
+    DXGI_MODE_DESC1* raw_display_modes = new DXGI_MODE_DESC1 [number_of_display_modes];
     m_display_modes.reserve(number_of_display_modes);
-    m_monitor->GetDisplayModeList1(DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_ENUM_MODES_SCALING, &number_of_display_modes, m_display_modes.data());
-    return m_display_modes.back();
+    m_monitor->GetDisplayModeList1(DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_ENUM_MODES_SCALING, &number_of_display_modes, raw_display_modes);
+    for (uint32_t index = 0; index < number_of_display_modes; index++)
+        m_display_modes.push_back(std::move(raw_display_modes[index]));
+    return m_display_modes.at(number_of_display_modes - 1);
 }
 
 }  //  namespace zeno::gfx

@@ -31,6 +31,8 @@ dx11_component_t::dx11_component_t(const sys::window_t& in_window)
     m_setup_vertex_buffer();
     m_setup_index_buffer();
     m_setup_constant_buffer();
+
+    m_setup_camera(in_window);
 }
 
 dx11_component_t::dx11_component_t(const dx11_component_t& that)
@@ -250,7 +252,7 @@ bool dx11_component_t::m_setup_input_layout(ID3DBlob*& in_vs_blob)
     //  the data that can be passed to vertex shader
     D3D11_INPUT_ELEMENT_DESC layout [] = {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,                            0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {  "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {   "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
 
@@ -273,14 +275,14 @@ bool dx11_component_t::m_setup_vertex_buffer()
 {
     //  store cube vertices
     m_vertices = {
-        {  {-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, //  0th vertex
-        {   {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, //  1st vertex
-        {  {1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}}, //  2nd vertex
-        { {-1.0f, 1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}}, //  3rd vertex
-        { {-1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, //  4th vertex
-        {  {1.0f, -1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}}, //  5th vertex
-        { {1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}}, //  6th vertex
-        {{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 1.0f}}, //  7th vertex
+        {  {-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, //  0th vertex
+        {   {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, //  1st vertex
+        {  {1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, //  2nd vertex
+        { {-1.0f, 1.0f, -1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, //  3rd vertex
+        { {-1.0f, -1.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, //  4th vertex
+        {  {1.0f, -1.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, //  5th vertex
+        { {1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}, //  6th vertex
+        {{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}, //  7th vertex
     };
 
     m_vertex_stride = sizeof(simple_vertex_t);  //  how big each complex piece of data is
@@ -360,7 +362,7 @@ bool dx11_component_t::m_setup_constant_buffer()
 
     m_result = m_device->CreateBuffer(&buff_desc, nullptr, &m_current_constant_buffer);
 
-    return FAILED(m_result) ? false : true;
+    return SUCCEEDED(m_result);
 }
 
 void dx11_component_t::m_setup_camera(const sys::window_t& in_window)
@@ -369,10 +371,10 @@ void dx11_component_t::m_setup_camera(const sys::window_t& in_window)
     m_world_matrix = DirectX::XMMatrixIdentity();
 
     //  initialize view matrix
-    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, 5.f, 0.f);                        //  camera position in a right-handed coordinate position
-    DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);                        //  a point in space the camera is looking at
-    DirectX::XMVECTOR cam_up        = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);                        //  vector pointing up from camera pos
-    m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up);  //  set the camera
+    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, 5.f, 0.f);  //  camera position in a right-handed coordinate position
+    DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);  //  a point in space the camera is looking at
+    DirectX::XMVECTOR cam_up_vector = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);  //  vector pointing up from camera pos
+    m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up_vector);  //  set the camera
 
     sys::window_t::dimentions_t window_size  = in_window.get_dimentions();
     float                       aspect_ratio = static_cast<float>(window_size.width) / static_cast<float>(window_size.height);
