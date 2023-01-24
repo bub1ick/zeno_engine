@@ -22,13 +22,15 @@ public:
     ///  @return the handle
     HWND get_handle() const { return m_handle; };
 
-    ///  @brief defines the size of the client area of the window;
+    ///  @brief defines the size of the client area of the window
     struct dimentions_t
     {
         int32_t width;
         int32_t height;
     };
 
+    /// @brief used to get the dimentions (size) of the window
+    /// @return the size of the window in a struct @see window_t::dimentionas_t
     dimentions_t get_dimentions() const;
 
 private:
@@ -44,7 +46,7 @@ private:
     ///  @param in_message the message to preprocess
     ///  @param out_done if we should quit the application or not
     ///  @return whether we can safely call the engine loop
-    bool           queue_is_ok(MSG* in_message, bool& out_done);
+    bool           queue_is_ok(MSG& in_message, bool& out_done);
 
     ///  @brief win32 application instance
     HINSTANCE      m_application_instance;

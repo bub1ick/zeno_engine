@@ -14,7 +14,7 @@ int32_t engine_t::run()
     {
         //  TODO: handle all the engine systems
 
-        m_renderer.update();
+        m_renderer.update(m_window);
 
         return m_game_is_done;
     };
