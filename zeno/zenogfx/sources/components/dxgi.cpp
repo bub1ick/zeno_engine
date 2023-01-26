@@ -3,7 +3,7 @@
 namespace zeno::gfx
 {
 
-dxgi_component_t::dxgi_component_t()
+dxgi_t::dxgi_t()
 {
     m_result = CreateDXGIFactory2(0, IID_IDXGIFactory7, reinterpret_cast<void**>(&m_factory));
     if (FAILED(m_result))
@@ -16,17 +16,17 @@ dxgi_component_t::dxgi_component_t()
         throw dx_exception_t("Failed on EnumOutputs!", m_result, dx_exception_t::e_dxgi);
 }
 
-dxgi_component_t::dxgi_component_t(const dxgi_component_t& that)
+dxgi_t::dxgi_t(const dxgi_t& that)
 {
     *this = that;
 }
 
-dxgi_component_t::dxgi_component_t(dxgi_component_t&& that)
+dxgi_t::dxgi_t(dxgi_t&& that)
 {
     *this = std::move(that);
 }
 
-dxgi_component_t& dxgi_component_t::operator=(const dxgi_component_t& that)
+dxgi_t& dxgi_t::operator=(const dxgi_t& that)
 {
     if (this == &that)
         return *this;
@@ -55,7 +55,7 @@ dxgi_component_t& dxgi_component_t::operator=(const dxgi_component_t& that)
     return *this;
 }
 
-dxgi_component_t& dxgi_component_t::operator=(dxgi_component_t&& that)
+dxgi_t& dxgi_t::operator=(dxgi_t&& that)
 {
     if (this == &that)
         return *this;
@@ -87,7 +87,7 @@ dxgi_component_t& dxgi_component_t::operator=(dxgi_component_t&& that)
     return *this;
 }
 
-dxgi_component_t::~dxgi_component_t()
+dxgi_t::~dxgi_t()
 {
     COM_RELEASE(m_factory)
     COM_RELEASE(m_device)
@@ -99,14 +99,14 @@ dxgi_component_t::~dxgi_component_t()
         COM_RELEASE(adapter);
 }
 
-void dxgi_component_t::initialize_device(ID3D11Device5* const in_d3d11_device)
+void dxgi_t::initialize_device(ID3D11Device5* const in_d3d11_device)
 {
     m_result = in_d3d11_device->QueryInterface<IDXGIDevice4>(&m_device);
     if (FAILED(m_result))
         throw dx_exception_t("Failed to get DXGI device!", m_result, dx_exception_t::e_dxgi);
 }
 
-void dxgi_component_t::create_swapchain(ID3D11Device5* in_device, bool in_windowed, const sys::window_t& in_window)
+void dxgi_t::create_swapchain(ID3D11Device5* in_device, bool in_windowed, const sys::window_t& in_window)
 {
     DXGI_MODE_DESC1             fullscreen_display_mode = m_get_best_display_mode();
 
@@ -147,7 +147,7 @@ void dxgi_component_t::create_swapchain(ID3D11Device5* in_device, bool in_window
     }
 }
 
-void dxgi_component_t::m_get_all_available_adapters()
+void dxgi_t::m_get_all_available_adapters()
 {
     IDXGIAdapter4* adapter;  //  used to temporary store found adapter
 
@@ -165,7 +165,7 @@ void dxgi_component_t::m_get_all_available_adapters()
     }
 }
 
-DXGI_MODE_DESC1 dxgi_component_t::m_get_best_display_mode()
+DXGI_MODE_DESC1 dxgi_t::m_get_best_display_mode()
 {
     //  get display modes and take the best one (highest resolution and refresh rate)
     uint32_t number_of_display_modes = 0;
