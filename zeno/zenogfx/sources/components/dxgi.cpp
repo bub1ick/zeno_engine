@@ -66,8 +66,8 @@ dxgi_t& dxgi_t::operator=(dxgi_t&& that)
     COM_MOVE(m_monitor, that.m_monitor);
     COM_MOVE(m_swapchain, that.m_swapchain);
 
-    m_result        = that.m_result;
-    that.m_result   = 0;
+    m_result      = that.m_result;
+    that.m_result = 0;
 
     m_display_modes = that.m_display_modes;
     that.m_display_modes.clear();
@@ -174,7 +174,7 @@ DXGI_MODE_DESC1 dxgi_t::m_get_best_display_mode()
     m_display_modes.reserve(number_of_display_modes);
     m_monitor->GetDisplayModeList1(DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_ENUM_MODES_SCALING, &number_of_display_modes, raw_display_modes);
     for (uint32_t index = 0; index < number_of_display_modes; index++)
-        m_display_modes.push_back(std::move(raw_display_modes[index]));
+        m_display_modes.push_back(std::move(raw_display_modes [index]));
     return m_display_modes.at(number_of_display_modes - 1);
 }
 

@@ -18,7 +18,7 @@ public:
     std::string get_error_message() const;
 
 private:
-    void category_format(category_e exception_category);
+    void        category_format(category_e exception_category);
 
     std::string m_error_message;
     HRESULT     m_result;
