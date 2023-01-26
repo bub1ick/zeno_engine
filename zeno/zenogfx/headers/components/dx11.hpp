@@ -1,5 +1,7 @@
 #pragma once
 
+#include "dxgi.hpp"
+
 namespace zeno::gfx
 {
 struct simple_vertex_t
@@ -15,22 +17,22 @@ struct matrix_buffer_t
     DirectX::XMMATRIX projection_matrix;
 };
 
-class dx11_component_t
+class dx11_t
 {
 public:
-    dx11_component_t(const sys::window_t& in_window);
-    dx11_component_t(const dx11_component_t& that);
-    dx11_component_t(dx11_component_t&& that);
-    dx11_component_t& operator=(const dx11_component_t& that);
-    dx11_component_t& operator=(dx11_component_t&& that);
-    ~dx11_component_t();
+    dx11_t(const sys::window_t& in_window);
+    dx11_t(const dx11_t& that);
+    dx11_t(dx11_t&& that);
+    dx11_t& operator=(const dx11_t& that);
+    dx11_t& operator=(dx11_t&& that);
+    ~dx11_t();
 
 
     ID3D11Device5*        get_device() noexcept { return m_device; }
 
     ID3D11DeviceContext4* get_device_context() noexcept { return m_device_context; }
 
-    dxgi_component_t*&    get_dxgi() noexcept { return m_dxgi; }
+    dxgi_t*&    get_dxgi() noexcept { return m_dxgi; }
 
     void                  update(const sys::window_t& in_window, const float delta_time_in_seconds);
 
@@ -38,7 +40,7 @@ private:
     ///  @brief holds the results of direct3d functions
     HRESULT                      m_result;
     ///  @brief holds all dxgi related interfaces
-    dxgi_component_t*            m_dxgi;
+    dxgi_t*            m_dxgi;
 
     ///  @brief create direct3d and dxgi device and its context
     ///  @return true on success, false on error

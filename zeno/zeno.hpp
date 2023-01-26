@@ -22,6 +22,8 @@
 //  We want such behavior because using compiler intrinsincs is kinda bad imo.
 #    define INITGUID
 
+//  namespace winapi
+//{
 #    include <windows.h>
 
 #    include <d3d11_4.h>
@@ -30,6 +32,7 @@
 #    include <DirectXMath.h>
 #    include <DirectXColors.h>
 #    include <DirectXPackedVector.h>
+//}
 #endif
 
 #include "zeno_defines.hpp"

@@ -3,15 +3,15 @@
 namespace zeno::gfx
 {
 
-class dxgi_component_t
+class dxgi_t
 {
 public:
-    dxgi_component_t();
-    dxgi_component_t(const dxgi_component_t& that);
-    dxgi_component_t(dxgi_component_t&& that);
-    dxgi_component_t& operator=(const dxgi_component_t& that);
-    dxgi_component_t& operator=(dxgi_component_t&& that);
-    ~dxgi_component_t();
+    dxgi_t();
+    dxgi_t(const dxgi_t& that);
+    dxgi_t(dxgi_t&& that);
+    dxgi_t& operator=(const dxgi_t& that);
+    dxgi_t& operator=(dxgi_t&& that);
+    ~dxgi_t();
 
     void             initialize_device(ID3D11Device5* const in_d3d11_device);
 

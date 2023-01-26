@@ -1,7 +1,6 @@
 #pragma once
 
-#include "components/dxgi_component.hpp"
-#include "components/dx11_component.hpp"
+#include "components/dx11.hpp"
 
 
 namespace zeno::gfx
@@ -16,7 +15,7 @@ public:
 
 private:
     ///  @brief handles DirectX11
-    dx11_component_t             m_dx11;
+    dx11_t             m_dx11;
     ///  @brief holds the results of direct3d and dxgi functions
     HRESULT                      m_result;
 

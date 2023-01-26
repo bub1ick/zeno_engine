@@ -3,10 +3,10 @@
 namespace zeno::gfx
 {
 
-dx11_component_t::dx11_component_t(const sys::window_t& in_window)
+dx11_t::dx11_t(const sys::window_t& in_window)
     : m_feature_level {D3D_FEATURE_LEVEL_11_1}
 {
-    m_dxgi = new dxgi_component_t();
+    m_dxgi = new dxgi_t();
 
     if (!m_create_device())
         throw dx_exception_t("Couldn't create Direct3D Device!", m_result, dx_exception_t::e_d3d11);
@@ -35,25 +35,25 @@ dx11_component_t::dx11_component_t(const sys::window_t& in_window)
     m_setup_camera(in_window);
 }
 
-dx11_component_t::dx11_component_t(const dx11_component_t& that)
+dx11_t::dx11_t(const dx11_t& that)
     : m_feature_level {D3D_FEATURE_LEVEL_11_1}
 {
     *this = that;
 }
 
-dx11_component_t::dx11_component_t(dx11_component_t&& that)
+dx11_t::dx11_t(dx11_t&& that)
     : m_feature_level {D3D_FEATURE_LEVEL_11_1}
 {
     *this = std::move(that);
 }
 
-dx11_component_t& dx11_component_t::operator=(const dx11_component_t& that)
+dx11_t& dx11_t::operator=(const dx11_t& that)
 {
     if (this == &that)
         return *this;
 
     m_result = that.m_result;
-    m_dxgi   = new dxgi_component_t(*that.m_dxgi);
+    m_dxgi   = new dxgi_t(*that.m_dxgi);
 
     COM_COPY(m_device, that.m_device);
     COM_COPY(m_device_context, that.m_device_context);
@@ -77,7 +77,7 @@ dx11_component_t& dx11_component_t::operator=(const dx11_component_t& that)
     return *this;
 }
 
-dx11_component_t& dx11_component_t::operator=(dx11_component_t&& that)
+dx11_t& dx11_t::operator=(dx11_t&& that)
 {
     if (this == &that)
         return *this;
@@ -120,7 +120,7 @@ dx11_component_t& dx11_component_t::operator=(dx11_component_t&& that)
     return *this;
 }
 
-dx11_component_t::~dx11_component_t()
+dx11_t::~dx11_t()
 {
     COM_RELEASE(m_device);
     COM_RELEASE(m_device_context);
@@ -135,7 +135,7 @@ dx11_component_t::~dx11_component_t()
     delete m_dxgi;
 }
 
-void dx11_component_t::update(const sys::window_t& in_window, const float delta_time_in_seconds)
+void dx11_t::update(const sys::window_t& in_window, const float delta_time_in_seconds)
 {
     m_update_rotation(delta_time_in_seconds);
 
@@ -169,7 +169,7 @@ void dx11_component_t::update(const sys::window_t& in_window, const float delta_
     m_dxgi->get_swapchain()->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 }
 
-bool dx11_component_t::m_create_device()
+bool dx11_t::m_create_device()
 {
     m_result = D3D11CreateDevice(
         m_dxgi->get_graphics_card(),
@@ -187,7 +187,7 @@ bool dx11_component_t::m_create_device()
     return SUCCEEDED(m_result);
 }
 
-bool dx11_component_t::m_create_target_view()
+bool dx11_t::m_create_target_view()
 {
     ID3D11Texture2D1* frame_buffer {};
     //  take out the current frame from the swapchain
@@ -201,7 +201,7 @@ bool dx11_component_t::m_create_target_view()
     return true;
 }
 
-bool dx11_component_t::m_compile_shaders(ID3DBlob*& out_vs_blob, ID3DBlob*& out_ps_blob)
+bool dx11_t::m_compile_shaders(ID3DBlob*& out_vs_blob, ID3DBlob*& out_ps_blob)
 {
     ID3DBlob* error_blob = nullptr;
 
@@ -247,7 +247,7 @@ bool dx11_component_t::m_compile_shaders(ID3DBlob*& out_vs_blob, ID3DBlob*& out_
     return true;
 }
 
-bool dx11_component_t::m_setup_input_layout(ID3DBlob*& in_vs_blob)
+bool dx11_t::m_setup_input_layout(ID3DBlob*& in_vs_blob)
 {
     //  the data that can be passed to vertex shader
     D3D11_INPUT_ELEMENT_DESC layout [] = {
@@ -271,7 +271,7 @@ bool dx11_component_t::m_setup_input_layout(ID3DBlob*& in_vs_blob)
     return true;
 }
 
-bool dx11_component_t::m_setup_vertex_buffer()
+bool dx11_t::m_setup_vertex_buffer()
 {
     //  store cube vertices
     m_vertices = {
@@ -308,7 +308,7 @@ bool dx11_component_t::m_setup_vertex_buffer()
     return true;
 }
 
-bool dx11_component_t::m_setup_index_buffer()
+bool dx11_t::m_setup_index_buffer()
 {
     uint16_t indices [] {
         //  clang-format off
@@ -351,7 +351,7 @@ bool dx11_component_t::m_setup_index_buffer()
     return true;
 }
 
-bool dx11_component_t::m_setup_constant_buffer()
+bool dx11_t::m_setup_constant_buffer()
 {
     //  initialize a matrix buffer
     D3D11_BUFFER_DESC buff_desc {};
@@ -365,7 +365,7 @@ bool dx11_component_t::m_setup_constant_buffer()
     return SUCCEEDED(m_result);
 }
 
-void dx11_component_t::m_setup_camera(const sys::window_t& in_window)
+void dx11_t::m_setup_camera(const sys::window_t& in_window)
 {
     //  initialize world matrix
     m_world_matrix = DirectX::XMMatrixIdentity();
@@ -382,7 +382,7 @@ void dx11_component_t::m_setup_camera(const sys::window_t& in_window)
     m_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XM_PIDIV2, aspect_ratio, 0.01f, 100.f);
 }
 
-void dx11_component_t::m_update_rotation(const float delta_time_in_seconds)
+void dx11_t::m_update_rotation(const float delta_time_in_seconds)
 {
     m_world_matrix = DirectX::XMMatrixRotationY(delta_time_in_seconds);
 
