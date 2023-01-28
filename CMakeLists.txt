@@ -60,25 +60,25 @@ if(${ZENO_BUILD_SAMPLE})
 endif()
 
 install(
-    TARGETS zeno zenosys zenoutils
+    TARGETS zeno zenogfx zenosys zenoutils 
     CONFIGURATIONS Release
     ARCHIVE
     DESTINATION "${CMAKE_HOME_DIRECTORY}/lib"
 )
 install(
-    TARGETS zeno zenosys zenoutils
+    TARGETS zeno zenogfx zenosys zenoutils 
     CONFIGURATIONS Debug
     ARCHIVE
     DESTINATION "${CMAKE_HOME_DIRECTORY}/lib"
 )
 install(
-    TARGETS zenogfx
+    TARGETS zeno zenogfx
     CONFIGURATIONS Debug
     RUNTIME
     DESTINATION "${CMAKE_HOME_DIRECTORY}/bin"
 )
 install(
-    TARGETS zenogfx
+    TARGETS zeno zenogfx
     CONFIGURATIONS Release
     RUNTIME
     DESTINATION "${CMAKE_HOME_DIRECTORY}/bin"
@@ -87,6 +87,12 @@ install(
 install(
     TARGETS sample
     CONFIGURATIONS Release
+    RUNTIME
+    DESTINATION "${CMAKE_HOME_DIRECTORY}/bin"
+)
+install(
+    TARGETS sample
+    CONFIGURATIONS Debug
     RUNTIME
     DESTINATION "${CMAKE_HOME_DIRECTORY}/bin"
 )
