@@ -20,4 +20,5 @@ target_sources(
     sample
     PRIVATE
     "source/main.cpp"
+    "resources/sample.manifest"
 )
