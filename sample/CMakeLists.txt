@@ -5,7 +5,6 @@ target_link_libraries(
     sample
     PUBLIC
     zeno
-    zenosys
     zenogfx
 )
 
