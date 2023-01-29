@@ -9,23 +9,25 @@
             type="win32"
             name="zeno.zeno"
             language="*"
-            processorArchitecture="ia64"
+            processorArchitecture="amd64"
             version="1.0.0.0"
             />
-
+    <!--
     <dependency>
         <dependentAssembly>
             <assemblyIdentity
                     type="win32"
-                    name="zeno.zenogfx"
+    name="zeno.zenogfx"
                     language="*"
                     processorArchitecture="ia64"
-                    version="1.0.0.0"
+    version="1.0.0.0"
                     />
-            <file name="zenogfx.dll" />
+
         </dependentAssembly>
     </dependency>
+-->
 
     <file name="zeno.dll" />
+    <file name="zenogfx.dll" />
 
 </assembly>

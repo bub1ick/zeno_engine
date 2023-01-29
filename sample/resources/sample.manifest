@@ -31,7 +31,6 @@
                     processorArchitecture="amd64"
                     version="1.0.0.0"
                     />
-            <file name="zeno.dll"/>
         </dependentAssembly>
     </dependency>
 
