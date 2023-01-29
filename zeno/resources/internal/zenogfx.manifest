@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- declare our side-by-side application-->
+<assembly
+        xmlns="urn:schemas-microsoft-com:asm.v1"
+        manifestVersion="1.0"
+        >
+    <!-- details about our side-by-side assembly-->
+    <assemblyIdentity
+            type="win32"
+            name="zeno.zenogfx"
+            language="*"
+            processorArchitecture="ia64"
+            version="1.0.0.0"
+            />
+
+</assembly>

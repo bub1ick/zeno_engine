@@ -21,6 +21,20 @@
         </application>
     </compatibility>
 
+    <!-- our application depends on the zeno.dll which is a private assembly-->
+    <dependency>
+        <dependentAssembly>
+            <assemblyIdentity
+                    type="win32"
+                    name="zeno.zeno"
+                    language="*"
+                    processorArchitecture="amd64"
+                    version="1.0.0.0"
+                    />
+            <file name="zeno.dll"/>
+        </dependentAssembly>
+    </dependency>
+
     <!-- application settings -->
     <application>
         <windowsSettings>
