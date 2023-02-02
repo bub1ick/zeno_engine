@@ -25,5 +25,4 @@ target_sources(
     zeno
     PUBLIC
     "source/engine.cpp"
-    "../resources/internal/zeno.manifest"
 )
