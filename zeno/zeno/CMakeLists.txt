@@ -1,9 +1,17 @@
-add_library(zeno STATIC)
+add_library(zeno)
 
 target_compile_definitions(
     zeno
     PUBLIC
     ZENO_LIB
+)
+
+target_link_libraries(
+    zeno
+    PUBLIC
+    zenoutils
+    zenosys
+    zenogfx
 )
 
 # Add include directory to be able to use engine's primary include file (zeno.hpp)
