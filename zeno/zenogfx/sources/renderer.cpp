@@ -19,16 +19,19 @@ renderer_t::~renderer_t() { }
 
 void renderer_t::update(const sys::window_t& in_window)
 {
-    m_dx11.update(in_window, m_get_delta_time());
+    using namespace std::chrono;
+    static time_point<high_resolution_clock> start_rendering = high_resolution_clock::now();
+
+    m_dx11.update(in_window, m_get_delta_time(start_rendering));
 }
 
-float renderer_t::m_get_delta_time()
+double renderer_t::m_get_delta_time(std::chrono::time_point<std::chrono::high_resolution_clock> in_start)
 {
-    m_current_time_ms = GetTickCount64();
+    using namespace std::chrono;
 
-    if (m_start_time_ms == 0)
-        m_start_time_ms = m_current_time_ms;  //  save tick count into the buffer
+    time_point<high_resolution_clock> now                   = high_resolution_clock::now();
+    duration<double>                  delta_time_in_seconds = duration_cast<duration<double>>(now - in_start);
 
-    return (m_current_time_ms - m_start_time_ms) / 1000.f;  //  return in seconds
+    return delta_time_in_seconds.count();
 }
 }  //  namespace zeno::gfx

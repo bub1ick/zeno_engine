@@ -18,8 +18,6 @@ private:
     ///  @brief holds the results of direct3d and dxgi functions
     HRESULT  m_result;
 
-    float    m_get_delta_time();
-    uint64_t m_start_time_ms = 0;  //  time buffer (ms)
-    uint64_t m_current_time_ms;    //  time since system started (ms)
+    double   m_get_delta_time(std::chrono::time_point<std::chrono::high_resolution_clock> in_start);
 };
 }  //  namespace zeno::gfx
