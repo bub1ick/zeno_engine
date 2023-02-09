@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-//  standard lib
+//  standard libs
 #include <cstdint>
 #include <cstring>
 #include <exception>
@@ -12,6 +12,8 @@
 #include <fstream>
 #include <sstream>
 #include <memory>
+#include <typeinfo>
+#include <chrono>
 
 #if defined(ZENO_WINDOWS)
 #    define NOGDI
@@ -35,10 +37,17 @@
 //}
 #endif
 
+// third party libs:
+// .gltf 3D file format loader
+#include <tinygltf/tiny_gltf.h>
+
+// macros and various preprocessor definitions
 #include "zeno_defines.hpp"
 
-//  engine libs
+// engine libs
 #include "zenoutils/zenoutils.hpp"
 #include "zenosys/zenosys.hpp"
+
+//  engine modules
 #include "zenogfx/zenogfx.hpp"
 #include "zeno/zeno.hpp"
