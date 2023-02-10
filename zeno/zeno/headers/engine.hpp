@@ -17,8 +17,6 @@ public:
     int32_t run();
 
 private:
-    void            loop();
-
     sys::window_t   m_window;
 
     gfx::renderer_t m_renderer;
