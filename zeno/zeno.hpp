@@ -37,14 +37,15 @@
 //}
 #endif
 
-// third party libs:
-// .gltf 3D file format loader
-#include <tinygltf/tiny_gltf.h>
 
-// macros and various preprocessor definitions
+//  macros and various preprocessor definitions
 #include "zeno_defines.hpp"
 
-// engine libs
+//  third party libs:
+//  .gltf 3D file format loader
+#include <tinygltf/tiny_gltf.h>
+
+//  engine libs
 #include "zenoutils/zenoutils.hpp"
 #include "zenosys/zenosys.hpp"
 
