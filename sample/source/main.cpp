@@ -1,5 +1,10 @@
-﻿#define ZENO_MAIN
+﻿
+
 #include <zeno.hpp>
+
+// #if defined(TINYGLTF_IMPLEMENTATION)
+// #    error "everything is defined correctly
+// #endif
 
 #ifdef ZENO_WINDOWS
 

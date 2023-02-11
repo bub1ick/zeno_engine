@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "gltf_loader.hpp"
+
 namespace zeno
 {
 
@@ -17,6 +19,8 @@ public:
     int32_t run();
 
 private:
+    gltf_loader_t   m_gltf_loader;
+
     sys::window_t   m_window;
 
     gfx::renderer_t m_renderer;

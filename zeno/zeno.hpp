@@ -22,10 +22,9 @@
 
 //  HACK: Use this to let the windows headers define the GUIDs of interfaces.
 //  We want such behavior because using compiler intrinsincs is kinda bad imo.
+//  TODO: use type library on windows to get the guids of interfaces
 #    define INITGUID
 
-//  namespace winapi
-//{
 #    include <windows.h>
 
 #    include <d3d11_4.h>
@@ -34,7 +33,6 @@
 #    include <DirectXMath.h>
 #    include <DirectXColors.h>
 #    include <DirectXPackedVector.h>
-//}
 #endif
 
 
@@ -46,9 +44,7 @@
 #include <tinygltf/tiny_gltf.h>
 
 //  engine libs
-#include "zenoutils/zenoutils.hpp"
-#include "zenosys/zenosys.hpp"
+#include "libraries/zeno_libraries.hpp"
 
 //  engine modules
-#include "zenogfx/zenogfx.hpp"
-#include "zeno/zeno.hpp"
+#include "modules/zeno_modules.hpp"

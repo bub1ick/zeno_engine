@@ -46,7 +46,3 @@
 
 #    define interface __STRUCT__
 #endif
-
-#if !defined(ZENO_LIB)
-#    include "zeno_user_defines.hpp"
-#endif
