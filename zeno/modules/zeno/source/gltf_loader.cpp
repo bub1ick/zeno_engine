@@ -36,6 +36,7 @@ mesh_t* gltf_loader_t::load(std::string in_name)
         std::cerr << e.what() << std::endl;
         return nullptr;
     }
+    return loaded_mesh;
 }
 
 void gltf_loader_t::load_vertex_attribute(const tinygltf::Primitive& primitive, std::string_view in_attribute, mesh_t* out_mesh)
