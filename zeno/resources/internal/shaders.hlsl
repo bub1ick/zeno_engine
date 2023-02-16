@@ -13,7 +13,7 @@ struct vs_out
   float4 color : COLOR;
 };
 
-vs_out vs_main(float4 in_position : POSITION, float4 in_color : COLOR)
+vs_out vs_main(float4 in_position : POSITION, float4 in_normal : NORMAL, float4 in_color : COLOR)
 {
   vs_out output = (vs_out)0; // zero the memory first
 

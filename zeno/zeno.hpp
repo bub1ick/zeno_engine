@@ -14,6 +14,7 @@
 #include <memory>
 #include <typeinfo>
 #include <chrono>
+#include <limits>
 
 #if defined(ZENO_WINDOWS)
 #    define NOGDI
