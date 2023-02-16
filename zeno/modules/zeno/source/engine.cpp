@@ -7,13 +7,13 @@ engine_t::engine_t(const char* in_window_name, int32_t in_pos_x, int32_t in_pos_
       m_renderer(m_window),
       m_gltf_loader()
 {
+    const gfx::mesh_t* mesh = m_gltf_loader.load("color_cube.gltf");
+    m_renderer.set_mesh(mesh);
 }
 
 int32_t engine_t::run()
 {
-    mesh_t* mesh = m_gltf_loader.load("cube.gltf");
-
-    auto    engine_loop = [this, mesh]() -> bool
+    auto engine_loop = [this]() -> bool
     {
         //  TODO: handle all the engine systems
 
@@ -23,8 +23,7 @@ int32_t engine_t::run()
     };
 
     m_window.loop(engine_loop);
-
-    delete mesh;
+    
     return 0;
 }
 

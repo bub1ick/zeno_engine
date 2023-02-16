@@ -15,8 +15,6 @@ catch (const dx_exception_t& dx_ex)
     std::cerr << dx_ex.get_error_message() << std::endl;
 }
 
-renderer_t::~renderer_t() { }
-
 void renderer_t::update(const sys::window_t& in_window)
 {
     using namespace std::chrono;

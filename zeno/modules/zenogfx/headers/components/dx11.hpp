@@ -7,7 +7,8 @@ namespace zeno::gfx
 struct simple_vertex_t
 {
     DirectX::XMFLOAT3 position;
-    DirectX::XMFLOAT4 color;
+    DirectX::XMFLOAT3 normal;
+    DirectX::XMUINT4  color;
 };
 
 struct matrix_buffer_t
@@ -15,6 +16,14 @@ struct matrix_buffer_t
     DirectX::XMMATRIX world_matrix;
     DirectX::XMMATRIX view_matrix;
     DirectX::XMMATRIX projection_matrix;
+};
+
+struct mesh_t
+{
+    std::vector<DirectX::XMFLOAT3> vertex_positions;
+    std::vector<DirectX::XMFLOAT3> vertex_normals;
+    std::vector<DirectX::XMUINT4>  vertex_colors;
+    std::vector<uint16_t>          vertex_indices;
 };
 
 class dx11_t
@@ -34,6 +43,8 @@ public:
     dxgi_t*&              get_dxgi() noexcept { return m_dxgi; }
 
     void                  update(const sys::window_t& in_window, const float delta_time_in_seconds);
+
+    void                  set_mesh(const mesh_t* in_mesh);
 
 private:
     ///  @brief holds the results of direct3d functions
@@ -66,6 +77,8 @@ private:
     //  vertex and pixel shaders
     ID3D11VertexShader*          m_vs = nullptr;
     ID3D11PixelShader*           m_ps = nullptr;
+
+    mesh_t*                      m_current_mesh;
 
     bool                         m_setup_vertex_buffer();
     ///  @brief describes how data is organized before being passed to vertex shader

@@ -13,11 +13,11 @@ gltf_loader_t::gltf_loader_t()
 {
 }
 
-mesh_t* gltf_loader_t::load(std::string in_name)
+gfx::mesh_t* gltf_loader_t::load(std::string in_name)
 {
-    bool    could_load = m_gltf_parser.LoadASCIIFromFile(&m_gltf_model, nullptr, nullptr, in_name);
+    bool         could_load = m_gltf_parser.LoadASCIIFromFile(&m_gltf_model, nullptr, nullptr, in_name);
 
-    mesh_t* loaded_mesh = new mesh_t;
+    gfx::mesh_t* loaded_mesh = new gfx::mesh_t;
 
     try
     {
@@ -27,6 +27,7 @@ mesh_t* gltf_loader_t::load(std::string in_name)
             {
                 load_vertex_attribute(primitive, "POSITION", loaded_mesh);
                 load_vertex_attribute(primitive, "NORMAL", loaded_mesh);
+                load_vertex_attribute(primitive, "COLOR_0", loaded_mesh);
                 load_vertex_indices(primitive, loaded_mesh);
             }
         }
@@ -39,34 +40,57 @@ mesh_t* gltf_loader_t::load(std::string in_name)
     return loaded_mesh;
 }
 
-void gltf_loader_t::load_vertex_attribute(const tinygltf::Primitive& primitive, std::string_view in_attribute, mesh_t* out_mesh)
+void gltf_loader_t::load_vertex_attribute(const tinygltf::Primitive& primitive, std::string_view in_attribute, gfx::mesh_t* out_mesh)
 {
-    const auto&                    accessor      = m_gltf_model.accessors.at(primitive.attributes.at(in_attribute.data()));
-    const auto&                    buffer_view   = m_gltf_model.bufferViews.at(accessor.bufferView);
-    const auto&                    buffer        = m_gltf_model.buffers.at(buffer_view.buffer);
-    const size_t                   buffer_offset = accessor.byteOffset + buffer_view.byteOffset;
+    const auto&  accessor      = m_gltf_model.accessors.at(primitive.attributes.at(in_attribute.data()));
+    const auto&  buffer_view   = m_gltf_model.bufferViews.at(accessor.bufferView);
+    const auto&  buffer        = m_gltf_model.buffers.at(buffer_view.buffer);
+    const size_t buffer_offset = accessor.byteOffset + buffer_view.byteOffset;
 
-    const float*                   vertex_attribute_data = reinterpret_cast<const float*>(&buffer.data.at(buffer_offset));
 
-    std::vector<DirectX::XMFLOAT3> vertex_atributes;
-
-    for (int index = 0; index < accessor.count; index++)
+    if (accessor.type == TINYGLTF_TYPE_VEC4)
     {
-        float x = vertex_attribute_data [index * 3];
-        float y = vertex_attribute_data [index * 3 + 1];
-        float z = vertex_attribute_data [index * 3 + 2];
+        const uint16_t*               vertex_attribute_data = reinterpret_cast<const uint16_t*>(&buffer.data.at(buffer_offset));
+        std::vector<DirectX::XMUINT4> vertex_attributes_vec4;
+        int32_t                       vecsize_jump = 4;
 
-        vertex_atributes.push_back({x, y, z});
+
+        for (int index = 0; index < accessor.count; index++)
+        {
+            uint16_t x = vertex_attribute_data [index * vecsize_jump];
+            uint16_t y = vertex_attribute_data [index * vecsize_jump + 1];
+            uint16_t z = vertex_attribute_data [index * vecsize_jump + 2];
+            uint16_t w = vertex_attribute_data [index * vecsize_jump + 3];
+
+            vertex_attributes_vec4.push_back({x, y, z, w});
+        }
+
+        if (in_attribute == "COLOR_0")  //  ne obyazan
+            out_mesh->vertex_colors = std::move(vertex_attributes_vec4);
     }
+    else
+    {
+        const float*                   vertex_attribute_data = reinterpret_cast<const float*>(&buffer.data.at(buffer_offset));
+        std::vector<DirectX::XMFLOAT3> vertex_attributes_vec3;
+        int32_t                        vecsize_jump = 3;
 
+        for (int index = 0; index < accessor.count; index++)
+        {
+            float x = vertex_attribute_data [index * vecsize_jump];
+            float y = vertex_attribute_data [index * vecsize_jump + 1];
+            float z = vertex_attribute_data [index * vecsize_jump + 2];
 
-    if (in_attribute == "POSITION")
-        out_mesh->vertex_positions = std::move(vertex_atributes);
-    else if (in_attribute == "NORMAL")
-        out_mesh->vertex_normals = std::move(vertex_atributes);
+            vertex_attributes_vec3.push_back({x, y, z});
+        }
+
+        if (in_attribute == "POSITION")
+            out_mesh->vertex_positions = std::move(vertex_attributes_vec3);
+        else if (in_attribute == "NORMAL")
+            out_mesh->vertex_normals = std::move(vertex_attributes_vec3);
+    }
 }
 
-void gltf_loader_t::load_vertex_indices(const tinygltf::Primitive& primitive, mesh_t* out_mesh)
+void gltf_loader_t::load_vertex_indices(const tinygltf::Primitive& primitive, gfx::mesh_t* out_mesh)
 {
     const auto&     accessor      = m_gltf_model.accessors.at(primitive.indices);
     const auto&     buffer_view   = m_gltf_model.bufferViews.at(accessor.bufferView);
