@@ -387,15 +387,15 @@ void dx11_t::m_setup_camera(const sys::window_t& in_window)
     m_world_matrix = DirectX::XMMatrixIdentity();
 
     //  initialize view matrix
-    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, 5.f, 0.f);  //  camera position in a right-handed coordinate position
+    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, -5.f, 0.f);  //  camera position in a left-handed coordinate position
     DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);  //  a point in space the camera is looking at
-    DirectX::XMVECTOR cam_up_vector = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);  //  vector pointing up from camera pos
-    m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up_vector);  //  set the camera
+    DirectX::XMVECTOR cam_up_vector = DirectX::XMVectorSet(0.f, 1.f, 0.25f, 0.f);  //  vector pointing up from camera pos
+    m_view_matrix                   = DirectX::XMMatrixLookAtLH(cam_position, cam_direction, cam_up_vector);  //  set the camera
 
     sys::window_t::dimentions_t window_size  = in_window.get_dimentions();
     float                       aspect_ratio = static_cast<float>(window_size.width) / static_cast<float>(window_size.height);
     //  initialize projection matrix
-    m_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XM_PIDIV2, aspect_ratio, 0.01f, 100.f);
+    m_projection_matrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, aspect_ratio, 0.01f, 100.f);
 }
 
 void dx11_t::m_update_rotation(const float delta_time_in_seconds)
