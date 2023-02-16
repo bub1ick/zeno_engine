@@ -47,26 +47,34 @@ void gltf_loader_t::load_vertex_attribute(const tinygltf::Primitive& primitive, 
     const auto&  buffer        = m_gltf_model.buffers.at(buffer_view.buffer);
     const size_t buffer_offset = accessor.byteOffset + buffer_view.byteOffset;
 
-
-    if (accessor.type == TINYGLTF_TYPE_VEC4)
+    //  fill in the color (special)
+    if (in_attribute == "COLOR_0")
     {
-        const uint16_t*               vertex_attribute_data = reinterpret_cast<const uint16_t*>(&buffer.data.at(buffer_offset));
-        std::vector<DirectX::XMUINT4> vertex_attributes_vec4;
-        int32_t                       vecsize_jump = 4;
-
-
-        for (int index = 0; index < accessor.count; index++)
+        if (accessor.type == TINYGLTF_TYPE_VEC4)
         {
-            uint16_t x = vertex_attribute_data [index * vecsize_jump];
-            uint16_t y = vertex_attribute_data [index * vecsize_jump + 1];
-            uint16_t z = vertex_attribute_data [index * vecsize_jump + 2];
-            uint16_t w = vertex_attribute_data [index * vecsize_jump + 3];
+            const uint16_t*                vertex_attribute_data = reinterpret_cast<const uint16_t*>(&buffer.data.at(buffer_offset));
+            std::vector<DirectX::XMFLOAT4> vertex_attributes_vec4;
+            int8_t                         vecsize_jump = 4;
 
-            vertex_attributes_vec4.push_back({x, y, z, w});
-        }
+            for (int index = 0; index < accessor.count; index++)
+            {
+                uint16_t r_norm = vertex_attribute_data [index * vecsize_jump];
+                uint16_t g_norm = vertex_attribute_data [index * vecsize_jump + 1];
+                uint16_t b_norm = vertex_attribute_data [index * vecsize_jump + 2];
+                uint16_t a_norm = vertex_attribute_data [index * vecsize_jump + 3];
 
-        if (in_attribute == "COLOR_0")  //  ne obyazan
+                uint16_t max_value = std::numeric_limits<uint16_t>::max();
+
+                float    r_float = static_cast<float>(r_norm) / static_cast<float>(max_value);
+                float    g_float = static_cast<float>(g_norm) / static_cast<float>(max_value);
+                float    b_float = static_cast<float>(b_norm) / static_cast<float>(max_value);
+                float    a_float = static_cast<float>(a_norm) / static_cast<float>(max_value);
+
+                vertex_attributes_vec4.push_back({r_float, g_float, b_float, a_float});
+            }
+            
             out_mesh->vertex_colors = std::move(vertex_attributes_vec4);
+        }
     }
     else
     {
