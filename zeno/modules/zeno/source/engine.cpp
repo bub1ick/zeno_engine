@@ -7,7 +7,7 @@ engine_t::engine_t(const char* in_window_name, int32_t in_pos_x, int32_t in_pos_
       m_renderer(m_window),
       m_gltf_loader()
 {
-    const gfx::mesh_t* mesh = m_gltf_loader.load("color_cube.gltf");
+    const gfx::mesh_t* mesh = m_gltf_loader.load("monkey.gltf");
     m_renderer.set_mesh(mesh);
 }
 

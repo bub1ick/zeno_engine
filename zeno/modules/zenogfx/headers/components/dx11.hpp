@@ -2,27 +2,32 @@
 
 #include "dxgi.hpp"
 
-namespace zeno::gfx {
-struct simple_vertex_t {
+namespace zeno::gfx
+{
+struct simple_vertex_t
+{
     DirectX::XMFLOAT3 position;
     DirectX::XMFLOAT3 normal;
-    DirectX::XMFLOAT4  color;
+    DirectX::XMFLOAT4 color;
 };
 
-struct matrix_buffer_t {
+struct matrix_buffer_t
+{
     DirectX::XMMATRIX world_matrix;
     DirectX::XMMATRIX view_matrix;
     DirectX::XMMATRIX projection_matrix;
 };
 
-struct mesh_t {
+struct mesh_t
+{
     std::vector<DirectX::XMFLOAT3> vertex_positions;
     std::vector<DirectX::XMFLOAT3> vertex_normals;
     std::vector<DirectX::XMFLOAT4> vertex_colors;
     std::vector<uint16_t>          vertex_indices;
 };
 
-class dx11_t {
+class dx11_t
+{
 public:
     dx11_t(const sys::window_t& in_window);
     dx11_t(const dx11_t& that);
@@ -89,6 +94,7 @@ private:
     bool                         m_setup_index_buffer();
     ///  @brief an array of indices for each vertex
     ID3D11Buffer*                m_current_index_buffer;
+    uint64_t                     m_number_of_indices;
 
     bool                         m_setup_constant_buffer();
     ///  @brief holds matrices for rotating the cube

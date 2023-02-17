@@ -159,7 +159,7 @@ void dx11_t::update(const sys::window_t& in_window, const float delta_time_in_se
     COM_RELEASE(old_target_view);
 
     //  draw indexed vertices
-    m_device_context->DrawIndexed(36, 0, 0);
+    m_device_context->DrawIndexed(m_number_of_indices, 0, 0);
 
     m_dxgi->get_swapchain()->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 }
@@ -348,10 +348,13 @@ bool dx11_t::m_setup_index_buffer()
     for (const auto& index : m_current_mesh->vertex_indices)
         indices.push_back(index);
 
+
+    m_number_of_indices = indices.size();
+
     //  initialize an index buffer
     D3D11_BUFFER_DESC buff_desc {};
     buff_desc.Usage          = D3D11_USAGE_DEFAULT;
-    buff_desc.ByteWidth      = indices.size() * sizeof(uint16_t);
+    buff_desc.ByteWidth      = m_number_of_indices * sizeof(uint16_t);
     buff_desc.BindFlags      = D3D11_BIND_INDEX_BUFFER;
     buff_desc.CPUAccessFlags = 0;
 
@@ -361,6 +364,7 @@ bool dx11_t::m_setup_index_buffer()
     m_result = m_device->CreateBuffer(&buff_desc, &subres_data, &m_current_index_buffer);
     if (FAILED(m_result))
         return false;
+
 
     m_device_context->IASetIndexBuffer(m_current_index_buffer, DXGI_FORMAT_R16_UINT, 0);
 
@@ -387,8 +391,8 @@ void dx11_t::m_setup_camera(const sys::window_t& in_window)
     m_world_matrix = DirectX::XMMatrixIdentity();
 
     //  initialize view matrix
-    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, -5.f, 0.f);  //  camera position in a left-handed coordinate position
-    DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);  //  a point in space the camera is looking at
+    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, -5.f, 0.f);   //  camera position in a left-handed coordinate position
+    DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);    //  a point in space the camera is looking at
     DirectX::XMVECTOR cam_up_vector = DirectX::XMVectorSet(0.f, 1.f, 0.25f, 0.f);  //  vector pointing up from camera pos
     m_view_matrix                   = DirectX::XMMatrixLookAtLH(cam_position, cam_direction, cam_up_vector);  //  set the camera
 
