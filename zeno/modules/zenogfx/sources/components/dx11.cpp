@@ -24,13 +24,7 @@ dx11_t::dx11_t(const sys::window_t& in_window)
         throw dx_exception_t("Couldn't compile Direct3D Shaders!", m_result, dx_exception_t::e_d3d11);
 
     if (!m_setup_input_layout(vs_blob))
-    {
         throw dx_exception_t("Couldn't Setup Direct3D Input Layout!", m_result, dx_exception_t::e_d3d11);
-    }
-
-    m_setup_vertex_buffer();
-    m_setup_index_buffer();
-    m_setup_constant_buffer();
 
     m_setup_camera(in_window);
 }
@@ -133,6 +127,7 @@ dx11_t::~dx11_t()
     COM_RELEASE(m_current_constant_buffer);
 
     delete m_dxgi;
+    delete m_current_mesh;
 }
 
 void dx11_t::update(const sys::window_t& in_window, const float delta_time_in_seconds)
@@ -164,9 +159,18 @@ void dx11_t::update(const sys::window_t& in_window, const float delta_time_in_se
     COM_RELEASE(old_target_view);
 
     //  draw indexed vertices
-    m_device_context->DrawIndexed(36, 0, 0);
+    m_device_context->DrawIndexed(m_number_of_indices, 0, 0);
 
     m_dxgi->get_swapchain()->Present(0, DXGI_PRESENT_ALLOW_TEARING);
+}
+
+void dx11_t::set_mesh(const mesh_t* in_mesh)
+{
+    m_current_mesh = const_cast<mesh_t*>(in_mesh);
+
+    m_setup_vertex_buffer();
+    m_setup_index_buffer();
+    m_setup_constant_buffer();
 }
 
 bool dx11_t::m_create_device()
@@ -251,8 +255,9 @@ bool dx11_t::m_setup_input_layout(ID3DBlob*& in_vs_blob)
 {
     //  the data that can be passed to vertex shader
     D3D11_INPUT_ELEMENT_DESC layout [] = {
-        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0,                            0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {   "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"POSITION", 0,    DXGI_FORMAT_R32G32B32_FLOAT, 0,                            0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {  "NORMAL", 0,    DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {   "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
 
@@ -273,17 +278,23 @@ bool dx11_t::m_setup_input_layout(ID3DBlob*& in_vs_blob)
 
 bool dx11_t::m_setup_vertex_buffer()
 {
+    m_vertices.clear();
     //  store cube vertices
-    m_vertices = {
-        {  {-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, //  0th vertex
-        {   {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, //  1st vertex
-        {  {1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, //  2nd vertex
-        { {-1.0f, 1.0f, -1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, //  3rd vertex
-        { {-1.0f, -1.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, //  4th vertex
-        {  {1.0f, -1.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, //  5th vertex
-        { {1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}, //  6th vertex
-        {{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}, //  7th vertex
-    };
+    //  m_vertices = {
+    //     {  {-1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 1.0f, 1.0f}}, //  0th vertex
+    //     {   {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}}, //  1st vertex
+    //     {  {1.0f, 1.0f, -1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}}, //  2nd vertex
+    //     { {-1.0f, 1.0f, -1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}}, //  3rd vertex
+    //     { {-1.0f, -1.0f, 1.0f}, {1.0f, 0.0f, 1.0f, 1.0f}}, //  4th vertex
+    //     {  {1.0f, -1.0f, 1.0f}, {1.0f, 1.0f, 0.0f, 1.0f}}, //  5th vertex
+    //     { {1.0f, -1.0f, -1.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}, //  6th vertex
+    //     {{-1.0f, -1.0f, -1.0f}, {0.0f, 0.0f, 0.0f, 1.0f}}, //  7th vertex
+    //  };
+
+    for (int index = 0; index < m_current_mesh->vertex_positions.size(); index++)
+    {
+        m_vertices.push_back({m_current_mesh->vertex_positions [index], m_current_mesh->vertex_normals [index], m_current_mesh->vertex_colors [index]});
+    }
 
     m_vertex_stride = sizeof(simple_vertex_t);  //  how big each complex piece of data is
     m_vertex_offset = 0;                        //  offset where the array starts
@@ -291,7 +302,7 @@ bool dx11_t::m_setup_vertex_buffer()
 
     //  creating a vertex buffer
     D3D11_BUFFER_DESC buff_desc {};
-    buff_desc.ByteWidth = sizeof(simple_vertex_t) * m_vertices.size();
+    buff_desc.ByteWidth = m_vertex_stride * m_vertices.size();
     buff_desc.Usage     = D3D11_USAGE_DEFAULT;
     buff_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
@@ -310,41 +321,50 @@ bool dx11_t::m_setup_vertex_buffer()
 
 bool dx11_t::m_setup_index_buffer()
 {
-    uint16_t indices [] {
-        //  clang-format off
-        3, 1, 0,  //  vertices
-        2, 1, 3,  //  corresponding indices
+    //  std::vector<uint16_t> indices = {
+    //      //  clang-format off
+    //      3, 1, 0,  //  vertices
+    //      2, 1, 3,  //  corresponding indices
 
-        0, 5, 4,  //  vertices
-        1, 5, 0,  //  corresponding indices
+    //  0, 5, 4,  //  vertices
+    //  1, 5, 0,  //  corresponding indices
 
-        3, 4, 7,  //  vertices
-        0, 4, 3,  //  corresponding indices
+    //  3, 4, 7,  //  vertices
+    //  0, 4, 3,  //  corresponding indices
 
-        1, 6, 5,  //  vertices
-        2, 6, 1,  //  corresponding indices
+    //  1, 6, 5,  //  vertices
+    //  2, 6, 1,  //  corresponding indices
 
-        2, 7, 6,  //  vertices
-        3, 7, 2,  //  corresponding indices
+    //  2, 7, 6,  //  vertices
+    //  3, 7, 2,  //  corresponding indices
 
-        6, 4, 5,  //  vertices
-        7, 4, 6,  //  corresponding indices
-        //  clang-format on
-    };
+    //  6, 4, 5,  //  vertices
+    //  7, 4, 6,  //  corresponding indices
+    //  //  clang-format on
+    //};
+
+    std::vector<uint16_t> indices;
+
+    for (const auto& index : m_current_mesh->vertex_indices)
+        indices.push_back(index);
+
+
+    m_number_of_indices = indices.size();
 
     //  initialize an index buffer
     D3D11_BUFFER_DESC buff_desc {};
     buff_desc.Usage          = D3D11_USAGE_DEFAULT;
-    buff_desc.ByteWidth      = sizeof(indices);
+    buff_desc.ByteWidth      = m_number_of_indices * sizeof(uint16_t);
     buff_desc.BindFlags      = D3D11_BIND_INDEX_BUFFER;
     buff_desc.CPUAccessFlags = 0;
 
     D3D11_SUBRESOURCE_DATA subres_data {};
-    subres_data.pSysMem = indices;
+    subres_data.pSysMem = indices.data();
 
     m_result = m_device->CreateBuffer(&buff_desc, &subres_data, &m_current_index_buffer);
     if (FAILED(m_result))
         return false;
+
 
     m_device_context->IASetIndexBuffer(m_current_index_buffer, DXGI_FORMAT_R16_UINT, 0);
 
@@ -371,15 +391,15 @@ void dx11_t::m_setup_camera(const sys::window_t& in_window)
     m_world_matrix = DirectX::XMMatrixIdentity();
 
     //  initialize view matrix
-    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, 5.f, 0.f);  //  camera position in a right-handed coordinate position
-    DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);  //  a point in space the camera is looking at
-    DirectX::XMVECTOR cam_up_vector = DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f);  //  vector pointing up from camera pos
-    m_view_matrix                   = DirectX::XMMatrixLookAtRH(cam_position, cam_direction, cam_up_vector);  //  set the camera
+    DirectX::XMVECTOR cam_position  = DirectX::XMVectorSet(0.f, 2.f, -5.f, 0.f);   //  camera position in a left-handed coordinate position
+    DirectX::XMVECTOR cam_direction = DirectX::XMVectorSet(0.f, 0.f, 0.f, 0.f);    //  a point in space the camera is looking at
+    DirectX::XMVECTOR cam_up_vector = DirectX::XMVectorSet(0.f, 1.f, 0.25f, 0.f);  //  vector pointing up from camera pos
+    m_view_matrix                   = DirectX::XMMatrixLookAtLH(cam_position, cam_direction, cam_up_vector);  //  set the camera
 
     sys::window_t::dimentions_t window_size  = in_window.get_dimentions();
     float                       aspect_ratio = static_cast<float>(window_size.width) / static_cast<float>(window_size.height);
     //  initialize projection matrix
-    m_projection_matrix = DirectX::XMMatrixPerspectiveFovRH(DirectX::XM_PIDIV2, aspect_ratio, 0.01f, 100.f);
+    m_projection_matrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, aspect_ratio, 0.01f, 100.f);
 }
 
 void dx11_t::m_update_rotation(const float delta_time_in_seconds)

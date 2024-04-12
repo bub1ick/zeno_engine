@@ -57,6 +57,7 @@ if(${ZENO_BUILD_SAMPLE})
     add_subdirectory(sample)
     add_dependencies(sample zeno)
     add_dependencies(sample zenosys)
+    add_dependencies(zeno zenogfx)
 endif()
 
 install(

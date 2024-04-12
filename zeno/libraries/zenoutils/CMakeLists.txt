@@ -1,19 +1,19 @@
-add_library(zenosys STATIC)
+add_library(zenoutils STATIC)
 
 target_compile_definitions(
-    zenosys
+    zenoutils
     PUBLIC
     ZENO_LIB
 )
 
 target_include_directories(
-    zenosys
+    zenoutils
     PRIVATE
-    "../"
+    "../../"
 )
 
 target_sources(
-    zenosys
+    zenoutils
     PUBLIC
-    "sources/window_handling/window.cpp"
+    "sources/string.cpp"
 )

@@ -21,7 +21,7 @@ target_compile_definitions(
 target_include_directories(
     zenogfx
     PRIVATE
-    "../"
+    "../../"
 )
 
 target_sources(

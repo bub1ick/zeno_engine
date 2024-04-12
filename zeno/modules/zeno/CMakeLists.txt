@@ -18,11 +18,12 @@ target_link_libraries(
 target_include_directories(
     zeno
     PRIVATE
-    "../"
+    "../../"
 )
 
 target_sources(
     zeno
     PUBLIC
     "source/engine.cpp"
+    "source/gltf_loader.cpp"
 )

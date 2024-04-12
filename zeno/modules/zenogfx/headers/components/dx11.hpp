@@ -7,6 +7,7 @@ namespace zeno::gfx
 struct simple_vertex_t
 {
     DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT3 normal;
     DirectX::XMFLOAT4 color;
 };
 
@@ -15,6 +16,14 @@ struct matrix_buffer_t
     DirectX::XMMATRIX world_matrix;
     DirectX::XMMATRIX view_matrix;
     DirectX::XMMATRIX projection_matrix;
+};
+
+struct mesh_t
+{
+    std::vector<DirectX::XMFLOAT3> vertex_positions;
+    std::vector<DirectX::XMFLOAT3> vertex_normals;
+    std::vector<DirectX::XMFLOAT4> vertex_colors;
+    std::vector<uint16_t>          vertex_indices;
 };
 
 class dx11_t
@@ -34,6 +43,8 @@ public:
     dxgi_t*&              get_dxgi() noexcept { return m_dxgi; }
 
     void                  update(const sys::window_t& in_window, const float delta_time_in_seconds);
+
+    void                  set_mesh(const mesh_t* in_mesh);
 
 private:
     ///  @brief holds the results of direct3d functions
@@ -67,6 +78,8 @@ private:
     ID3D11VertexShader*          m_vs = nullptr;
     ID3D11PixelShader*           m_ps = nullptr;
 
+    mesh_t*                      m_current_mesh;
+
     bool                         m_setup_vertex_buffer();
     ///  @brief describes how data is organized before being passed to vertex shader
     ID3D11InputLayout*           m_vertex_input_layout;
@@ -81,6 +94,7 @@ private:
     bool                         m_setup_index_buffer();
     ///  @brief an array of indices for each vertex
     ID3D11Buffer*                m_current_index_buffer;
+    uint64_t                     m_number_of_indices;
 
     bool                         m_setup_constant_buffer();
     ///  @brief holds matrices for rotating the cube
