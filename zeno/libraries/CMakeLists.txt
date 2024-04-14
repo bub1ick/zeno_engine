@@ -1,2 +1,0 @@
-add_subdirectory(zenosys)
-add_subdirectory(zenoutils)

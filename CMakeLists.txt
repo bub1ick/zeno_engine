@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 
 ## Project declaration
 project(
-    zeno_engine
+    dx11renderer
     VERSION 0.1.0
     DESCRIPTION "\"zeno_engine\" is a collection of tools and libraries to create interactive expreriences."
     LANGUAGES CXX
@@ -29,16 +29,10 @@ endif()
 set(BUILD_SHARED_LIBS ON)
 set(CMAKE_DEBUG_POSTFIX "_d")
 
-# We can exclude zeno sample from the build.
-option(ZENO_BUILD_SAMPLE "Whether or not build the sample project is provided." OFF)
-
-if(${WIN32})
-    add_compile_definitions("ZENO_WINDOWS")
-elseif(${UNIX} AND NOT ${APPLE})
-    add_compile_definitions("ZENO_LINUX")
-elseif(${APPLE})
-    message(FATAL_ERROR "Currently support only for Windows and Linux is planned.")
+if(NOT ${WIN32})
+    message(FATAL_ERROR "Currently support only for Windows is planned.")
 endif()
+add_compile_definitions("ZENO_WINDOWS")
 
 set(ZENO_THIRD_PARTY_LIB_PATH "${CMAKE_HOME_DIRECTORY}/third_party/lib")
 set(ZENO_THIRD_PARTY_INCLUDE_PATH "${CMAKE_HOME_DIRECTORY}/third_party/include")
@@ -49,51 +43,88 @@ include_directories(AFTER ${ZENO_THIRD_PARTY_INCLUDE_PATH})
 
 ## Add directories:
 
-# Build script for the zeno engine.
-add_subdirectory(zeno)
+# Declare renderer executable utilizing the zeno engine.
+add_executable(application WIN32)
 
-# At last build the sample to test the engine.
-if(${ZENO_BUILD_SAMPLE})
-    add_subdirectory(sample)
-    add_dependencies(sample zeno)
-    add_dependencies(sample zenosys)
-    add_dependencies(zeno zenogfx)
-endif()
-
-install(
-    TARGETS zeno zenogfx zenosys zenoutils 
-    CONFIGURATIONS Release
-    ARCHIVE
-    DESTINATION "${CMAKE_HOME_DIRECTORY}/lib"
-)
-install(
-    TARGETS zeno zenogfx zenosys zenoutils 
-    CONFIGURATIONS Debug
-    ARCHIVE
-    DESTINATION "${CMAKE_HOME_DIRECTORY}/lib"
-)
-install(
-    TARGETS zeno zenogfx
-    CONFIGURATIONS Debug
-    RUNTIME
-    DESTINATION "${CMAKE_HOME_DIRECTORY}/bin"
-)
-install(
-    TARGETS zeno zenogfx
-    CONFIGURATIONS Release
-    RUNTIME
-    DESTINATION "${CMAKE_HOME_DIRECTORY}/bin"
+target_link_libraries(
+    application
+    PUBLIC
+    "DXGI.lib"
+    "D3D11.lib"
+    "D3DCompiler.lib"
 )
 
-install(
-    TARGETS sample
-    CONFIGURATIONS Release
-    RUNTIME
-    DESTINATION "${CMAKE_HOME_DIRECTORY}/bin"
+# Add .cpp files for the executable
+target_sources(
+    application
+    PRIVATE
+    "sources/window.hpp"
+    "sources/window.cpp"
+    "sources/renderer.hpp"
+    "sources/renderer.cpp"
+    "sources/dxgi.hpp"
+    "sources/dxgi.cpp"
+    "sources/dx11.hpp"
+    "sources/dx11.cpp"
+    "sources/exceptions.hpp"
+    "sources/exceptions.cpp"
+    "sources/engine.hpp"
+    "sources/engine.cpp"
+    "sources/gltf_loader.hpp"
+    "sources/gltf_loader.cpp"
+    "sources/zeno.hpp"
+    "sources/zeno_defines.hpp"
+    "sources/main.cpp"
+    "../resources/application.manifest"
 )
-install(
-    TARGETS sample
-    CONFIGURATIONS Debug
-    RUNTIME
-    DESTINATION "${CMAKE_HOME_DIRECTORY}/bin"
-)
+
+
+## Build script for the zeno engine.
+#add_subdirectory(zeno)
+#
+## At last build the sample to test the engine.
+#if(${ZENO_BUILD_SAMPLE})
+#    add_subdirectory(sample)
+#    add_dependencies(sample zeno)
+#    add_dependencies(sample zenolib)
+#    add_dependencies(zeno zenogfx)
+#endif()
+#
+#install(
+#    TARGETS zeno zenogfx zenolib
+#    CONFIGURATIONS Release
+#    ARCHIVE
+#    DESTINATION "${CMAKE_HOME_DIRECTORY}/lib"
+#)
+#install(
+#    TARGETS zeno zenogfx zenolib
+#    CONFIGURATIONS Debug
+#    ARCHIVE
+#    DESTINATION "${CMAKE_HOME_DIRECTORY}/lib"
+#)
+#install(
+#    TARGETS zeno zenogfx
+#    CONFIGURATIONS Debug
+#    RUNTIME
+#    DESTINATION "${CMAKE_HOME_DIRECTORY}/bin"
+#)
+#install(
+#    TARGETS zeno zenogfx
+#    CONFIGURATIONS Release
+#    RUNTIME
+#    DESTINATION "${CMAKE_HOME_DIRECTORY}/bin"
+#)
+#
+#install(
+#    TARGETS sample
+#    CONFIGURATIONS Release
+#    RUNTIME
+#    DESTINATION "${CMAKE_HOME_DIRECTORY}/bin"
+#)
+#install(
+#    TARGETS sample
+#    CONFIGURATIONS Debug
+#    RUNTIME
+#    DESTINATION "${CMAKE_HOME_DIRECTORY}/bin"
+#)
+
